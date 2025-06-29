@@ -1,6 +1,12 @@
 import { Link } from "react-router-dom";
-import { ReactComponent as logo } from "@/assets/logo.svg";
+import LogoIcon from "@/assets/logo.svg?react";
 
 export function Logo() {
-  return <Link to="/"></Link>;
+  return (
+    <Link to="/" className="flex items-center gap-2 font-medium">
+      <LogoIcon />
+
+      <p>ActiveHive</p>
+    </Link>
+  );
 }

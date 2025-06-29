@@ -2,13 +2,13 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Logo } from "../assets/logo";
 import { motion, AnimatePresence } from "framer-motion";
 
-import img1 from "@/assets/gym-assets/gym-1.jpg";
-import img2 from "@/assets/gym-assets/gym-2.jpg";
-import img3 from "@/assets/gym-assets/gym-3.jpg";
-import img4 from "@/assets/gym-assets/gym-4.jpg";
-import img5 from "@/assets/gym-assets/gym-5.jpg";
-import img6 from "@/assets/gym-assets/gym-6.jpg";
-import img7 from "@/assets/gym-assets/gym-7.jpg";
+import img1 from "@/assets/gym-assets/gym-1-min.jpg";
+import img2 from "@/assets/gym-assets/gym-2-min.jpg";
+import img3 from "@/assets/gym-assets/gym-3-min.jpg";
+import img4 from "@/assets/gym-assets/gym-4-min.jpg";
+import img5 from "@/assets/gym-assets/gym-5-min.jpg";
+import img6 from "@/assets/gym-assets/gym-6-min.jpg";
+import img7 from "@/assets/gym-assets/gym-7-min.jpg";
 
 const gymImages = [img1, img2, img3, img4, img5, img6, img7];
 

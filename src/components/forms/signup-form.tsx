@@ -3,12 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
+import { useToast } from "../hooks/use-toast";
 
 export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
   const navigate = useNavigate();
+  const { showSuccess } = useToast();
 
   return (
     <form className={cn("flex flex-col gap-6", className)} {...props}>
@@ -35,6 +37,7 @@ export function SignupForm({
           className="w-full hover:scale-105"
           size={"lg"}
           onClick={() => {
+            showSuccess("Success", "We've sent a code to your email");
             navigate("/otp");
           }}
         >

@@ -8,9 +8,11 @@ import {
   InputOTPSlot,
 } from "../ui/input-otp";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../hooks/use-toast";
 
 export function OtpForm({ className, ...props }: React.ComponentProps<"form">) {
   const navigate = useNavigate();
+  const { showSuccess } = useToast();
 
   return (
     <form className={cn("flex flex-col gap-6", className)} {...props}>
@@ -51,17 +53,30 @@ export function OtpForm({ className, ...props }: React.ComponentProps<"form">) {
           className="w-full hover:scale-105"
           size={"lg"}
           onClick={() => {
+            showSuccess(
+              "Success",
+              "We've verified your email. Now complete your profile"
+            );
             navigate("/complete-setup");
           }}
         >
           Verify email
         </Button>
 
-        <button className="flex justify-end -mt-3 cursor-pointer">
-          <p className="ml-auto text-sm underline-offset-4 hover:underline">
+        <div className="flex justify-between -mt-3 cursor-pointer">
+          <button
+            className="text-sm underline-offset-4 hover:underline text-left w-max"
+            onClick={() => {
+              navigate("/signup");
+            }}
+          >
+            Go back
+          </button>
+
+          <button className="ml-auto text-sm underline-offset-4 hover:underline">
             Resend OTP
-          </p>
-        </button>
+          </button>
+        </div>
       </div>
     </form>
   );

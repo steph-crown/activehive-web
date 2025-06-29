@@ -51,7 +51,7 @@ export function OtpForm({ className, ...props }: React.ComponentProps<"form">) {
           className="w-full hover:scale-105"
           size={"lg"}
           onClick={() => {
-            navigate("/dashboard");
+            navigate("/complete-setup");
           }}
         >
           Verify email

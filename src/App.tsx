@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import "./App.css";
+import { BlockLoader } from "./components/loader/block-loader";
 
 const SignUp = lazy(() => import("./pages/SignUp"));
 const Otp = lazy(() => import("./pages/Otp"));
@@ -17,7 +18,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 function App() {
   return (
     <Router>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<BlockLoader />}>
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/signup" element={<SignUp />} />

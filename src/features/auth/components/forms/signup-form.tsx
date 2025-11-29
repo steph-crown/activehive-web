@@ -64,12 +64,11 @@ export function SignupForm({
         confirmPassword,
       });
       setSession({ sessionId: response.sessionId, email });
-      setStepStatus(2, "pending");
       showSuccess(
         "Step 1 complete",
-        "Account created. Check your email to verify before continuing."
+        "Check your email for the 6-digit verification code."
       );
-      navigate("/gym-branding");
+      navigate("/otp");
       form.reset();
     } catch (error) {
       const message =

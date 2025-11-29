@@ -12,6 +12,7 @@ import type {
   StepOnePayload,
   StepOneResponse,
   VerifyEmailPayload,
+  VerifyEmailResponse,
 } from "../types";
 
 const basePath = "/api/gym-owner-registration";
@@ -21,7 +22,7 @@ export const gymOwnerRegistrationApi = {
     apiClient.post<StepOneResponse>(`${basePath}/step-1`, payload),
 
   verifyEmail: (payload: VerifyEmailPayload) =>
-    apiClient.post<GenericMessageResponse>(`${basePath}/verify-email`, payload),
+    apiClient.post<VerifyEmailResponse>(`${basePath}/verify-email`, payload),
 
   resendVerification: (payload: ResendVerificationPayload) =>
     apiClient.post<GenericMessageResponse>(

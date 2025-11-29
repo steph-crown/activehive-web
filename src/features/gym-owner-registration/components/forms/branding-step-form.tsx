@@ -49,12 +49,17 @@ export function BrandingStepForm({
       });
       setStepStatus(2, "completed");
       showSuccess("Branding saved", "Let's upload your documents next.");
-      event.currentTarget.reset();
+
+      // Reset form state
       setPrimaryColor("#FF5733");
       setSecondaryColor("#1B1C1D");
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
+      if (event.currentTarget) {
+        event.currentTarget.reset();
+      }
+
       navigate("/compliance-documents");
     } catch (error) {
       const message =
@@ -83,9 +88,7 @@ export function BrandingStepForm({
       </div>
       <div className="grid gap-6">
         <div className="grid gap-3">
-          <Label htmlFor="primaryColor">
-            Primary color
-          </Label>
+          <Label htmlFor="primaryColor">Primary color</Label>
           <div className="relative">
             <Input
               ref={primaryColorRef}

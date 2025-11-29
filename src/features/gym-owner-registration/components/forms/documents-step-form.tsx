@@ -54,11 +54,13 @@ export function DocumentsStepForm({
         additionalDocuments,
       });
       setStepStatus(3, "completed");
-      showSuccess("Documents uploaded", "Next, let’s add your locations.");
-      event.currentTarget.reset();
+      showSuccess("Documents uploaded", "Next, let's add your locations.");
       Object.values(fileRefs.current).forEach((input) => {
         if (input) input.value = "";
       });
+      if (event.currentTarget) {
+        event.currentTarget.reset();
+      }
       navigate("/gym-locations");
     } catch (error) {
       const message =

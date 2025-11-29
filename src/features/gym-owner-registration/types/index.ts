@@ -14,7 +14,14 @@ export type StepOneResponse = {
 };
 
 export type VerifyEmailPayload = {
-  token: string;
+  email: string;
+  otp: string;
+};
+
+export type VerifyEmailResponse = {
+  message: string;
+  sessionId: string;
+  verified: boolean;
 };
 
 export type ResendVerificationPayload = {

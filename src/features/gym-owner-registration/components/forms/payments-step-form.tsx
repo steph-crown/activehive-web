@@ -59,6 +59,16 @@ export function PaymentsStepForm({
     field: keyof PaymentFormState,
     value: string
   ) => {
+    // Restrict routing number to digits only and max 9 digits
+    if (field === "routingNumber") {
+      const digitsOnly = value.replace(/\D/g, "");
+      if (digitsOnly.length <= 9) {
+        value = digitsOnly;
+      } else {
+        return; // Don't update if exceeds 9 digits
+      }
+    }
+
     setAccounts((prev) =>
       prev.map((account, idx) =>
         idx === index ? { ...account, [field]: value } : account
@@ -86,6 +96,18 @@ export function PaymentsStepForm({
       )
     ) {
       showError("Error", "Please complete every field for each account.");
+      return;
+    }
+
+    // Validate routing numbers are exactly 9 digits
+    const invalidRoutingNumbers = accounts.filter(
+      (account) => account.routingNumber.length !== 9
+    );
+    if (invalidRoutingNumbers.length > 0) {
+      showError(
+        "Error",
+        "Routing number must be exactly 9 digits."
+      );
       return;
     }
 
@@ -210,8 +232,13 @@ export function PaymentsStepForm({
                       event.target.value
                     )
                   }
+                  placeholder="123456789"
+                  maxLength={9}
                   required
                 />
+                <p className="text-muted-foreground text-xs">
+                  Must be exactly 9 digits
+                </p>
               </div>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">

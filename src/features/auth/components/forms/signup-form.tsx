@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,30 +17,10 @@ import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from "lucide-react";
 import { useOwnerStepOneMutation } from "@/features/gym-owner-registration/services";
 import { useGymOwnerRegistrationStore } from "@/store";
-
-const signupSchema = yup.object({
-  gymName: yup.string().required("Gym name is required"),
-  firstName: yup.string().required("First name is required"),
-  lastName: yup.string().required("Last name is required"),
-  email: yup
-    .string()
-    .email("Please enter a valid email address")
-    .required("Email is required"),
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(8, "Password must be at least 8 characters")
-    .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      "Password must contain at least one uppercase letter, one lowercase letter, and one number"
-    ),
-  confirmPassword: yup
-    .string()
-    .required("Please confirm your password")
-    .oneOf([yup.ref("password")], "Passwords do not match"),
-});
-
-type SignupFormValues = yup.InferType<typeof signupSchema>;
+import {
+  signupSchema,
+  type SignupFormValues,
+} from "@/features/gym-owner-registration/schema";
 
 export function SignupForm({
   className,
@@ -76,7 +55,11 @@ export function SignupForm({
         password: data.password,
         confirmPassword: data.confirmPassword,
       });
-      setSession({ sessionId: response.sessionId, email: data.email });
+      setSession({
+        sessionId: response.sessionId,
+        email: data.email,
+        password: data.password,
+      });
       showSuccess(
         "Step 1 complete",
         "Check your email for the 6-digit verification code."
@@ -182,7 +165,9 @@ export function SignupForm({
                       type="button"
                       onClick={() => setShowPassword((prev) => !prev)}
                       className="text-muted-foreground absolute inset-y-0 right-0 flex items-center pr-3 transition-colors hover:text-foreground"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
                     >
                       {showPassword ? (
                         <EyeOff className="size-4" />
@@ -213,9 +198,7 @@ export function SignupForm({
                     />
                     <button
                       type="button"
-                      onClick={() =>
-                        setShowConfirmPassword((prev) => !prev)
-                      }
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
                       className="text-muted-foreground absolute inset-y-0 right-0 flex items-center pr-3 transition-colors hover:text-foreground"
                       aria-label={
                         showConfirmPassword ? "Hide password" : "Show password"

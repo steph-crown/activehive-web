@@ -14,8 +14,9 @@ const createDefaultStatuses = (): Record<number, RegistrationStepStatus> => ({
 type GymOwnerRegistrationStore = {
   sessionId: string | null;
   email: string | null;
+  password: string | null;
   stepStatuses: Record<number, RegistrationStepStatus>;
-  setSession: (payload: { sessionId: string; email: string }) => void;
+  setSession: (payload: { sessionId: string; email: string; password: string }) => void;
   setStepStatus: (
     step: number,
     status: RegistrationStepStatus
@@ -27,11 +28,13 @@ export const useGymOwnerRegistrationStore =
   create<GymOwnerRegistrationStore>((set) => ({
     sessionId: null,
     email: null,
+    password: null,
     stepStatuses: createDefaultStatuses(),
-    setSession: ({ sessionId, email }) =>
+    setSession: ({ sessionId, email, password }) =>
       set({
         sessionId,
         email,
+        password,
         stepStatuses: { ...createDefaultStatuses(), 1: "completed" },
       }),
     setStepStatus: (step, status) =>
@@ -45,6 +48,7 @@ export const useGymOwnerRegistrationStore =
       set({
         sessionId: null,
         email: null,
+        password: null,
         stepStatuses: createDefaultStatuses(),
       }),
   }));

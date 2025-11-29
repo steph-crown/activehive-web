@@ -6,7 +6,6 @@ import type {
   DocumentsPayload,
   GenericMessageResponse,
   LocationsPayload,
-  PaymentAccountsPayload,
   ResendVerificationPayload,
   SessionStatusResponse,
   StepOnePayload,
@@ -87,9 +86,6 @@ export const gymOwnerRegistrationApi = {
 
   stepFour: (payload: LocationsPayload) =>
     apiClient.post<GenericMessageResponse>(`${basePath}/step-4`, payload),
-
-  stepFive: (payload: PaymentAccountsPayload) =>
-    apiClient.post<GenericMessageResponse>(`${basePath}/step-5`, payload),
 
   stepSix: (payload: CompleteRegistrationPayload) =>
     apiClient.post<GenericMessageResponse>(`${basePath}/step-6`, payload),

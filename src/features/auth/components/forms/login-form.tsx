@@ -34,8 +34,10 @@ const resolveSession = (response: AuthResponse) => {
   const token =
     response.token ??
     response.access_token ??
+    response.accessToken ??
     response.data?.token ??
-    response.data?.access_token;
+    response.data?.access_token ??
+    response.data?.accessToken;
 
   const user = response.user ?? response.data?.user;
 
@@ -68,6 +70,16 @@ export function LoginForm({
     try {
       const response = await login(data);
       const session = resolveSession(response);
+
+      // Check if user status is pending
+      if (session.user.status === "pending") {
+        setSession(session);
+        showSuccess("Login successful", "Your account is pending approval.");
+        navigate("/pending-approval");
+        form.reset();
+        return;
+      }
+
       setSession(session);
       showSuccess("Success", "Login successful");
       navigate("/dashboard");

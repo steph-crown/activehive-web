@@ -19,10 +19,12 @@ export type OtpPayload = {
 export type AuthResponse = {
   token?: string;
   access_token?: string;
+  accessToken?: string;
   user?: AuthUser;
   data?: {
     token?: string;
     access_token?: string;
+    accessToken?: string;
     user?: AuthUser;
   };
   message?: string;

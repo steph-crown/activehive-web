@@ -5,7 +5,6 @@ import type {
   CompleteRegistrationPayload,
   DocumentsPayload,
   LocationsPayload,
-  PaymentAccountsPayload,
   StepOnePayload,
   VerifyEmailPayload,
   ResendVerificationPayload,
@@ -45,12 +44,6 @@ export const useLocationsStepMutation = () =>
   useMutation({
     mutationFn: (payload: LocationsPayload) =>
       gymOwnerRegistrationApi.stepFour(payload),
-  });
-
-export const usePaymentAccountsStepMutation = () =>
-  useMutation({
-    mutationFn: (payload: PaymentAccountsPayload) =>
-      gymOwnerRegistrationApi.stepFive(payload),
   });
 
 export const useCompleteRegistrationMutation = () =>

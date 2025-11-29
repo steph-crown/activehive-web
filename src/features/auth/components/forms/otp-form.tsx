@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
@@ -25,16 +24,10 @@ import {
 } from "@/features/gym-owner-registration/services";
 import { useGymOwnerRegistrationStore } from "@/store";
 import { MissingSessionCard } from "@/features/gym-owner-registration/components/missing-session-card";
-
-const otpSchema = yup.object({
-  otp: yup
-    .string()
-    .required("OTP is required")
-    .length(6, "OTP must be exactly 6 digits")
-    .matches(/^\d+$/, "OTP must contain only digits"),
-});
-
-type OtpFormValues = yup.InferType<typeof otpSchema>;
+import {
+  otpSchema,
+  type OtpFormValues,
+} from "@/features/gym-owner-registration/schema";
 
 export function OtpForm({ className, ...props }: React.ComponentProps<"form">) {
   const navigate = useNavigate();

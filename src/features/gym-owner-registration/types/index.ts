@@ -51,6 +51,14 @@ export type DocumentsPayload = {
   additionalDocuments?: File[];
 };
 
+export type PaymentAccountDetails = {
+  accountName: string;
+  accountNumber: string;
+  routingNumber: string;
+  bankName: string;
+  accountType: "checking" | "savings";
+};
+
 export type LocationPayload = {
   locationName: string;
   address: string;
@@ -60,30 +68,14 @@ export type LocationPayload = {
   country: string;
   phone: string;
   email: string;
+  isHeadquarters: boolean;
+  paymentAccount: PaymentAccountDetails;
 };
 
 export type LocationsPayload = {
   sessionId: string;
   hasMultipleLocations: boolean;
   locations: LocationPayload[];
-};
-
-export type PaymentAccountDetails = {
-  accountName: string;
-  accountNumber: string;
-  routingNumber: string;
-  bankName: string;
-  accountType: "checking" | "savings";
-};
-
-export type PaymentAccountPayload = {
-  locationIdentifier: string;
-  paymentAccount: PaymentAccountDetails;
-};
-
-export type PaymentAccountsPayload = {
-  sessionId: string;
-  paymentAccounts: PaymentAccountPayload[];
 };
 
 export type CompleteRegistrationPayload = {

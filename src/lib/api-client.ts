@@ -8,7 +8,7 @@ const axiosInstance = axios.create({
   baseURL:
     import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ??
     "https://activehiveapi.onrender.com",
-  timeout: 15000,
+  timeout: 40000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -38,12 +38,14 @@ const handleApiErrorResponse = (error: AxiosError) => {
 };
 
 export const apiClient = {
-  get: <T>(url: string, config = {}): Promise<T> => axiosInstance.get(url, config),
+  get: <T>(url: string, config = {}): Promise<T> =>
+    axiosInstance.get(url, config),
   post: <T>(url: string, data = {}, config = {}): Promise<T> =>
     axiosInstance.post(url, data, config),
   put: <T>(url: string, data = {}, config = {}): Promise<T> =>
     axiosInstance.put(url, data, config),
   patch: <T>(url: string, data = {}, config = {}): Promise<T> =>
     axiosInstance.patch(url, data, config),
-  delete: <T>(url: string, config = {}): Promise<T> => axiosInstance.delete(url, config),
+  delete: <T>(url: string, config = {}): Promise<T> =>
+    axiosInstance.delete(url, config),
 };

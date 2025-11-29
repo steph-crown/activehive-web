@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 export type RegistrationStepStatus = "pending" | "completed" | "skipped";
 
-const createDefaultStatuses = () => ({
+const createDefaultStatuses = (): Record<number, RegistrationStepStatus> => ({
   1: "pending",
   2: "pending",
   3: "pending",

@@ -17,9 +17,6 @@ export function SignupForm({
   const { showSuccess, showError } = useToast();
   const { mutateAsync: register, isPending } = useOwnerStepOneMutation();
   const setSession = useGymOwnerRegistrationStore((state) => state.setSession);
-  const setStepStatus = useGymOwnerRegistrationStore(
-    (state) => state.setStepStatus
-  );
   const [formError, setFormError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 

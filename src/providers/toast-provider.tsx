@@ -1,17 +1,7 @@
 "use client";
 
 import { type ReactNode, useCallback, useState } from "react";
-import { ToastContext } from "./toast-context";
-
-export type ToastType = "success" | "error" | "info";
-
-export interface Toast {
-  id: string;
-  type: ToastType;
-  title: string;
-  message: string;
-  duration?: number;
-}
+import { ToastContext, type Toast } from "./toast-context";
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);

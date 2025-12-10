@@ -7,9 +7,9 @@ import {
   IconFileAi,
   IconFileDescription,
   IconFileWord,
-  IconFolder,
   IconHelp,
   IconMapPin,
+  IconReceipt,
   IconReport,
   IconSearch,
   IconSettings,
@@ -57,14 +57,19 @@ const navMain = [
     icon: IconCreditCard,
   },
   {
-    title: "Team",
-    url: "#",
-    icon: IconFolder,
-  },
-  {
     title: "Locations",
     url: "/dashboard/locations",
     icon: IconMapPin,
+  },
+  {
+    title: "Staff",
+    url: "/dashboard/staff",
+    icon: IconUsers,
+  },
+  {
+    title: "Subscriptions",
+    url: "/dashboard/subscriptions",
+    icon: IconReceipt,
   },
 ];
 

@@ -7,6 +7,8 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === "/dashboard/members") return "Members";
   if (pathname === "/dashboard/membership-plans") return "Membership Plans";
   if (pathname === "/dashboard/locations") return "Locations";
+  if (pathname === "/dashboard/staff") return "Staff";
+  if (pathname === "/dashboard/subscriptions") return "Subscriptions";
   return "Dashboard";
 };
 

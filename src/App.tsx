@@ -25,6 +25,8 @@ const MembershipPlans = lazy(
   () => import("@/app/dashboard/membership-plans/page")
 );
 const Locations = lazy(() => import("@/app/dashboard/locations/page"));
+const Staff = lazy(() => import("@/app/dashboard/staff/page"));
+const Subscriptions = lazy(() => import("@/app/dashboard/subscriptions/page"));
 
 function App() {
   return (
@@ -48,6 +50,8 @@ function App() {
             element={<MembershipPlans />}
           />
           <Route path="/dashboard/locations" element={<Locations />} />
+          <Route path="/dashboard/staff" element={<Staff />} />
+          <Route path="/dashboard/subscriptions" element={<Subscriptions />} />
         </Routes>
       </Suspense>
     </Router>

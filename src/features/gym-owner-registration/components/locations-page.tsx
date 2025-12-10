@@ -1,4 +1,4 @@
-import AuthLayout from "@/components/layouts/auth-layout";
+import AuthLayout from "@/components/layout/auth-layout";
 import { LocationsStepForm } from "./forms/locations-step-form";
 
 export function LocationsPage() {

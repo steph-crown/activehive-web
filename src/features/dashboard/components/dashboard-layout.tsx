@@ -1,6 +1,6 @@
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "./app-sidebar";
-import { SiteHeader } from "./site-header";
+import { SiteHeader } from "@/components/layout";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;

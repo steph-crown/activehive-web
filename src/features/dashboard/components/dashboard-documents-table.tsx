@@ -50,7 +50,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { useSortable } from "@dnd-kit/sortable";
-import { DataTable, schema } from "./data-table";
+import { DataTable, schema } from "@/components/molecules/data-table";
 
 // Create a separate component for the drag handle
 function DragHandle({ id }: { id: number | string }) {

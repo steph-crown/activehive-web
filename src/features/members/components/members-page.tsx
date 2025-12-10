@@ -1,4 +1,4 @@
-import { DashboardLayout } from "./dashboard-layout";
+import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 
 export function MembersPage() {
   return (

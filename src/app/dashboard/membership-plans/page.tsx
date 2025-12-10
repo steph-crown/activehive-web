@@ -1,4 +1,4 @@
-import { MembershipPlansPage } from "@/features/dashboard/components/membership-plans-page";
+import { MembershipPlansPage } from "@/features/membership-plans/components";
 
 export default function Page() {
   return <MembershipPlansPage />;

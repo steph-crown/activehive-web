@@ -1,4 +1,4 @@
-import AuthLayout from "@/components/layouts/auth-layout";
+import AuthLayout from "@/components/layout/auth-layout";
 import { BrandingStepForm } from "./forms/branding-step-form";
 
 export function BrandingPage() {

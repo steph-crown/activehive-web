@@ -1,4 +1,4 @@
-import { MembersPage } from "@/features/dashboard/components/members-page";
+import { MembersPage } from "@/features/members/components";
 
 export default function Page() {
   return <MembersPage />;

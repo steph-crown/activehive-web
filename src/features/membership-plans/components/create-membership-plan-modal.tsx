@@ -30,7 +30,8 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { useCreateMembershipPlanMutation, useLocationsQuery } from "../services";
+import { useCreateMembershipPlanMutation } from "../services";
+import { useLocationsQuery } from "@/features/locations/services";
 import type { CreateMembershipPlanPayload } from "../types";
 
 const createMembershipPlanSchema = yup.object({

@@ -9,6 +9,7 @@ import {
   IconFileWord,
   IconFolder,
   IconHelp,
+  IconMapPin,
   IconReport,
   IconSearch,
   IconSettings,
@@ -16,10 +17,12 @@ import {
 } from "@tabler/icons-react";
 import * as React from "react";
 
-import { NavDocuments } from "./nav-documents";
-import { NavMain } from "./nav-main";
-import { NavSecondary } from "./nav-secondary";
-import { NavUser } from "./nav-user";
+import {
+  NavDocuments,
+  NavMain,
+  NavSecondary,
+  NavUser,
+} from "@/components/layout";
 import {
   Sidebar,
   SidebarContent,
@@ -57,6 +60,11 @@ const navMain = [
     title: "Team",
     url: "#",
     icon: IconFolder,
+  },
+  {
+    title: "Locations",
+    url: "/dashboard/locations",
+    icon: IconMapPin,
   },
 ];
 

@@ -3,7 +3,7 @@ import { DashboardLayout } from "./dashboard-layout";
 import { WelcomeMessage } from "./welcome-message";
 import { SectionCards } from "./section-cards";
 import { ChartAreaInteractive } from "./chart-area-interactive";
-import { DataTable } from "./data-table";
+import { DashboardDocumentsTable } from "./dashboard-documents-table";
 import { useDashboardDocumentsQuery } from "../services";
 
 export function DashboardPage() {
@@ -22,7 +22,7 @@ export function DashboardPage() {
             <BlockLoader />
           </div>
         ) : (
-          <DataTable data={data} />
+          <DashboardDocumentsTable data={data} />
         )}
       </div>
     </DashboardLayout>

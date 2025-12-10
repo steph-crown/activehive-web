@@ -9,3 +9,4 @@ export type DashboardDocument = {
 };
 
 export * from "./profile";
+export * from "./membership-plan";

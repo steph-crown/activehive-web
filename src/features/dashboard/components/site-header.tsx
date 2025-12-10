@@ -5,6 +5,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 const getPageTitle = (pathname: string): string => {
   if (pathname === "/dashboard") return "Dashboard";
   if (pathname === "/dashboard/members") return "Members";
+  if (pathname === "/dashboard/membership-plans") return "Membership Plans";
   return "Dashboard";
 };
 

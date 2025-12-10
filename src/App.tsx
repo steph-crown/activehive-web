@@ -19,6 +19,7 @@ const CompleteSetup = lazy(() => import("@/app/(auth)/complete-setup/page"));
 const PendingApproval = lazy(() => import("@/app/(auth)/pending-approval/page"));
 const Dashboard = lazy(() => import("@/app/dashboard/page"));
 const Members = lazy(() => import("@/app/dashboard/members/page"));
+const MembershipPlans = lazy(() => import("@/app/dashboard/membership-plans/page"));
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
           <Route path="/gym-locations" element={<Locations />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/members" element={<Members />} />
+          <Route path="/dashboard/membership-plans" element={<MembershipPlans />} />
         </Routes>
       </Suspense>
     </Router>

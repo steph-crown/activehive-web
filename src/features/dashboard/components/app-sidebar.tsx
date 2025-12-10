@@ -1,6 +1,7 @@
 import {
   IconCamera,
   IconChartBar,
+  IconCreditCard,
   IconDashboard,
   IconDatabase,
   IconFileAi,
@@ -8,7 +9,6 @@ import {
   IconFileWord,
   IconFolder,
   IconHelp,
-  IconListDetails,
   IconReport,
   IconSearch,
   IconSettings,
@@ -41,7 +41,7 @@ const navMain = [
   {
     title: "Members",
     url: "/dashboard/members",
-    icon: IconListDetails,
+    icon: IconUsers,
   },
   {
     title: "Analytics",
@@ -49,14 +49,14 @@ const navMain = [
     icon: IconChartBar,
   },
   {
-    title: "Projects",
-    url: "#",
-    icon: IconFolder,
+    title: "Membership Plans",
+    url: "/dashboard/membership-plans",
+    icon: IconCreditCard,
   },
   {
     title: "Team",
     url: "#",
-    icon: IconUsers,
+    icon: IconFolder,
   },
 ];
 

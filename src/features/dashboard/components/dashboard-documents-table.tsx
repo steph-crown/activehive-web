@@ -1,5 +1,3 @@
-import * as React from "react";
-import { type ColumnDef } from "@tanstack/react-table";
 import {
   IconCircleCheckFilled,
   IconDotsVertical,
@@ -8,11 +6,12 @@ import {
   IconPlus,
   IconTrendingUp,
 } from "@tabler/icons-react";
+import { type ColumnDef } from "@tanstack/react-table";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { useIsMobile } from "@/hooks/use-mobile";
+import { DataTable, schema } from "@/components/molecules/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -49,8 +48,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useSortable } from "@dnd-kit/sortable";
-import { DataTable, schema } from "@/components/molecules/data-table";
 
 // Create a separate component for the drag handle
 function DragHandle({ id }: { id: number | string }) {

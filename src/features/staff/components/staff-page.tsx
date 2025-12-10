@@ -1,11 +1,11 @@
-import * as React from "react";
-import { IconPlus } from "@tabler/icons-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { BlockLoader } from "@/components/loader/block-loader";
 import { DataTable } from "@/components/molecules/data-table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
+import { IconPlus } from "@tabler/icons-react";
 import { type ColumnDef } from "@tanstack/react-table";
+import * as React from "react";
 import { useStaffQuery } from "../services";
 import type { Staff } from "../types";
 import { CreateStaffModal } from "./create-staff-modal";
@@ -55,7 +55,9 @@ const staffColumns: ColumnDef<Staff>[] = [
     cell: ({ row }) => {
       const locations = row.original.locations;
       if (!locations || locations.length === 0) {
-        return <div className="text-sm text-muted-foreground">No locations</div>;
+        return (
+          <div className="text-sm text-muted-foreground">No locations</div>
+        );
       }
       return (
         <div className="flex flex-wrap gap-1">
@@ -104,10 +106,6 @@ const staffColumns: ColumnDef<Staff>[] = [
 export function StaffPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const { data: staff, isLoading, refetch } = useStaffQuery();
-
-  const handleModalClose = () => {
-    setIsCreateModalOpen(false);
-  };
 
   const handleModalSuccess = () => {
     refetch();

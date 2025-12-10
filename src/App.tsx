@@ -18,6 +18,7 @@ const Locations = lazy(() => import("@/app/(auth)/gym-locations/page"));
 const CompleteSetup = lazy(() => import("@/app/(auth)/complete-setup/page"));
 const PendingApproval = lazy(() => import("@/app/(auth)/pending-approval/page"));
 const Dashboard = lazy(() => import("@/app/dashboard/page"));
+const Members = lazy(() => import("@/app/dashboard/members/page"));
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
           <Route path="/compliance-documents" element={<Documents />} />
           <Route path="/gym-locations" element={<Locations />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/members" element={<Members />} />
         </Routes>
       </Suspense>
     </Router>

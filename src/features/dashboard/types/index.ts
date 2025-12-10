@@ -7,3 +7,5 @@ export type DashboardDocument = {
   limit: string;
   reviewer: string;
 };
+
+export * from "./profile";

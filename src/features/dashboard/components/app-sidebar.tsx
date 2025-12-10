@@ -30,40 +30,37 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Logo } from "@/components/icons/logo";
+import { useProfileQuery } from "../services";
+
+const navMain = [
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: IconDashboard,
+  },
+  {
+    title: "Members",
+    url: "/dashboard/members",
+    icon: IconListDetails,
+  },
+  {
+    title: "Analytics",
+    url: "#",
+    icon: IconChartBar,
+  },
+  {
+    title: "Projects",
+    url: "#",
+    icon: IconFolder,
+  },
+  {
+    title: "Team",
+    url: "#",
+    icon: IconUsers,
+  },
+];
 
 const data = {
-  user: {
-    name: "Steph Crown",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: IconDashboard,
-    },
-    {
-      title: "Users",
-      url: "#",
-      icon: IconListDetails,
-    },
-    {
-      title: "Analytics",
-      url: "#",
-      icon: IconChartBar,
-    },
-    {
-      title: "Projects",
-      url: "#",
-      icon: IconFolder,
-    },
-    {
-      title: "Team",
-      url: "#",
-      icon: IconUsers,
-    },
-  ],
   navClouds: [
     {
       title: "Capture",
@@ -149,6 +146,25 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: profile, isLoading } = useProfileQuery();
+
+  const user = React.useMemo(() => {
+    if (!profile) {
+      return {
+        name: "User",
+        email: "",
+        avatar: "",
+      };
+    }
+
+    const fullName = `${profile.firstName} ${profile.lastName}`.trim() || "User";
+    return {
+      name: fullName,
+      email: profile.email,
+      avatar: profile.profileImage || "",
+    };
+  }, [profile]);
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -168,12 +184,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navMain} />
         <NavDocuments items={data.documents} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        {!isLoading && <NavUser user={user} />}
       </SidebarFooter>
     </Sidebar>
   );

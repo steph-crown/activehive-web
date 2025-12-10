@@ -1,8 +1,9 @@
 import { apiClient } from "@/lib/api-client";
-import type { DashboardDocument } from "../types";
+import type { DashboardDocument, UserProfile } from "../types";
 import mockData from "./data.json";
 
 const basePath = "/dashboard/documents";
+const profilePath = "/api/profile";
 
 export const dashboardApi = {
   getDocuments: async (): Promise<DashboardDocument[]> => {
@@ -12,4 +13,6 @@ export const dashboardApi = {
       return mockData;
     }
   },
+  getProfile: (): Promise<UserProfile> =>
+    apiClient.get<UserProfile>(profilePath),
 };

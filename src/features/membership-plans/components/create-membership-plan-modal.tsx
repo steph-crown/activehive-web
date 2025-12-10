@@ -1,4 +1,3 @@
-import * as React from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -53,7 +52,7 @@ const createMembershipPlanSchema = yup.object({
     .min(1, "At least one feature is required")
     .required(),
   isActive: yup.boolean().default(true),
-  imageUrl: yup.string().url("Must be a valid URL").nullable(),
+  imageUrl: yup.string().url("Must be a valid URL").nullable().optional(),
   gracePeriodDays: yup
     .number()
     .typeError("Grace period must be a number")
@@ -67,7 +66,10 @@ const createMembershipPlanSchema = yup.object({
     .nullable()
     .when("hasTrialPeriod", {
       is: true,
-      then: (schema) => schema.required("Trial period days is required when trial period is enabled"),
+      then: (schema) =>
+        schema.required(
+          "Trial period days is required when trial period is enabled"
+        ),
     }),
   classesPerWeek: yup
     .number()
@@ -95,7 +97,8 @@ export function CreateMembershipPlanModal({
     useCreateMembershipPlanMutation();
 
   const form = useForm<CreateMembershipPlanFormValues>({
-    resolver: yupResolver(createMembershipPlanSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: yupResolver(createMembershipPlanSchema) as any,
     defaultValues: {
       locationId: "",
       name: "",
@@ -104,7 +107,7 @@ export function CreateMembershipPlanModal({
       duration: "monthly",
       features: [""],
       isActive: true,
-      imageUrl: "",
+      imageUrl: null,
       gracePeriodDays: 3,
       hasTrialPeriod: false,
       trialPeriodDays: null,
@@ -113,7 +116,8 @@ export function CreateMembershipPlanModal({
   });
 
   const { fields, append, remove } = useFieldArray({
-    control: form.control,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    control: form.control as any,
     name: "features",
   });
 
@@ -135,7 +139,7 @@ export function CreateMembershipPlanModal({
         classesPerWeek: data.classesPerWeek || null,
       };
 
-      if (data.imageUrl) {
+      if (data.imageUrl && data.imageUrl.trim() !== "") {
         payload.imageUrl = data.imageUrl;
       }
 
@@ -145,7 +149,9 @@ export function CreateMembershipPlanModal({
       onOpenChange(false);
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Failed to create membership plan";
+        error instanceof Error
+          ? error.message
+          : "Failed to create membership plan";
       showError("Error", message);
     }
   };
@@ -250,10 +256,7 @@ export function CreateMembershipPlanModal({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Duration</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select duration" />
@@ -347,6 +350,7 @@ export function CreateMembershipPlanModal({
                         type="number"
                         placeholder="Unlimited"
                         {...field}
+                        value={field.value ?? ""}
                         onChange={(e) =>
                           field.onChange(
                             e.target.value ? parseInt(e.target.value) : null
@@ -371,7 +375,7 @@ export function CreateMembershipPlanModal({
                       type="url"
                       placeholder="https://example.com/plan-image.jpg"
                       {...field}
-                      value={field.value || ""}
+                      value={field.value ?? ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -409,12 +413,12 @@ export function CreateMembershipPlanModal({
                         type="number"
                         placeholder="7"
                         {...field}
+                        value={field.value ?? ""}
                         onChange={(e) =>
                           field.onChange(
                             e.target.value ? parseInt(e.target.value) : null
                           )
                         }
-                        value={field.value || ""}
                       />
                     </FormControl>
                     <FormMessage />

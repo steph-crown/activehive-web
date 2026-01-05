@@ -56,7 +56,7 @@ export function CreateRoleModal({
   const { mutateAsync: createRole, isPending } = useCreateRoleMutation();
 
   const form = useForm<CreateRoleFormValues>({
-    resolver: yupResolver(createRoleSchema),
+    resolver: yupResolver(createRoleSchema) as any,
     defaultValues: {
       name: "",
       description: "",

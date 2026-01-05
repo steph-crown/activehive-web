@@ -155,7 +155,7 @@ export function ClassDetailsPage() {
                     Category
                   </p>
                   <Badge variant="outline" className="mt-1">
-                    {classItem.category}
+                    {classItem.metadata?.category || "N/A"}
                   </Badge>
                 </div>
                 <div>
@@ -163,7 +163,7 @@ export function ClassDetailsPage() {
                     Difficulty
                   </p>
                   <Badge variant="secondary" className="mt-1">
-                    {classItem.difficulty}
+                    {classItem.metadata?.difficulty || "N/A"}
                   </Badge>
                 </div>
                 <div>
@@ -177,7 +177,7 @@ export function ClassDetailsPage() {
                     Duration
                   </p>
                   <p className="text-sm font-semibold">
-                    {classItem.duration} minutes
+                    {classItem.metadata?.duration || 0} minutes
                   </p>
                 </div>
               </div>
@@ -205,7 +205,7 @@ export function ClassDetailsPage() {
                 </div>
               </div>
 
-              {classItem.equipment && classItem.equipment.length > 0 && (
+              {classItem.metadata?.equipment && classItem.metadata.equipment.length > 0 && (
                 <>
                   <Separator />
                   <div>
@@ -213,7 +213,7 @@ export function ClassDetailsPage() {
                       Equipment
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {classItem.equipment.map((item, index) => (
+                      {classItem.metadata.equipment.map((item, index) => (
                         <Badge key={index} variant="outline">
                           {item}
                         </Badge>

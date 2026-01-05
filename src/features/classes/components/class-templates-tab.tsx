@@ -21,16 +21,20 @@ const templateColumns: ColumnDef<ClassTemplate>[] = [
   {
     accessorKey: "category",
     header: "Category",
-    cell: ({ row }) => (
-      <Badge variant="outline">{row.getValue("category")}</Badge>
-    ),
+    cell: ({ row }) => {
+      const template = row.original;
+      const category = template.category;
+      return <Badge variant="outline">{category || "N/A"}</Badge>;
+    },
   },
   {
     accessorKey: "difficulty",
     header: "Difficulty",
-    cell: ({ row }) => (
-      <Badge variant="secondary">{row.getValue("difficulty")}</Badge>
-    ),
+    cell: ({ row }) => {
+      const template = row.original;
+      const difficulty = template.difficulty;
+      return <Badge variant="secondary">{difficulty || "N/A"}</Badge>;
+    },
   },
   {
     accessorKey: "capacity",
@@ -42,9 +46,11 @@ const templateColumns: ColumnDef<ClassTemplate>[] = [
   {
     accessorKey: "duration",
     header: "Duration (min)",
-    cell: ({ row }) => (
-      <div className="text-sm">{row.getValue("duration")}</div>
-    ),
+    cell: ({ row }) => {
+      const template = row.original;
+      const duration = template.duration;
+      return <div className="text-sm">{duration || 0}</div>;
+    },
   },
 ];
 

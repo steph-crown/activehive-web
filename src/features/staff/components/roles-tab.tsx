@@ -7,7 +7,6 @@ import { type ColumnDef } from "@tanstack/react-table";
 import * as React from "react";
 import {
   useAvailableRolesQuery,
-  useCreateRoleMutation,
 } from "../services";
 import type { Role } from "../types";
 import { CreateRoleModal } from "./create-role-modal";

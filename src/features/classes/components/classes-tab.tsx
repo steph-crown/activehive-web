@@ -42,17 +42,17 @@ const createClassesColumns = (
     ),
   },
   {
-    accessorKey: "category",
+    accessorKey: "metadata.category",
     header: "Category",
     cell: ({ row }) => (
-      <Badge variant="outline">{row.getValue("category")}</Badge>
+      <Badge variant="outline">{row.original.metadata?.category || "N/A"}</Badge>
     ),
   },
   {
-    accessorKey: "difficulty",
+    accessorKey: "metadata.difficulty",
     header: "Difficulty",
     cell: ({ row }) => (
-      <Badge variant="secondary">{row.getValue("difficulty")}</Badge>
+      <Badge variant="secondary">{row.original.metadata?.difficulty || "N/A"}</Badge>
     ),
   },
   {

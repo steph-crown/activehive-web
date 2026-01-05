@@ -7,7 +7,6 @@ import { type ColumnDef } from "@tanstack/react-table";
 import * as React from "react";
 import {
   useAvailablePermissionsQuery,
-  useCreatePermissionMutation,
 } from "../services";
 import type { Permission } from "../types";
 import { CreatePermissionModal } from "./create-permission-modal";

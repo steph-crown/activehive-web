@@ -1,10 +1,21 @@
 import { BlockLoader } from "@/components/loader/block-loader";
 import { DataTable } from "@/components/molecules/data-table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
+import { IconPlus, IconDotsVertical } from "@tabler/icons-react";
 import { type ColumnDef } from "@tanstack/react-table";
+import { useNavigate } from "react-router-dom";
+import * as React from "react";
 import { useLocationsQuery } from "../services";
 import type { GymLocation } from "../types";
+import { CreateLocationModal } from "./create-location-modal";
 
 const locationColumns: ColumnDef<GymLocation>[] = [
   {
@@ -86,8 +97,54 @@ const locationColumns: ColumnDef<GymLocation>[] = [
   },
 ];
 
+const createLocationsColumnsWithActions = (
+  navigate: (path: string) => void
+): ColumnDef<GymLocation>[] => [
+  ...locationColumns,
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => {
+      const location = row.original;
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+              size="icon"
+            >
+              <IconDotsVertical className="h-4 w-4" />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-32">
+            <DropdownMenuItem
+              onClick={() => navigate(`/dashboard/locations/${location.id}`)}
+            >
+              View
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
+  },
+];
+
 export function LocationsPage() {
-  const { data: locations, isLoading } = useLocationsQuery();
+  const navigate = useNavigate();
+  const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
+  const { data: locations, isLoading, refetch } = useLocationsQuery();
+
+  const handleModalSuccess = () => {
+    refetch();
+    setIsCreateModalOpen(false);
+  };
+
+  const columns = React.useMemo(
+    () => createLocationsColumnsWithActions(navigate),
+    [navigate]
+  );
 
   return (
     <DashboardLayout>
@@ -99,6 +156,10 @@ export function LocationsPage() {
               Manage your gym locations and their information.
             </p>
           </div>
+          <Button onClick={() => setIsCreateModalOpen(true)}>
+            <IconPlus className="h-4 w-4 mr-2" />
+            Add Location
+          </Button>
         </div>
 
         <div className="px-4 lg:px-6">
@@ -109,7 +170,7 @@ export function LocationsPage() {
           ) : (
             <DataTable
               data={locations || []}
-              columns={locationColumns}
+              columns={columns}
               enableTabs={false}
               getRowId={(row) => row.id}
               emptyMessage="No locations found."
@@ -117,6 +178,12 @@ export function LocationsPage() {
           )}
         </div>
       </div>
+
+      <CreateLocationModal
+        open={isCreateModalOpen}
+        onOpenChange={setIsCreateModalOpen}
+        onSuccess={handleModalSuccess}
+      />
     </DashboardLayout>
   );
 }

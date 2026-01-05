@@ -74,6 +74,13 @@ export function LocationDetailsPage() {
   const locationData = location.location;
   const metrics = location.metrics;
 
+  const getImageUrl = (imagePath: string): string => {
+    const baseURL =
+      import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ??
+      "https://activehiveapi.onrender.com";
+    return imagePath.startsWith("http") ? imagePath : `${baseURL}/${imagePath}`;
+  };
+
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
@@ -243,6 +250,96 @@ export function LocationDetailsPage() {
 
               <Separator />
 
+              <div>
+                <p className="text-sm font-medium text-muted-foreground mb-2">
+                  Metrics
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Total Members
+                    </p>
+                    <p className="text-sm font-semibold">
+                      {metrics.totalMembers || 0}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Active Members
+                    </p>
+                    <p className="text-sm font-semibold">
+                      {metrics.activeMembers || 0}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Total Trainers
+                    </p>
+                    <p className="text-sm font-semibold">
+                      {metrics.totalTrainers || 0}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Active Trainers
+                    </p>
+                    <p className="text-sm font-semibold">
+                      {metrics.activeTrainers || 0}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Total Classes
+                    </p>
+                    <p className="text-sm font-semibold">
+                      {metrics.totalClasses || 0}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Active Classes
+                    </p>
+                    <p className="text-sm font-semibold">
+                      {metrics.activeClasses || 0}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Monthly Revenue
+                    </p>
+                    <p className="text-sm font-semibold">
+                      ${(metrics.monthlyRevenue || 0).toLocaleString()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Today's Check-ins
+                    </p>
+                    <p className="text-sm font-semibold">
+                      {metrics.todaysCheckIns || 0}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Average Attendance
+                    </p>
+                    <p className="text-sm font-semibold">
+                      {metrics.averageAttendance || 0}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Subscription Plan
+                    </p>
+                    <Badge variant="outline" className="mt-1">
+                      {metrics.subscriptionPlan || "N/A"}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
@@ -261,6 +358,20 @@ export function LocationDetailsPage() {
                   <p className="text-sm">
                     {new Date(locationData.createdAt).toLocaleDateString()}
                   </p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Updated At
+                  </p>
+                  <p className="text-sm">
+                    {new Date(locationData.updatedAt).toLocaleDateString()}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Location ID
+                  </p>
+                  <p className="text-xs font-mono">{locationData.id}</p>
                 </div>
               </div>
 
@@ -288,7 +399,7 @@ export function LocationDetailsPage() {
                         className="relative group rounded-lg overflow-hidden border"
                       >
                         <img
-                          src={imageUrl}
+                          src={getImageUrl(imageUrl)}
                           alt={`Location image ${index + 1}`}
                           className="w-full h-32 object-cover"
                         />

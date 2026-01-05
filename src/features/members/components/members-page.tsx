@@ -1,15 +1,91 @@
+import { BlockLoader } from "@/components/loader/block-loader";
+import { DataTable } from "@/components/molecules/data-table";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { IconPlus } from "@tabler/icons-react";
+import { type ColumnDef } from "@tanstack/react-table";
 import * as React from "react";
+import { useMembersQuery } from "../services";
+import type { Member } from "../types";
 import { CreateMemberModal } from "./create-member-modal";
+
+const membersColumns: ColumnDef<Member>[] = [
+  {
+    accessorKey: "firstName",
+    header: "Name",
+    cell: ({ row }) => {
+      const firstName = row.getValue("firstName") as string;
+      const lastName = row.original.lastName;
+      return (
+        <div className="font-medium">
+          {firstName} {lastName}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "email",
+    header: "Email",
+    cell: ({ row }) => <div className="text-sm">{row.getValue("email")}</div>,
+  },
+  {
+    accessorKey: "phoneNumber",
+    header: "Phone",
+    cell: ({ row }) => {
+      const phone = row.getValue("phoneNumber") as string | undefined;
+      return (
+        <div className="text-sm">{phone || "N/A"}</div>
+      );
+    },
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => {
+      const status = row.getValue("status") as string;
+      const variant =
+        status === "active"
+          ? "default"
+          : status === "pending"
+          ? "secondary"
+          : "destructive";
+      return (
+        <Badge variant={variant} className="capitalize">
+          {status}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "isEmailVerified",
+    header: "Email Verified",
+    cell: ({ row }) => {
+      const isVerified = row.getValue("isEmailVerified") as boolean;
+      return (
+        <Badge variant={isVerified ? "default" : "secondary"}>
+          {isVerified ? "Verified" : "Unverified"}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Joined",
+    cell: ({ row }) => {
+      const date = new Date(row.getValue("createdAt"));
+      return <div className="text-sm">{date.toLocaleDateString()}</div>;
+    },
+  },
+];
 
 export function MembersPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
+  const { data: members, isLoading, refetch } = useMembersQuery();
 
   const handleModalSuccess = () => {
+    refetch();
     setIsCreateModalOpen(false);
-    // TODO: Refetch members data when query is implemented
   };
 
   return (
@@ -27,12 +103,21 @@ export function MembersPage() {
             Add Member
           </Button>
         </div>
+
         <div className="px-4 lg:px-6">
-          <div className="rounded-lg border p-8 text-center">
-            <p className="text-muted-foreground">
-              Members management coming soon...
-            </p>
-          </div>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-10">
+              <BlockLoader />
+            </div>
+          ) : (
+            <DataTable
+              data={members || []}
+              columns={membersColumns}
+              enableTabs={false}
+              getRowId={(row) => row.id}
+              emptyMessage="No members found."
+            />
+          )}
         </div>
       </div>
 

@@ -47,4 +47,27 @@ export const locationsApi = {
   },
   deleteFacility: (facilityId: string): Promise<void> =>
     apiClient.delete<void>(`${locationsPath}/facilities/${facilityId}`),
+  uploadLocationImage: (
+    locationId: string,
+    image: File
+  ): Promise<{ imageUrl: string }> => {
+    const formData = new FormData();
+    formData.append("image", image);
+    return apiClient.post<{ imageUrl: string }>(
+      `${locationsPath}/${locationId}/images`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+  },
+  deleteLocationImage: (
+    locationId: string,
+    imageIndex: string
+  ): Promise<void> =>
+    apiClient.delete<void>(
+      `${locationsPath}/${locationId}/images/${imageIndex}`
+    ),
 };

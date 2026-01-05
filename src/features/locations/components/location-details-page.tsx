@@ -11,14 +11,45 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
+import { IconChevronRight, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useLocationQuery, useFacilitiesQuery } from "../services";
+import * as React from "react";
+import { useToast } from "@/hooks/use-toast";
+import {
+  useLocationQuery,
+  useFacilitiesQuery,
+  useDeleteLocationImageMutation,
+} from "../services";
+import { UploadLocationImageModal } from "./upload-location-image-modal";
 
 export function LocationDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { data: location, isLoading } = useLocationQuery(id || "");
+  const { showSuccess, showError } = useToast();
+  const [isUploadModalOpen, setIsUploadModalOpen] = React.useState(false);
+  const { data: location, isLoading, refetch } = useLocationQuery(id || "");
   const { data: facilities } = useFacilitiesQuery(id || "");
+  const { mutateAsync: deleteImage, isPending: isDeleting } =
+    useDeleteLocationImageMutation(id || "");
+
+  const handleUploadSuccess = () => {
+    refetch();
+    setIsUploadModalOpen(false);
+  };
+
+  const handleDeleteImage = async (imageIndex: string) => {
+    if (!confirm("Are you sure you want to delete this image?")) return;
+
+    try {
+      await deleteImage(imageIndex);
+      showSuccess("Success", "Image deleted successfully!");
+      refetch();
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to delete image.";
+      showError("Error", message);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -70,8 +101,9 @@ export function LocationDetailsPage() {
               </CardTitle>
             </CardHeader>
             <CardFooter className="flex-col items-start gap-1.5 text-sm">
-              <div className="text-muted-foreground">
-                Total facilities at this location
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <span>View facilities</span>
+                <IconChevronRight className="h-4 w-4" />
               </div>
             </CardFooter>
           </Card>
@@ -117,7 +149,9 @@ export function LocationDetailsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Location Information</CardTitle>
-              <CardDescription>Complete details for this location</CardDescription>
+              <CardDescription>
+                Complete details for this location
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -132,7 +166,9 @@ export function LocationDetailsPage() {
                     Type
                   </p>
                   <Badge
-                    variant={locationData.isHeadquarters ? "default" : "secondary"}
+                    variant={
+                      locationData.isHeadquarters ? "default" : "secondary"
+                    }
                   >
                     {locationData.isHeadquarters ? "Headquarters" : "Branch"}
                   </Badge>
@@ -173,21 +209,31 @@ export function LocationDetailsPage() {
                 </p>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm text-muted-foreground">Account Name</p>
-                    <p className="text-sm">{locationData.paymentAccount.accountName}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Account Name
+                    </p>
+                    <p className="text-sm">
+                      {locationData.paymentAccount.accountName}
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Bank Name</p>
-                    <p className="text-sm">{locationData.paymentAccount.bankName}</p>
+                    <p className="text-sm">
+                      {locationData.paymentAccount.bankName}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Account Type</p>
+                    <p className="text-sm text-muted-foreground">
+                      Account Type
+                    </p>
                     <p className="text-sm capitalize">
                       {locationData.paymentAccount.accountType}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Account Number</p>
+                    <p className="text-sm text-muted-foreground">
+                      Account Number
+                    </p>
                     <p className="text-sm">
                       ****{locationData.paymentAccount.accountNumber.slice(-4)}
                     </p>
@@ -202,7 +248,9 @@ export function LocationDetailsPage() {
                   <p className="text-sm font-medium text-muted-foreground">
                     Status
                   </p>
-                  <Badge variant={locationData.isActive ? "default" : "secondary"}>
+                  <Badge
+                    variant={locationData.isActive ? "default" : "secondary"}
+                  >
                     {locationData.isActive ? "Active" : "Inactive"}
                   </Badge>
                 </div>
@@ -215,10 +263,64 @@ export function LocationDetailsPage() {
                   </p>
                 </div>
               </div>
+
+              <Separator />
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Images
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setIsUploadModalOpen(true)}
+                  >
+                    <IconPlus className="h-4 w-4 mr-2" />
+                    Add Image
+                  </Button>
+                </div>
+                {locationData.images && locationData.images.length > 0 ? (
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+                    {locationData.images.map((imageUrl, index) => (
+                      <div
+                        key={index}
+                        className="relative group rounded-lg overflow-hidden border"
+                      >
+                        <img
+                          src={imageUrl}
+                          alt={`Location image ${index + 1}`}
+                          className="w-full h-32 object-cover"
+                        />
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleDeleteImage(index.toString())}
+                          disabled={isDeleting}
+                        >
+                          <IconTrash className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    No images uploaded yet
+                  </p>
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      <UploadLocationImageModal
+        open={isUploadModalOpen}
+        onOpenChange={setIsUploadModalOpen}
+        locationId={id || ""}
+        onSuccess={handleUploadSuccess}
+      />
     </DashboardLayout>
   );
 }

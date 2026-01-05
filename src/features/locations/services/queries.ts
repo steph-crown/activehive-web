@@ -95,3 +95,31 @@ export const useDeleteFacilityMutation = (locationId: string) => {
     },
   });
 };
+
+export const useUploadLocationImageMutation = (locationId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (image: File) =>
+      locationsApi.uploadLocationImage(locationId, image),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: locationsQueryKeys.detail(locationId),
+      });
+    },
+  });
+};
+
+export const useDeleteLocationImageMutation = (locationId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (imageIndex: string) =>
+      locationsApi.deleteLocationImage(locationId, imageIndex),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: locationsQueryKeys.detail(locationId),
+      });
+    },
+  });
+};

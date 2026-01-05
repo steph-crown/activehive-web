@@ -14,6 +14,7 @@ import {
   IconSearch,
   IconSettings,
   IconUsers,
+  IconCalendar,
 } from "@tabler/icons-react";
 import * as React from "react";
 
@@ -60,6 +61,11 @@ const navMain = [
     title: "Locations",
     url: "/dashboard/locations",
     icon: IconMapPin,
+  },
+  {
+    title: "Classes",
+    url: "/dashboard/classes",
+    icon: IconCalendar,
   },
   {
     title: "Staff",
@@ -198,7 +204,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navMain} />
-        <NavDocuments items={data.documents} />
+        {/* <NavDocuments items={data.documents} /> */}
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

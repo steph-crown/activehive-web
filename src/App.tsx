@@ -33,6 +33,8 @@ const LocationFacilities = lazy(
 );
 const Staff = lazy(() => import("@/app/dashboard/staff/page"));
 const Subscriptions = lazy(() => import("@/app/dashboard/subscriptions/page"));
+const Classes = lazy(() => import("@/app/dashboard/classes/page"));
+const ClassDetails = lazy(() => import("@/app/dashboard/classes/[id]/page"));
 
 function App() {
   return (
@@ -66,6 +68,8 @@ function App() {
           />
           <Route path="/dashboard/staff" element={<Staff />} />
           <Route path="/dashboard/subscriptions" element={<Subscriptions />} />
+          <Route path="/dashboard/classes" element={<Classes />} />
+          <Route path="/dashboard/classes/:id" element={<ClassDetails />} />
         </Routes>
       </Suspense>
     </Router>

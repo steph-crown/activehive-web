@@ -2,42 +2,63 @@ import { BlockLoader } from "@/components/loader/block-loader";
 import { DataTable } from "@/components/molecules/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
+import { useLocationsQuery } from "@/features/locations/services";
 import { IconPlus } from "@tabler/icons-react";
 import { type ColumnDef } from "@tanstack/react-table";
 import * as React from "react";
 import { useMembersQuery } from "../services";
-import type { Member } from "../types";
+import type { MemberSubscription } from "../types";
 import { CreateMemberModal } from "./create-member-modal";
 
-const membersColumns: ColumnDef<Member>[] = [
+const membersColumns: ColumnDef<MemberSubscription>[] = [
   {
-    accessorKey: "firstName",
+    accessorKey: "member.firstName",
     header: "Name",
     cell: ({ row }) => {
-      const firstName = row.getValue("firstName") as string;
-      const lastName = row.original.lastName;
+      const member = row.original.member;
       return (
         <div className="font-medium">
-          {firstName} {lastName}
+          {member.firstName} {member.lastName}
         </div>
       );
     },
   },
   {
-    accessorKey: "email",
+    accessorKey: "member.email",
     header: "Email",
-    cell: ({ row }) => <div className="text-sm">{row.getValue("email")}</div>,
+    cell: ({ row }) => (
+      <div className="text-sm">{row.original.member.email}</div>
+    ),
   },
   {
-    accessorKey: "phoneNumber",
+    accessorKey: "member.phoneNumber",
     header: "Phone",
     cell: ({ row }) => {
-      const phone = row.getValue("phoneNumber") as string | undefined;
-      return (
-        <div className="text-sm">{phone || "N/A"}</div>
-      );
+      const phone = row.original.member.phoneNumber;
+      return <div className="text-sm">{phone || "N/A"}</div>;
     },
+  },
+  {
+    accessorKey: "membershipPlan.name",
+    header: "Membership Plan",
+    cell: ({ row }) => (
+      <div className="text-sm">{row.original.membershipPlan.name}</div>
+    ),
+  },
+  {
+    accessorKey: "location.locationName",
+    header: "Location",
+    cell: ({ row }) => (
+      <div className="text-sm">{row.original.location.locationName}</div>
+    ),
   },
   {
     accessorKey: "status",
@@ -58,18 +79,6 @@ const membersColumns: ColumnDef<Member>[] = [
     },
   },
   {
-    accessorKey: "isEmailVerified",
-    header: "Email Verified",
-    cell: ({ row }) => {
-      const isVerified = row.getValue("isEmailVerified") as boolean;
-      return (
-        <Badge variant={isVerified ? "default" : "secondary"}>
-          {isVerified ? "Verified" : "Unverified"}
-        </Badge>
-      );
-    },
-  },
-  {
     accessorKey: "createdAt",
     header: "Joined",
     cell: ({ row }) => {
@@ -81,7 +90,13 @@ const membersColumns: ColumnDef<Member>[] = [
 
 export function MembersPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
-  const { data: members, isLoading, refetch } = useMembersQuery();
+  const [selectedLocationId, setSelectedLocationId] = React.useState<
+    string | undefined
+  >(undefined);
+  const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
+  const { data: members, isLoading, refetch } = useMembersQuery(
+    selectedLocationId
+  );
 
   const handleModalSuccess = () => {
     refetch();
@@ -105,6 +120,30 @@ export function MembersPage() {
         </div>
 
         <div className="px-4 lg:px-6">
+          <div className="mb-4 flex items-center gap-4">
+            <div className="w-64">
+              <Select
+                value={selectedLocationId || "all"}
+                onValueChange={(value) =>
+                  setSelectedLocationId(value === "all" ? undefined : value)
+                }
+                disabled={locationsLoading}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by location" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Locations</SelectItem>
+                  {locations?.map((location) => (
+                    <SelectItem key={location.id} value={location.id}>
+                      {location.locationName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           {isLoading ? (
             <div className="flex items-center justify-center py-10">
               <BlockLoader />

@@ -34,3 +34,46 @@ export type CreateStaffPayload = {
   status: "active" | "inactive";
   permissionIds: string[];
 };
+
+export type Role = {
+  id: string;
+  name: string;
+  description?: string;
+  code: string;
+  permissionIds: string[];
+  isSystem: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type CreateRolePayload = {
+  name: string;
+  description?: string;
+  code: string;
+  permissionIds: string[];
+};
+
+export type Permission = {
+  id: string;
+  name: string;
+  description?: string;
+  code: string;
+  isSystem: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type CreatePermissionPayload = {
+  name: string;
+  description?: string;
+  code: string;
+};
+
+export type AssignRolePermissionsPayload = {
+  roleId?: string;
+  permissionIds: string[];
+};
+
+export type AssignLocationsPayload = {
+  locationIds: string[];
+};

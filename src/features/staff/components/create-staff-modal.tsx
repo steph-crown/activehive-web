@@ -28,7 +28,7 @@ import { useToast } from "@/hooks/use-toast";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
-import { useCreateStaffMutation } from "../services";
+import { useCreateStaffMutation, useAvailableRolesQuery } from "../services";
 
 const createStaffSchema = yup.object({
   firstName: yup.string().required("First name is required"),
@@ -65,6 +65,7 @@ export function CreateStaffModal({
 }: CreateStaffModalProps) {
   const { showSuccess, showError } = useToast();
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
+  const { data: roles, isLoading: rolesLoading } = useAvailableRolesQuery();
   const { mutateAsync: createStaff, isPending } = useCreateStaffMutation();
 
   const form = useForm<CreateStaffFormValues>({
@@ -89,7 +90,18 @@ export function CreateStaffModal({
     try {
       await createStaff(data);
       showSuccess("Success", "Staff member created successfully!");
-      form.reset();
+      form.reset({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        roleId: "",
+        department: "",
+        locationIds: [],
+        hireDate: new Date().toISOString().split("T")[0],
+        status: "active",
+        permissionIds: [],
+      });
       onSuccess();
     } catch (error) {
       const message =
@@ -195,7 +207,8 @@ export function CreateStaffModal({
                     <FormLabel>Role</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value}
+                      disabled={rolesLoading}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -203,18 +216,21 @@ export function CreateStaffModal({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="123e4567-e89b-12d3-a456-426614174000">
-                          Manager
-                        </SelectItem>
-                        <SelectItem value="123e4567-e89b-12d3-a456-426614174001">
-                          Trainer
-                        </SelectItem>
-                        <SelectItem value="123e4567-e89b-12d3-a456-426614174002">
-                          Front Desk
-                        </SelectItem>
-                        <SelectItem value="123e4567-e89b-12d3-a456-426614174003">
-                          Cleaner
-                        </SelectItem>
+                        {rolesLoading ? (
+                          <SelectItem value="loading" disabled>
+                            Loading roles...
+                          </SelectItem>
+                        ) : roles && roles.length > 0 ? (
+                          roles.map((role) => (
+                            <SelectItem key={role.id} value={role.id}>
+                              {role.name}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="no-roles" disabled>
+                            No roles available
+                          </SelectItem>
+                        )}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -309,10 +325,7 @@ export function CreateStaffModal({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Status</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select status" />

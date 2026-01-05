@@ -1,16 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { membersApi } from "./api";
-import type { CreateMemberPayload, Member } from "../types";
+import type { CreateMemberPayload, MemberSubscription } from "../types";
 
 export const membersQueryKeys = {
   all: ["members"] as const,
-  list: () => [...membersQueryKeys.all, "list"] as const,
+  list: (locationId?: string) =>
+    [...membersQueryKeys.all, "list", locationId] as const,
 };
 
-export const useMembersQuery = () =>
-  useQuery<Member[]>({
-    queryKey: membersQueryKeys.list(),
-    queryFn: () => membersApi.getMembers(),
+export const useMembersQuery = (locationId?: string) =>
+  useQuery<MemberSubscription[]>({
+    queryKey: membersQueryKeys.list(locationId),
+    queryFn: () => membersApi.getMembers(locationId),
   });
 
 export const useCreateMemberMutation = () => {

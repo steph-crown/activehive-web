@@ -2,13 +2,26 @@ import { BlockLoader } from "@/components/loader/block-loader";
 import { DataTable } from "@/components/molecules/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
-import { IconPlus } from "@tabler/icons-react";
+import { IconPlus, IconDotsVertical } from "@tabler/icons-react";
 import { type ColumnDef } from "@tanstack/react-table";
 import * as React from "react";
 import { useStaffQuery } from "../services";
 import type { Staff } from "../types";
 import { CreateStaffModal } from "./create-staff-modal";
+import { AssignPermissionsModal } from "./assign-permissions-modal";
+import { AssignLocationsModal } from "./assign-locations-modal";
+import { ViewStaffModal } from "./view-staff-modal";
+import { RolesTab } from "./roles-tab";
+import { PermissionsTab } from "./permissions-tab";
 
 const staffColumns: ColumnDef<Staff>[] = [
   {
@@ -105,6 +118,12 @@ const staffColumns: ColumnDef<Staff>[] = [
 
 export function StaffPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
+  const [selectedStaff, setSelectedStaff] = React.useState<Staff | null>(null);
+  const [isAssignPermissionsOpen, setIsAssignPermissionsOpen] =
+    React.useState(false);
+  const [isAssignLocationsOpen, setIsAssignLocationsOpen] =
+    React.useState(false);
+  const [isViewStaffOpen, setIsViewStaffOpen] = React.useState(false);
   const { data: staff, isLoading, refetch } = useStaffQuery();
 
   const handleModalSuccess = () => {
@@ -112,36 +131,126 @@ export function StaffPage() {
     setIsCreateModalOpen(false);
   };
 
+  const handleAssignPermissions = (staffMember: Staff) => {
+    setSelectedStaff(staffMember);
+    setIsAssignPermissionsOpen(true);
+  };
+
+  const handleAssignLocations = (staffMember: Staff) => {
+    setSelectedStaff(staffMember);
+    setIsAssignLocationsOpen(true);
+  };
+
+  const handleViewStaff = (staffMember: Staff) => {
+    setSelectedStaff(staffMember);
+    setIsViewStaffOpen(true);
+  };
+
+  const handleActionSuccess = () => {
+    refetch();
+    setIsAssignPermissionsOpen(false);
+    setIsAssignLocationsOpen(false);
+  };
+
+  // Add actions column
+  const columnsWithActions: ColumnDef<Staff>[] = [
+    ...staffColumns,
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const staffMember = row.original;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+                size="icon"
+              >
+                <IconDotsVertical className="h-4 w-4" />
+                <span className="sr-only">Open menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={() => handleViewStaff(staffMember)}>
+                View Details
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => handleAssignPermissions(staffMember)}
+              >
+                Assign Permissions
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => handleAssignLocations(staffMember)}
+              >
+                Assign Locations
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
+
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
         <div className="flex items-center justify-between px-4 lg:px-6">
           <div>
-            <h1 className="text-3xl font-bold">Staff</h1>
+            <h1 className="text-3xl font-bold">Staff Management</h1>
             <p className="text-muted-foreground mt-2">
-              Manage your gym staff members and their assignments.
+              Manage your gym staff members, roles, and permissions.
             </p>
           </div>
-          <Button onClick={() => setIsCreateModalOpen(true)}>
-            <IconPlus className="h-4 w-4 mr-2" />
-            Add Staff
-          </Button>
         </div>
 
         <div className="px-4 lg:px-6">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-10">
-              <BlockLoader />
-            </div>
-          ) : (
-            <DataTable
-              data={staff || []}
-              columns={staffColumns}
-              enableTabs={false}
-              getRowId={(row) => row.id}
-              emptyMessage="No staff members found."
-            />
-          )}
+          <Tabs defaultValue="staff" className="w-full">
+            <TabsList>
+              <TabsTrigger value="staff">Staff</TabsTrigger>
+              <TabsTrigger value="roles">Roles</TabsTrigger>
+              <TabsTrigger value="permissions">Permissions</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="staff" className="mt-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-2xl font-semibold">Staff Members</h2>
+                  <p className="text-muted-foreground text-sm mt-1">
+                    Manage your gym staff members and their assignments
+                  </p>
+                </div>
+                <Button onClick={() => setIsCreateModalOpen(true)}>
+                  <IconPlus className="h-4 w-4 mr-2" />
+                  Add Staff
+                </Button>
+              </div>
+
+              {isLoading ? (
+                <div className="flex items-center justify-center py-10">
+                  <BlockLoader />
+                </div>
+              ) : (
+                <DataTable
+                  data={staff || []}
+                  columns={columnsWithActions}
+                  enableTabs={false}
+                  getRowId={(row) => row.id}
+                  emptyMessage="No staff members found."
+                />
+              )}
+            </TabsContent>
+
+            <TabsContent value="roles" className="mt-6">
+              <RolesTab />
+            </TabsContent>
+
+            <TabsContent value="permissions" className="mt-6">
+              <PermissionsTab />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
 
@@ -149,6 +258,26 @@ export function StaffPage() {
         open={isCreateModalOpen}
         onOpenChange={setIsCreateModalOpen}
         onSuccess={handleModalSuccess}
+      />
+
+      <AssignPermissionsModal
+        open={isAssignPermissionsOpen}
+        onOpenChange={setIsAssignPermissionsOpen}
+        staff={selectedStaff}
+        onSuccess={handleActionSuccess}
+      />
+
+      <AssignLocationsModal
+        open={isAssignLocationsOpen}
+        onOpenChange={setIsAssignLocationsOpen}
+        staff={selectedStaff}
+        onSuccess={handleActionSuccess}
+      />
+
+      <ViewStaffModal
+        open={isViewStaffOpen}
+        onOpenChange={setIsViewStaffOpen}
+        staff={selectedStaff}
       />
     </DashboardLayout>
   );

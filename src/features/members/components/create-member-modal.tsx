@@ -64,7 +64,7 @@ export function CreateMemberModal({
   const { mutateAsync: createMember, isPending } = useCreateMemberMutation();
 
   const form = useForm<CreateMemberFormValues>({
-    resolver: yupResolver(createMemberSchema),
+    resolver: yupResolver(createMemberSchema) as any,
     defaultValues: {
       email: "",
       firstName: "",

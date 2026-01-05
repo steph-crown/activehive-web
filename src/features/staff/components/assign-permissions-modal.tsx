@@ -63,7 +63,7 @@ export function AssignPermissionsModal({
     useAssignRolePermissionsMutation();
 
   const form = useForm<AssignPermissionsFormValues>({
-    resolver: yupResolver(assignPermissionsSchema),
+    resolver: yupResolver(assignPermissionsSchema) as any,
     defaultValues: {
       roleId: staff?.roleId || "",
       permissionIds: staff?.permissionIds || [],

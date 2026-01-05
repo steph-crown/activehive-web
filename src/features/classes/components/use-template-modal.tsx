@@ -74,7 +74,7 @@ export function UseTemplateModal({
   const { data: staff } = useStaffQuery();
 
   const form = useForm<UseTemplateFormValues>({
-    resolver: yupResolver(useTemplateSchema),
+    resolver: yupResolver(useTemplateSchema) as any,
     defaultValues: {
       templateClassId: selectedTemplate?.id || "",
       locationId: "",
@@ -99,7 +99,15 @@ export function UseTemplateModal({
     if (selectedTemplate) {
       form.setValue("templateClassId", selectedTemplate.id);
       if (selectedTemplate.schedules.length > 0) {
-        form.setValue("schedules", selectedTemplate.schedules);
+        form.setValue(
+          "schedules",
+          selectedTemplate.schedules.map((s) => ({
+            date: s.date,
+            startTime: s.startTime,
+            endTime: s.endTime,
+            notes: s.notes || undefined,
+          }))
+        );
       }
     }
   }, [selectedTemplate, form]);

@@ -159,8 +159,7 @@ export function ClassesTab() {
   const { data: classes, isLoading, refetch } = useClassesQuery(
     selectedLocationId
   );
-  const { mutateAsync: deleteClass, isPending: isDeleting } =
-    useDeleteClassMutation();
+  const { mutateAsync: deleteClass } = useDeleteClassMutation();
 
   const handleDelete = async (classId: string) => {
     if (!confirm("Are you sure you want to delete this class?")) return;

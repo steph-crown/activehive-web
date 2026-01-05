@@ -137,7 +137,7 @@ export function FacilitiesPage() {
     useDeleteFacilityMutation(id || "");
 
   const form = useForm<FacilityFormValues>({
-    resolver: yupResolver(facilitySchema),
+    resolver: yupResolver(facilitySchema) as any,
     defaultValues: {
       name: "",
       description: "",

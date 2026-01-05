@@ -70,7 +70,7 @@ export function CreateTemplateModal({
     useCreateTemplateMutation();
 
   const form = useForm<CreateTemplateFormValues>({
-    resolver: yupResolver(createTemplateSchema),
+    resolver: yupResolver(createTemplateSchema) as any,
     defaultValues: {
       name: "",
       description: "",
@@ -106,6 +106,7 @@ export function CreateTemplateModal({
           notes: s.notes || undefined,
         })),
         description: data.description || undefined,
+        equipment: data.equipment.filter((e): e is string => e !== undefined),
       };
       await createTemplate(payload);
       showSuccess("Success", "Template created successfully!");

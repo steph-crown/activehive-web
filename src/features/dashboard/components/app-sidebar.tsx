@@ -19,7 +19,6 @@ import {
 import * as React from "react";
 
 import {
-  NavDocuments,
   NavMain,
   NavSecondary,
   NavUser,

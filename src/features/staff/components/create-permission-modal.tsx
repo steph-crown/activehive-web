@@ -46,7 +46,7 @@ export function CreatePermissionModal({
     useCreatePermissionMutation();
 
   const form = useForm<CreatePermissionFormValues>({
-    resolver: yupResolver(createPermissionSchema),
+    resolver: yupResolver(createPermissionSchema) as any,
     defaultValues: {
       name: "",
       description: "",

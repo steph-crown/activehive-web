@@ -10,6 +10,13 @@ export type ClassSchedule = {
   updatedAt: string;
 };
 
+export type ClassScheduleInput = {
+  date: string;
+  startTime: string;
+  endTime: string;
+  notes?: string;
+};
+
 export type Class = {
   id: string;
   name: string;
@@ -101,7 +108,7 @@ export type CreateClassPayload = {
   capacity: number;
   locationId?: string;
   trainerId?: string;
-  schedules: ClassSchedule[];
+  schedules: ClassScheduleInput[];
   category: string;
   difficulty: string;
   duration: number;
@@ -113,7 +120,7 @@ export type UpdateClassPayload = {
   description?: string;
   capacity?: number;
   trainerId?: string;
-  schedules?: ClassSchedule[];
+  schedules?: ClassScheduleInput[];
   category?: string;
   difficulty?: string;
   duration?: number;
@@ -125,7 +132,7 @@ export type CreateTemplatePayload = {
   name: string;
   description?: string;
   capacity: number;
-  schedules: ClassSchedule[];
+  schedules: ClassScheduleInput[];
   category: string;
   difficulty: string;
   duration: number;
@@ -136,7 +143,7 @@ export type UseTemplatePayload = {
   templateClassId: string;
   locationId: string;
   trainerId?: string;
-  schedules: ClassSchedule[];
+  schedules: ClassScheduleInput[];
 };
 
 export type AssignTrainerPayload = {

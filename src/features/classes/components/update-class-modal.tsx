@@ -29,7 +29,6 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm, useFieldArray } from "react-hook-form";
 import * as yup from "yup";
 import { useUpdateClassMutation } from "../services";
-import { useLocationsQuery } from "@/features/locations/services";
 import { useStaffQuery } from "@/features/staff/services";
 import type { Class } from "../types";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
@@ -75,11 +74,10 @@ export function UpdateClassModal({
 }: UpdateClassModalProps) {
   const { showSuccess, showError } = useToast();
   const { mutateAsync: updateClass, isPending } = useUpdateClassMutation();
-  const { data: locations } = useLocationsQuery();
   const { data: staff } = useStaffQuery();
 
   const form = useForm<UpdateClassFormValues>({
-    resolver: yupResolver(updateClassSchema),
+    resolver: yupResolver(updateClassSchema) as any,
     defaultValues: {
       name: classItem.name,
       description: classItem.description || "",

@@ -31,7 +31,6 @@ import { useCreateClassMutation } from "../services";
 import { useLocationsQuery } from "@/features/locations/services";
 import { useStaffQuery } from "@/features/staff/services";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
-import * as React from "react";
 
 const createClassSchema = yup.object({
   name: yup.string().required("Name is required"),
@@ -76,7 +75,7 @@ export function CreateClassModal({
   const { data: staff } = useStaffQuery();
 
   const form = useForm<CreateClassFormValues>({
-    resolver: yupResolver(createClassSchema),
+    resolver: yupResolver(createClassSchema) as any,
     defaultValues: {
       name: "",
       description: "",
@@ -116,6 +115,7 @@ export function CreateClassModal({
         locationId: data.locationId === "none" ? undefined : data.locationId || undefined,
         trainerId: data.trainerId === "none" ? undefined : data.trainerId || undefined,
         description: data.description || undefined,
+        equipment: data.equipment.filter((e): e is string => e !== undefined),
       };
       await createClass(payload);
       showSuccess("Success", "Class created successfully!");

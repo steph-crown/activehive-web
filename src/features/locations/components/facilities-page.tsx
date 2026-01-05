@@ -35,11 +35,13 @@ import { useToast } from "@/hooks/use-toast";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
+import { Separator } from "@/components/ui/separator";
 import {
   useFacilitiesQuery,
   useCreateFacilityMutation,
   useUpdateFacilityMutation,
   useDeleteFacilityMutation,
+  useLocationQuery,
 } from "../services";
 import type { Facility } from "../types";
 
@@ -52,6 +54,7 @@ const facilitySchema = yup.object({
 type FacilityFormValues = yup.InferType<typeof facilitySchema>;
 
 const facilitiesColumns = (
+  onView: (facility: Facility) => void,
   onEdit: (facility: Facility) => void,
   onDelete: (facilityId: string) => void
 ): ColumnDef<Facility>[] => [
@@ -92,6 +95,9 @@ const facilitiesColumns = (
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-32">
+            <DropdownMenuItem onClick={() => onView(facility)}>
+              View
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onEdit(facility)}>
               Edit
             </DropdownMenuItem>
@@ -114,9 +120,12 @@ export function FacilitiesPage() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
+  const [viewingFacility, setViewingFacility] =
+    React.useState<Facility | null>(null);
   const [editingFacility, setEditingFacility] =
     React.useState<Facility | null>(null);
 
+  const { data: location } = useLocationQuery(id || "");
   const { data: facilities, isLoading, refetch } = useFacilitiesQuery(
     id || ""
   );
@@ -149,7 +158,11 @@ export function FacilitiesPage() {
 
       await createFacility(formData);
       showSuccess("Success", "Facility created successfully!");
-      form.reset();
+      form.reset({
+        name: "",
+        description: "",
+        image: undefined,
+      });
       setIsCreateModalOpen(false);
       refetch();
     } catch (error) {
@@ -176,7 +189,11 @@ export function FacilitiesPage() {
 
       await updateFacility({ facilityId: editingFacility.id, payload: formData });
       showSuccess("Success", "Facility updated successfully!");
-      form.reset();
+      form.reset({
+        name: "",
+        description: "",
+        image: undefined,
+      });
       setEditingFacility(null);
       refetch();
     } catch (error) {
@@ -205,6 +222,10 @@ export function FacilitiesPage() {
     [deleteFacility, refetch, showSuccess, showError]
   );
 
+  const handleView = React.useCallback((facility: Facility) => {
+    setViewingFacility(facility);
+  }, []);
+
   const handleEdit = React.useCallback(
     (facility: Facility) => {
       setEditingFacility(facility);
@@ -218,12 +239,20 @@ export function FacilitiesPage() {
   );
 
   const columns = React.useMemo(
-    () => facilitiesColumns(handleEdit, handleDelete),
-    [handleEdit, handleDelete]
+    () => facilitiesColumns(handleView, handleEdit, handleDelete),
+    [handleView, handleEdit, handleDelete]
   );
 
   const isModalOpen = isCreateModalOpen || !!editingFacility;
   const isPending = isCreating || isUpdating || isDeleting;
+
+  const getImageUrl = (imagePath: string | null): string | null => {
+    if (!imagePath) return null;
+    const baseURL =
+      import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ??
+      "https://activehiveapi.onrender.com";
+    return imagePath.startsWith("http") ? imagePath : `${baseURL}/${imagePath}`;
+  };
 
   return (
     <DashboardLayout>
@@ -239,7 +268,10 @@ export function FacilitiesPage() {
             </Button>
             <h1 className="text-3xl font-bold">Facilities</h1>
             <p className="text-muted-foreground mt-2">
-              Manage facilities for this location
+              Manage facilities for{" "}
+              <span className="font-semibold text-foreground">
+                {location?.location.locationName || "this location"}
+              </span>
             </p>
           </div>
           <Button onClick={() => setIsCreateModalOpen(true)}>
@@ -265,13 +297,110 @@ export function FacilitiesPage() {
         </div>
       </div>
 
+      {/* View Facility Modal */}
+      <Dialog
+        open={!!viewingFacility}
+        onOpenChange={(open) => {
+          if (!open) {
+            setViewingFacility(null);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Facility Details</DialogTitle>
+            <DialogDescription>
+              View facility information and image
+            </DialogDescription>
+          </DialogHeader>
+          {viewingFacility && (
+            <div className="space-y-4 py-4">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground mb-1">
+                  Name
+                </p>
+                <p className="text-sm">{viewingFacility.name}</p>
+              </div>
+
+              <Separator />
+
+              <div>
+                <p className="text-sm font-medium text-muted-foreground mb-1">
+                  Description
+                </p>
+                <p className="text-sm">
+                  {viewingFacility.description || (
+                    <span className="text-muted-foreground">No description</span>
+                  )}
+                </p>
+              </div>
+
+              <Separator />
+
+              <div>
+                <p className="text-sm font-medium text-muted-foreground mb-2">
+                  Image
+                </p>
+                {viewingFacility.image ? (
+                  <div className="rounded-lg overflow-hidden border">
+                    <img
+                      src={getImageUrl(viewingFacility.image) || ""}
+                      alt={viewingFacility.name}
+                      className="w-full h-64 object-cover"
+                    />
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No image</p>
+                )}
+              </div>
+
+              <Separator />
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">
+                    Status
+                  </p>
+                  <Badge
+                    variant={viewingFacility.isActive ? "default" : "secondary"}
+                  >
+                    {viewingFacility.isActive ? "Active" : "Inactive"}
+                  </Badge>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">
+                    Created At
+                  </p>
+                  <p className="text-sm">
+                    {new Date(viewingFacility.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setViewingFacility(null)}
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create/Edit Facility Modal */}
       <Dialog
         open={isModalOpen}
         onOpenChange={(open) => {
           if (!open) {
             setIsCreateModalOpen(false);
             setEditingFacility(null);
-            form.reset();
+            form.reset({
+              name: "",
+              description: "",
+              image: undefined,
+            });
           }
         }}
       >
@@ -330,6 +459,23 @@ export function FacilitiesPage() {
                 render={({ field: { value, onChange, ...field } }) => (
                   <FormItem>
                     <FormLabel>Image (Optional)</FormLabel>
+                    {editingFacility?.image && (
+                      <div className="mb-2">
+                        <p className="text-xs text-muted-foreground mb-2">
+                          Current image:
+                        </p>
+                        <div className="rounded-lg overflow-hidden border w-full max-w-xs">
+                          <img
+                            src={getImageUrl(editingFacility.image) || ""}
+                            alt={editingFacility.name}
+                            className="w-full h-32 object-cover"
+                          />
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Upload a new image to replace the current one
+                        </p>
+                      </div>
+                    )}
                     <FormControl>
                       <Input
                         type="file"
@@ -360,7 +506,11 @@ export function FacilitiesPage() {
                   onClick={() => {
                     setIsCreateModalOpen(false);
                     setEditingFacility(null);
-                    form.reset();
+                    form.reset({
+                      name: "",
+                      description: "",
+                      image: undefined,
+                    });
                   }}
                 >
                   Cancel

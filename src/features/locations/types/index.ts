@@ -96,12 +96,13 @@ export type CreateLocationPayload = {
 
 export type Facility = {
   id: string;
+  locationId: string;
   name: string;
   description?: string;
-  image?: string;
-  locationId: string;
-  createdAt?: string;
-  updatedAt?: string;
+  image: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type CreateFacilityPayload = {

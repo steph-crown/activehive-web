@@ -8,7 +8,8 @@ export const subscriptionsQueryKeys = {
 };
 
 export const useSubscriptionsQuery = () =>
-  useQuery<Subscription[]>({
+  useQuery({
     queryKey: subscriptionsQueryKeys.list(),
     queryFn: () => subscriptionsApi.getSubscriptions(),
+    select: (data) => data.data, // Extract the data array from the response
   });

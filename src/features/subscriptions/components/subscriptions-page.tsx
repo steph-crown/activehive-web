@@ -8,10 +8,36 @@ import type { Subscription } from "../types";
 
 const subscriptionColumns: ColumnDef<Subscription>[] = [
   {
-    accessorKey: "planName",
+    accessorKey: "member.firstName",
+    header: "Member",
+    cell: ({ row }) => {
+      const member = row.original.member;
+      return (
+        <div className="font-medium">
+          {member.firstName} {member.lastName}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "member.email",
+    header: "Email",
+    cell: ({ row }) => (
+      <div className="text-sm">{row.original.member.email}</div>
+    ),
+  },
+  {
+    accessorKey: "membershipPlan.name",
     header: "Plan Name",
     cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("planName")}</div>
+      <div className="font-medium">{row.original.membershipPlan.name}</div>
+    ),
+  },
+  {
+    accessorKey: "location.locationName",
+    header: "Location",
+    cell: ({ row }) => (
+      <div className="text-sm">{row.original.location.locationName}</div>
     ),
   },
   {
@@ -33,23 +59,22 @@ const subscriptionColumns: ColumnDef<Subscription>[] = [
     },
   },
   {
-    accessorKey: "billingCycle",
-    header: "Billing Cycle",
+    accessorKey: "type",
+    header: "Type",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("billingCycle")}</div>
+      <div className="capitalize">{row.getValue("type")}</div>
     ),
   },
   {
-    accessorKey: "amount",
+    accessorKey: "price",
     header: () => <div className="text-right">Amount</div>,
     cell: ({ row }) => {
-      const amount = row.getValue("amount") as number;
-      const currency = row.original.currency || "USD";
+      const amount = row.getValue("price") as number;
       return (
         <div className="text-right font-medium">
           {new Intl.NumberFormat("en-US", {
             style: "currency",
-            currency,
+            currency: "USD",
           }).format(amount)}
         </div>
       );
@@ -72,12 +97,16 @@ const subscriptionColumns: ColumnDef<Subscription>[] = [
     },
   },
   {
-    accessorKey: "nextBillingDate",
-    header: "Next Billing",
+    accessorKey: "daysRemaining",
+    header: "Days Remaining",
     cell: ({ row }) => {
-      const date = row.original.nextBillingDate;
-      if (!date) return <div className="text-muted-foreground">-</div>;
-      return <div>{new Date(date).toLocaleDateString()}</div>;
+      const days = row.original.daysRemaining;
+      const isExpiringSoon = row.original.isExpiringSoon;
+      return (
+        <div className={isExpiringSoon ? "text-orange-600 font-medium" : ""}>
+          {days}
+        </div>
+      );
     },
   },
 ];
@@ -85,7 +114,6 @@ const subscriptionColumns: ColumnDef<Subscription>[] = [
 export function SubscriptionsPage() {
   const { data: subscriptions, isLoading } = useSubscriptionsQuery();
 
-  void subscriptions;
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
@@ -105,7 +133,7 @@ export function SubscriptionsPage() {
             </div>
           ) : (
             <DataTable
-              data={[]}
+              data={subscriptions || []}
               columns={subscriptionColumns}
               enableTabs={false}
               getRowId={(row) => row.id}

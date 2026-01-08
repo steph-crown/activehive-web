@@ -41,6 +41,11 @@ const navMain = [
     url: "/dashboard/members",
     icon: IconUsers,
   },
+  {
+    title: "Subscriptions",
+    url: "/dashboard/subscriptions",
+    icon: IconReceipt,
+  },
   // {
   //   title: "Analytics",
   //   url: "#",
@@ -66,11 +71,7 @@ const navMain = [
     url: "/dashboard/staff",
     icon: IconUsers,
   },
-  {
-    title: "Subscriptions",
-    url: "/dashboard/subscriptions",
-    icon: IconReceipt,
-  },
+
 ];
 
 const data = {

@@ -3,6 +3,13 @@ import { DataTable } from "@/components/molecules/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -11,6 +18,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
+import { useLocationsQuery } from "@/features/locations/services";
+import { useLocationStore } from "@/store";
 import { IconPlus, IconDotsVertical } from "@tabler/icons-react";
 import { type ColumnDef } from "@tanstack/react-table";
 import * as React from "react";
@@ -124,7 +133,24 @@ export function StaffPage() {
   const [isAssignLocationsOpen, setIsAssignLocationsOpen] =
     React.useState(false);
   const [isViewStaffOpen, setIsViewStaffOpen] = React.useState(false);
-  const { data: staff, isLoading, refetch } = useStaffQuery();
+  const [localLocationId, setLocalLocationId] = React.useState<
+    string | undefined
+  >(undefined);
+  const { selectedLocationId } = useLocationStore();
+  const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
+  const { data: allStaff, isLoading, refetch } = useStaffQuery();
+
+  // Use global location if set, otherwise use local filter
+  const effectiveLocationId = selectedLocationId || localLocationId;
+
+  // Filter staff client-side based on location
+  const staff = React.useMemo(() => {
+    if (!allStaff) return [];
+    if (!effectiveLocationId) return allStaff;
+    return allStaff.filter((s) =>
+      s.locations?.some((loc) => loc.id === effectiveLocationId)
+    );
+  }, [allStaff, effectiveLocationId]);
 
   const handleModalSuccess = () => {
     refetch();
@@ -226,6 +252,35 @@ export function StaffPage() {
                   <IconPlus className="h-4 w-4 mr-2" />
                   Add Staff
                 </Button>
+              </div>
+
+              <div className="mb-4 flex items-center gap-4">
+                <div className="w-64">
+                  <Select
+                    value={localLocationId || "all"}
+                    onValueChange={(value) =>
+                      setLocalLocationId(value === "all" ? undefined : value)
+                    }
+                    disabled={locationsLoading || !!selectedLocationId}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Filter by location" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Locations</SelectItem>
+                      {locations?.map((location) => (
+                        <SelectItem key={location.id} value={location.id}>
+                          {location.locationName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {selectedLocationId && (
+                  <p className="text-sm text-muted-foreground">
+                    Location filter is controlled globally from the header
+                  </p>
+                )}
               </div>
 
               {isLoading ? (

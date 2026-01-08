@@ -1,8 +1,18 @@
 import { BlockLoader } from "@/components/loader/block-loader";
 import { DataTable } from "@/components/molecules/data-table";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
+import { useLocationsQuery } from "@/features/locations/services";
+import { useLocationStore } from "@/store";
 import { type ColumnDef } from "@tanstack/react-table";
+import * as React from "react";
 import { useSubscriptionsQuery } from "../services";
 import type { Subscription } from "../types";
 
@@ -112,7 +122,25 @@ const subscriptionColumns: ColumnDef<Subscription>[] = [
 ];
 
 export function SubscriptionsPage() {
-  const { data: subscriptions, isLoading } = useSubscriptionsQuery();
+  const [localLocationId, setLocalLocationId] = React.useState<
+    string | undefined
+  >(undefined);
+  const { selectedLocationId } = useLocationStore();
+  const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
+
+  // Use global location if set, otherwise use local filter
+  const effectiveLocationId = selectedLocationId || localLocationId;
+
+  // Filter subscriptions client-side based on location
+  const { data: allSubscriptions, isLoading } = useSubscriptionsQuery();
+
+  const subscriptions = React.useMemo(() => {
+    if (!allSubscriptions) return [];
+    if (!effectiveLocationId) return allSubscriptions;
+    return allSubscriptions.filter(
+      (sub) => sub.location.id === effectiveLocationId
+    );
+  }, [allSubscriptions, effectiveLocationId]);
 
   return (
     <DashboardLayout>
@@ -127,6 +155,35 @@ export function SubscriptionsPage() {
         </div>
 
         <div className="px-4 lg:px-6">
+          <div className="mb-4 flex items-center gap-4">
+            <div className="w-64">
+              <Select
+                value={localLocationId || "all"}
+                onValueChange={(value) =>
+                  setLocalLocationId(value === "all" ? undefined : value)
+                }
+                disabled={locationsLoading || !!selectedLocationId}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by location" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Locations</SelectItem>
+                  {locations?.map((location) => (
+                    <SelectItem key={location.id} value={location.id}>
+                      {location.locationName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {selectedLocationId && (
+              <p className="text-sm text-muted-foreground">
+                Location filter is controlled globally from the sidebar
+              </p>
+            )}
+          </div>
+
           {isLoading ? (
             <div className="flex items-center justify-center py-10">
               <BlockLoader />

@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import * as React from "react";
 import { useClassesQuery, useDeleteClassMutation } from "../services";
 import { useLocationsQuery } from "@/features/locations/services";
+import { useLocationStore } from "@/store";
 import type { Class } from "../types";
 import { CreateClassModal } from "./create-class-modal";
 import { AssignTrainerModal } from "./assign-trainer-modal";
@@ -147,7 +148,7 @@ export function ClassesTab() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
-  const [selectedLocationId, setSelectedLocationId] = React.useState<
+  const [localLocationId, setLocalLocationId] = React.useState<
     string | undefined
   >(undefined);
   const [assigningClass, setAssigningClass] = React.useState<Class | null>(
@@ -155,9 +156,14 @@ export function ClassesTab() {
   );
   const [reusingClass, setReusingClass] = React.useState<Class | null>(null);
 
+  const { selectedLocationId } = useLocationStore();
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
+
+  // Use global location if set, otherwise use local filter
+  const effectiveLocationId = selectedLocationId || localLocationId;
+
   const { data: classes, isLoading, refetch } = useClassesQuery(
-    selectedLocationId
+    effectiveLocationId
   );
   const { mutateAsync: deleteClass } = useDeleteClassMutation();
 
@@ -197,26 +203,33 @@ export function ClassesTab() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div className="w-64">
-          <Select
-            value={selectedLocationId || "all"}
-            onValueChange={(value) =>
-              setSelectedLocationId(value === "all" ? undefined : value)
-            }
-            disabled={locationsLoading}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Filter by location" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Locations</SelectItem>
-              {locations?.map((location) => (
-                <SelectItem key={location.id} value={location.id}>
-                  {location.locationName}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="flex items-center gap-4">
+          <div className="w-64">
+            <Select
+              value={localLocationId || "all"}
+              onValueChange={(value) =>
+                setLocalLocationId(value === "all" ? undefined : value)
+              }
+              disabled={locationsLoading || !!selectedLocationId}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Filter by location" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Locations</SelectItem>
+                {locations?.map((location) => (
+                  <SelectItem key={location.id} value={location.id}>
+                    {location.locationName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {selectedLocationId && (
+            <p className="text-sm text-muted-foreground">
+              Location filter is controlled globally from the sidebar
+            </p>
+          )}
         </div>
         <Button onClick={() => setIsCreateModalOpen(true)}>
           <IconPlus className="h-4 w-4 mr-2" />

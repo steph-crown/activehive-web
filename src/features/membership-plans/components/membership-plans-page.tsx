@@ -2,11 +2,20 @@ import * as React from "react";
 import { IconPlus } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { BlockLoader } from "@/components/loader/block-loader";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { DataTable } from "@/components/molecules/data-table";
 import { CreateMembershipPlanModal } from "./create-membership-plan-modal";
 import { useMembershipPlansQuery } from "../services";
+import { useLocationsQuery } from "@/features/locations/services";
+import { useLocationStore } from "@/store";
 import type { MembershipPlan } from "../types";
 import { type ColumnDef } from "@tanstack/react-table";
 
@@ -81,7 +90,16 @@ const membershipPlanColumns: ColumnDef<MembershipPlan>[] = [
 
 export function MembershipPlansPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
-  const { data: plans, isLoading } = useMembershipPlansQuery();
+  const [localLocationId, setLocalLocationId] = React.useState<
+    string | undefined
+  >(undefined);
+  const { selectedLocationId } = useLocationStore();
+  const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
+
+  // Use global location if set, otherwise use local filter
+  const effectiveLocationId = selectedLocationId || localLocationId;
+
+  const { data: plans, isLoading } = useMembershipPlansQuery(effectiveLocationId);
 
   return (
     <DashboardLayout>
@@ -100,6 +118,35 @@ export function MembershipPlansPage() {
         </div>
 
         <div className="px-4 lg:px-6">
+          <div className="mb-4 flex items-center gap-4">
+            <div className="w-64">
+              <Select
+                value={localLocationId || "all"}
+                onValueChange={(value) =>
+                  setLocalLocationId(value === "all" ? undefined : value)
+                }
+                disabled={locationsLoading || !!selectedLocationId}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by location" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Locations</SelectItem>
+                  {locations?.map((location) => (
+                    <SelectItem key={location.id} value={location.id}>
+                      {location.locationName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {selectedLocationId && (
+              <p className="text-sm text-muted-foreground">
+                Location filter is controlled globally from the header
+              </p>
+            )}
+          </div>
+
           {isLoading ? (
             <div className="flex items-center justify-center py-10">
               <BlockLoader />

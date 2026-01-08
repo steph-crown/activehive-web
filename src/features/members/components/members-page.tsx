@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useLocationsQuery } from "@/features/locations/services";
+import { useLocationStore } from "@/store";
 import { IconPlus } from "@tabler/icons-react";
 import { type ColumnDef } from "@tanstack/react-table";
 import * as React from "react";
@@ -90,12 +91,17 @@ const membersColumns: ColumnDef<MemberSubscription>[] = [
 
 export function MembersPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
-  const [selectedLocationId, setSelectedLocationId] = React.useState<
+  const [localLocationId, setLocalLocationId] = React.useState<
     string | undefined
   >(undefined);
+  const { selectedLocationId } = useLocationStore();
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
+
+  // Use global location if set, otherwise use local filter
+  const effectiveLocationId = selectedLocationId || localLocationId;
+
   const { data: members, isLoading, refetch } = useMembersQuery(
-    selectedLocationId
+    effectiveLocationId
   );
 
   const handleModalSuccess = () => {
@@ -123,11 +129,11 @@ export function MembersPage() {
           <div className="mb-4 flex items-center gap-4">
             <div className="w-64">
               <Select
-                value={selectedLocationId || "all"}
+                value={localLocationId || "all"}
                 onValueChange={(value) =>
-                  setSelectedLocationId(value === "all" ? undefined : value)
+                  setLocalLocationId(value === "all" ? undefined : value)
                 }
-                disabled={locationsLoading}
+                disabled={locationsLoading || !!selectedLocationId}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Filter by location" />
@@ -142,6 +148,11 @@ export function MembersPage() {
                 </SelectContent>
               </Select>
             </div>
+            {selectedLocationId && (
+              <p className="text-sm text-muted-foreground">
+                Location filter is controlled globally from the header
+              </p>
+            )}
           </div>
 
           {isLoading ? (

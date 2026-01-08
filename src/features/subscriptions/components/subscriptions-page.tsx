@@ -1,6 +1,7 @@
 import { BlockLoader } from "@/components/loader/block-loader";
 import { DataTable } from "@/components/molecules/data-table";
 import { Badge } from "@/components/ui/badge";
+import { IconMapPin } from "@tabler/icons-react";
 import {
   Select,
   SelectContent,
@@ -131,6 +132,10 @@ export function SubscriptionsPage() {
   // Use global location if set, otherwise use local filter
   const effectiveLocationId = selectedLocationId || localLocationId;
 
+  const selectedLocation = locations?.find(
+    (loc) => loc.id === selectedLocationId
+  );
+
   // Filter subscriptions client-side based on location
   const { data: allSubscriptions, isLoading } = useSubscriptionsQuery();
 
@@ -156,31 +161,33 @@ export function SubscriptionsPage() {
 
         <div className="px-4 lg:px-6">
           <div className="mb-4 flex items-center gap-4">
-            <div className="w-64">
-              <Select
-                value={localLocationId || "all"}
-                onValueChange={(value) =>
-                  setLocalLocationId(value === "all" ? undefined : value)
-                }
-                disabled={locationsLoading || !!selectedLocationId}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Filter by location" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Locations</SelectItem>
-                  {locations?.map((location) => (
-                    <SelectItem key={location.id} value={location.id}>
-                      {location.locationName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            {selectedLocationId && (
-              <p className="text-sm text-muted-foreground">
-                Location filter is controlled globally from the sidebar
-              </p>
+            {selectedLocationId && selectedLocation ? (
+              <div className="flex items-center gap-1.5 text-sm font-medium">
+                <IconMapPin className="h-4 w-4" />
+                <span>{selectedLocation.locationName}</span>
+              </div>
+            ) : (
+              <div className="w-64">
+                <Select
+                  value={localLocationId || "all"}
+                  onValueChange={(value) =>
+                    setLocalLocationId(value === "all" ? undefined : value)
+                  }
+                  disabled={locationsLoading}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filter by location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Locations</SelectItem>
+                    {locations?.map((location) => (
+                      <SelectItem key={location.id} value={location.id}>
+                        {location.locationName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             )}
           </div>
 

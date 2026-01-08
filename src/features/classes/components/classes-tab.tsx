@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { IconPlus, IconDotsVertical } from "@tabler/icons-react";
+import { IconPlus, IconDotsVertical, IconMapPin } from "@tabler/icons-react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { useNavigate } from "react-router-dom";
 import * as React from "react";
@@ -162,6 +162,10 @@ export function ClassesTab() {
   // Use global location if set, otherwise use local filter
   const effectiveLocationId = selectedLocationId || localLocationId;
 
+  const selectedLocation = locations?.find(
+    (loc) => loc.id === selectedLocationId
+  );
+
   const { data: classes, isLoading, refetch } = useClassesQuery(
     effectiveLocationId
   );
@@ -204,31 +208,33 @@ export function ClassesTab() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-64">
-            <Select
-              value={localLocationId || "all"}
-              onValueChange={(value) =>
-                setLocalLocationId(value === "all" ? undefined : value)
-              }
-              disabled={locationsLoading || !!selectedLocationId}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by location" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Locations</SelectItem>
-                {locations?.map((location) => (
-                  <SelectItem key={location.id} value={location.id}>
-                    {location.locationName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          {selectedLocationId && (
-            <p className="text-sm text-muted-foreground">
-              Location filter is controlled globally from the sidebar
-            </p>
+          {selectedLocationId && selectedLocation ? (
+            <div className="flex items-center gap-1.5 text-sm font-medium">
+              <IconMapPin className="h-4 w-4" />
+              <span>{selectedLocation.locationName}</span>
+            </div>
+          ) : (
+            <div className="w-64">
+              <Select
+                value={localLocationId || "all"}
+                onValueChange={(value) =>
+                  setLocalLocationId(value === "all" ? undefined : value)
+                }
+                disabled={locationsLoading}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by location" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Locations</SelectItem>
+                  {locations?.map((location) => (
+                    <SelectItem key={location.id} value={location.id}>
+                      {location.locationName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           )}
         </div>
         <Button onClick={() => setIsCreateModalOpen(true)}>

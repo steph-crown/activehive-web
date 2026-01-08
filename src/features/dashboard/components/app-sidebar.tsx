@@ -1,6 +1,6 @@
 import {
+  IconCalendar,
   IconCamera,
-  IconChartBar,
   IconCreditCard,
   IconDashboard,
   IconDatabase,
@@ -14,15 +14,11 @@ import {
   IconSearch,
   IconSettings,
   IconUsers,
-  IconCalendar,
 } from "@tabler/icons-react";
 import * as React from "react";
 
-import {
-  NavMain,
-  NavSecondary,
-  NavUser,
-} from "@/components/layout";
+import { Logo } from "@/components/icons/logo";
+import { NavMain, NavSecondary, NavUser } from "@/components/layout";
 import {
   Sidebar,
   SidebarContent,
@@ -32,7 +28,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Logo } from "@/components/icons/logo";
 import { useProfileQuery } from "../services";
 
 const navMain = [
@@ -46,11 +41,11 @@ const navMain = [
     url: "/dashboard/members",
     icon: IconUsers,
   },
-  {
-    title: "Analytics",
-    url: "#",
-    icon: IconChartBar,
-  },
+  // {
+  //   title: "Analytics",
+  //   url: "#",
+  //   icon: IconChartBar,
+  // },
   {
     title: "Membership Plans",
     url: "/dashboard/membership-plans",
@@ -175,7 +170,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       };
     }
 
-    const fullName = `${profile.firstName} ${profile.lastName}`.trim() || "User";
+    const fullName =
+      `${profile.firstName} ${profile.lastName}`.trim() || "User";
     return {
       name: fullName,
       email: profile.email,
@@ -206,9 +202,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {/* <NavDocuments items={data.documents} /> */}
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter>
-        {!isLoading && <NavUser user={user} />}
-      </SidebarFooter>
+      <SidebarFooter>{!isLoading && <NavUser user={user} />}</SidebarFooter>
     </Sidebar>
   );
 }

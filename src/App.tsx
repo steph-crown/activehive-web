@@ -41,6 +41,7 @@ const SubscriptionDetails = lazy(
 );
 const Classes = lazy(() => import("@/app/dashboard/classes/page"));
 const ClassDetails = lazy(() => import("@/app/dashboard/classes/[id]/page"));
+const Billing = lazy(() => import("@/app/billing/page"));
 
 function App() {
   return (
@@ -84,6 +85,7 @@ function App() {
           />
           <Route path="/dashboard/classes" element={<Classes />} />
           <Route path="/dashboard/classes/:id" element={<ClassDetails />} />
+          <Route path="/billing" element={<Billing />} />
         </Routes>
       </Suspense>
     </Router>

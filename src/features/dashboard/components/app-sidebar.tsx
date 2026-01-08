@@ -11,9 +11,8 @@ import {
   IconMapPin,
   IconReceipt,
   IconReport,
-  IconSearch,
   IconSettings,
-  IconUsers,
+  IconUsers
 } from "@tabler/icons-react";
 import * as React from "react";
 
@@ -71,7 +70,6 @@ const navMain = [
     url: "/dashboard/staff",
     icon: IconUsers,
   },
-
 ];
 
 const data = {
@@ -134,11 +132,11 @@ const data = {
       url: "#",
       icon: IconHelp,
     },
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
-    },
+    // {
+    //   title: "Search",
+    //   url: "#",
+    //   icon: IconSearch,
+    // },
   ],
   documents: [
     {

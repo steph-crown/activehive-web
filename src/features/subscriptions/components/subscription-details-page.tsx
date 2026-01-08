@@ -8,18 +8,64 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { DataTable } from "@/components/molecules/data-table";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
-import { IconChevronRight } from "@tabler/icons-react";
+import { IconDotsVertical } from "@tabler/icons-react";
 import { useNavigate, useParams } from "react-router-dom";
 import * as React from "react";
-import { useSubscriptionQuery } from "../services";
+import { useSubscriptionQuery, useSubscriptionsQuery } from "../services";
 import { SUBSCRIPTION_STATUS } from "../types";
+import type { Subscription } from "../types";
+import { type ColumnDef } from "@tanstack/react-table";
+import {
+  UpdateSubscriptionStatusModal,
+  CancelSubscriptionModal,
+  ChangeSubscriptionPlanModal,
+} from "./subscription-action-modals";
 
 export function SubscriptionDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: subscription, isLoading } = useSubscriptionQuery(id || "");
+  const [selectedSubscription, setSelectedSubscription] =
+    React.useState<Subscription | null>(null);
+  const [isUpdateStatusOpen, setIsUpdateStatusOpen] = React.useState(false);
+  const [isCancelOpen, setIsCancelOpen] = React.useState(false);
+  const [isChangePlanOpen, setIsChangePlanOpen] = React.useState(false);
+
+  // Fetch all subscriptions for the table
+  const { data: subscriptionsData } = useSubscriptionsQuery({
+    memberId: subscription?.memberId,
+  });
+
+  const handleUpdateStatus = (sub: Subscription) => {
+    setSelectedSubscription(sub);
+    setIsUpdateStatusOpen(true);
+  };
+
+  const handleCancel = (sub: Subscription) => {
+    setSelectedSubscription(sub);
+    setIsCancelOpen(true);
+  };
+
+  const handleChangePlan = (sub: Subscription) => {
+    setSelectedSubscription(sub);
+    setIsChangePlanOpen(true);
+  };
+
+  const handleActionSuccess = () => {
+    setIsUpdateStatusOpen(false);
+    setIsCancelOpen(false);
+    setIsChangePlanOpen(false);
+    setSelectedSubscription(null);
+  };
 
   if (isLoading) {
     return (
@@ -53,6 +99,116 @@ export function SubscriptionDetailsPage() {
         return "secondary";
     }
   };
+
+  const subscriptionColumns: ColumnDef<Subscription>[] = React.useMemo(
+    () => [
+      {
+        accessorKey: "member.firstName",
+        header: "Member",
+        cell: ({ row }) => {
+          const member = row.original.member;
+          return (
+            <div className="font-medium">
+              {member.firstName} {member.lastName}
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "membershipPlan.name",
+        header: "Plan",
+        cell: ({ row }) => (
+          <div className="text-sm">{row.original.membershipPlan.name}</div>
+        ),
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => {
+          const status = row.getValue("status") as string;
+          const variant =
+            status === SUBSCRIPTION_STATUS.ACTIVE
+              ? "default"
+              : status === SUBSCRIPTION_STATUS.CANCELLED
+              ? "destructive"
+              : "secondary";
+          return (
+            <Badge variant={variant} className="capitalize">
+              {status}
+            </Badge>
+          );
+        },
+      },
+      {
+        accessorKey: "price",
+        header: () => <div className="text-right">Amount</div>,
+        cell: ({ row }) => {
+          const amount = row.getValue("price") as number;
+          return (
+            <div className="text-right font-medium">
+              {new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "USD",
+              }).format(amount)}
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "startDate",
+        header: "Start Date",
+        cell: ({ row }) => {
+          const date = new Date(row.getValue("startDate"));
+          return <div>{date.toLocaleDateString()}</div>;
+        },
+      },
+      {
+        accessorKey: "endDate",
+        header: "End Date",
+        cell: ({ row }) => {
+          const date = new Date(row.getValue("endDate"));
+          return <div>{date.toLocaleDateString()}</div>;
+        },
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) => {
+          const sub = row.original;
+          return (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <IconDotsVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem
+                  onClick={() => navigate(`/dashboard/subscriptions/${sub.id}`)}
+                >
+                  View
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleUpdateStatus(sub)}>
+                  Update Status
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => handleChangePlan(sub)}>
+                  Change Plan
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={() => handleCancel(sub)}
+                >
+                  Cancel
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        },
+      },
+    ],
+    [navigate]
+  );
 
   return (
     <DashboardLayout>
@@ -253,8 +409,48 @@ export function SubscriptionDetailsPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Related Subscriptions Table */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Related Subscriptions</CardTitle>
+              <CardDescription>
+                All subscriptions for {subscription.member.firstName}{" "}
+                {subscription.member.lastName}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DataTable
+                data={subscriptionsData?.data || []}
+                columns={subscriptionColumns}
+                getRowId={(row) => row.id}
+                emptyMessage="No related subscriptions found."
+              />
+            </CardContent>
+          </Card>
         </div>
       </div>
+
+      <UpdateSubscriptionStatusModal
+        open={isUpdateStatusOpen}
+        onOpenChange={setIsUpdateStatusOpen}
+        subscription={selectedSubscription}
+        onSuccess={handleActionSuccess}
+      />
+
+      <CancelSubscriptionModal
+        open={isCancelOpen}
+        onOpenChange={setIsCancelOpen}
+        subscription={selectedSubscription}
+        onSuccess={handleActionSuccess}
+      />
+
+      <ChangeSubscriptionPlanModal
+        open={isChangePlanOpen}
+        onOpenChange={setIsChangePlanOpen}
+        subscription={selectedSubscription}
+        onSuccess={handleActionSuccess}
+      />
     </DashboardLayout>
   );
 }

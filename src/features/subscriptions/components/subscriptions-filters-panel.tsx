@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { DatePicker } from "@/components/ui/date-picker";
 import { IconFilter, IconX } from "@tabler/icons-react";
 import * as React from "react";
 import type { SubscriptionsFilters } from "../types";
@@ -206,30 +207,30 @@ export function SubscriptionsFiltersPanel({
               <label className="text-sm font-medium mb-2 block">
                 Start Date From
               </label>
-              <Input
-                type="date"
-                value={localFilters.startDateFrom || ""}
-                onChange={(e) =>
+              <DatePicker
+                value={localFilters.startDateFrom}
+                onChange={(date) =>
                   setLocalFilters((prev) => ({
                     ...prev,
-                    startDateFrom: e.target.value || undefined,
+                    startDateFrom: date,
                   }))
                 }
+                placeholder="Select start date from"
               />
             </div>
             <div>
               <label className="text-sm font-medium mb-2 block">
                 Start Date To
               </label>
-              <Input
-                type="date"
-                value={localFilters.startDateTo || ""}
-                onChange={(e) =>
+              <DatePicker
+                value={localFilters.startDateTo}
+                onChange={(date) =>
                   setLocalFilters((prev) => ({
                     ...prev,
-                    startDateTo: e.target.value || undefined,
+                    startDateTo: date,
                   }))
                 }
+                placeholder="Select start date to"
               />
             </div>
           </div>
@@ -239,30 +240,30 @@ export function SubscriptionsFiltersPanel({
               <label className="text-sm font-medium mb-2 block">
                 End Date From
               </label>
-              <Input
-                type="date"
-                value={localFilters.endDateFrom || ""}
-                onChange={(e) =>
+              <DatePicker
+                value={localFilters.endDateFrom}
+                onChange={(date) =>
                   setLocalFilters((prev) => ({
                     ...prev,
-                    endDateFrom: e.target.value || undefined,
+                    endDateFrom: date,
                   }))
                 }
+                placeholder="Select end date from"
               />
             </div>
             <div>
               <label className="text-sm font-medium mb-2 block">
                 End Date To
               </label>
-              <Input
-                type="date"
-                value={localFilters.endDateTo || ""}
-                onChange={(e) =>
+              <DatePicker
+                value={localFilters.endDateTo}
+                onChange={(date) =>
                   setLocalFilters((prev) => ({
                     ...prev,
-                    endDateTo: e.target.value || undefined,
+                    endDateTo: date,
                   }))
                 }
+                placeholder="Select end date to"
               />
             </div>
           </div>

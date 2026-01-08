@@ -1,7 +1,14 @@
-import * as React from "react";
-import { IconPlus, IconMapPin } from "@tabler/icons-react";
-import { Button } from "@/components/ui/button";
+import { BlockLoader } from "@/components/loader/block-loader";
+import { DataTable } from "@/components/molecules/data-table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -9,15 +16,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BlockLoader } from "@/components/loader/block-loader";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
-import { DataTable } from "@/components/molecules/data-table";
-import { CreateMembershipPlanModal } from "./create-membership-plan-modal";
-import { useMembershipPlansQuery } from "../services";
 import { useLocationsQuery } from "@/features/locations/services";
 import { useLocationStore } from "@/store";
-import type { MembershipPlan } from "../types";
+import { IconDotsVertical, IconMapPin, IconPlus } from "@tabler/icons-react";
 import { type ColumnDef } from "@tanstack/react-table";
+import * as React from "react";
+import { useNavigate } from "react-router-dom";
+import { useMembershipPlansQuery } from "../services";
+import type { MembershipPlan } from "../types";
+import { CreateMembershipPlanModal } from "./create-membership-plan-modal";
+import {
+  AddPromoCodeModal,
+  DeleteMembershipPlanModal,
+  DuplicateMembershipPlanModal,
+  UpdateMembershipPlanModal,
+} from "./membership-plan-action-modals";
 
 const membershipPlanColumns: ColumnDef<MembershipPlan>[] = [
   {
@@ -89,10 +103,19 @@ const membershipPlanColumns: ColumnDef<MembershipPlan>[] = [
 ];
 
 export function MembershipPlansPage() {
+  const navigate = useNavigate();
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [localLocationId, setLocalLocationId] = React.useState<
     string | undefined
   >(undefined);
+  const [selectedPlan, setSelectedPlan] = React.useState<MembershipPlan | null>(
+    null
+  );
+  const [isUpdateOpen, setIsUpdateOpen] = React.useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
+  const [isDuplicateOpen, setIsDuplicateOpen] = React.useState(false);
+  const [isAddPromoCodeOpen, setIsAddPromoCodeOpen] = React.useState(false);
+
   const { selectedLocationId } = useLocationStore();
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
 
@@ -103,7 +126,86 @@ export function MembershipPlansPage() {
     (loc) => loc.id === selectedLocationId
   );
 
-  const { data: plans, isLoading } = useMembershipPlansQuery(effectiveLocationId);
+  const { data: plans, isLoading } =
+    useMembershipPlansQuery(effectiveLocationId);
+
+  const handleActionSuccess = () => {
+    setIsUpdateOpen(false);
+    setIsDeleteOpen(false);
+    setIsDuplicateOpen(false);
+    setIsAddPromoCodeOpen(false);
+    setSelectedPlan(null);
+  };
+
+  const actionsColumn: ColumnDef<MembershipPlan> = React.useMemo(
+    () => ({
+      id: "actions",
+      header: () => <div className="text-right">Actions</div>,
+      cell: ({ row }) => {
+        const plan = row.original;
+        return (
+          <div className="flex justify-end">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <IconDotsVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem
+                  onClick={() =>
+                    navigate(`/dashboard/membership-plans/${plan.id}`)
+                  }
+                >
+                  View
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSelectedPlan(plan);
+                    setIsUpdateOpen(true);
+                  }}
+                >
+                  Update
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSelectedPlan(plan);
+                    setIsDuplicateOpen(true);
+                  }}
+                >
+                  Duplicate
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSelectedPlan(plan);
+                    setIsAddPromoCodeOpen(true);
+                  }}
+                >
+                  Add Promo Code
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSelectedPlan(plan);
+                    setIsDeleteOpen(true);
+                  }}
+                  className="text-destructive"
+                >
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        );
+      },
+    }),
+    [navigate]
+  );
+
+  const columnsWithActions = React.useMemo(
+    () => [...membershipPlanColumns, actionsColumn],
+    [actionsColumn]
+  );
 
   return (
     <DashboardLayout>
@@ -160,15 +262,10 @@ export function MembershipPlansPage() {
           ) : (
             <DataTable
               data={plans || []}
-              columns={membershipPlanColumns}
+              columns={columnsWithActions}
               getRowId={(row) => row.id}
+              enableTabs={false}
               emptyMessage="No membership plans found."
-              toolbar={
-                <Button variant="outline" size="sm">
-                  <IconPlus />
-                  <span className="hidden lg:inline">Add Plan</span>
-                </Button>
-              }
             />
           )}
         </div>
@@ -177,6 +274,34 @@ export function MembershipPlansPage() {
       <CreateMembershipPlanModal
         open={isCreateModalOpen}
         onOpenChange={setIsCreateModalOpen}
+      />
+
+      <UpdateMembershipPlanModal
+        open={isUpdateOpen}
+        onOpenChange={setIsUpdateOpen}
+        plan={selectedPlan}
+        onSuccess={handleActionSuccess}
+      />
+
+      <DeleteMembershipPlanModal
+        open={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        plan={selectedPlan}
+        onSuccess={handleActionSuccess}
+      />
+
+      <DuplicateMembershipPlanModal
+        open={isDuplicateOpen}
+        onOpenChange={setIsDuplicateOpen}
+        plan={selectedPlan}
+        onSuccess={handleActionSuccess}
+      />
+
+      <AddPromoCodeModal
+        open={isAddPromoCodeOpen}
+        onOpenChange={setIsAddPromoCodeOpen}
+        plan={selectedPlan}
+        onSuccess={handleActionSuccess}
       />
     </DashboardLayout>
   );

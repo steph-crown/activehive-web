@@ -24,6 +24,9 @@ const Members = lazy(() => import("@/app/dashboard/members/page"));
 const MembershipPlans = lazy(
   () => import("@/app/dashboard/membership-plans/page")
 );
+const MembershipPlanDetails = lazy(
+  () => import("@/app/dashboard/membership-plans/[id]/page")
+);
 const Locations = lazy(() => import("@/app/dashboard/locations/page"));
 const LocationDetails = lazy(
   () => import("@/app/dashboard/locations/[id]/page")
@@ -59,6 +62,10 @@ function App() {
           <Route
             path="/dashboard/membership-plans"
             element={<MembershipPlans />}
+          />
+          <Route
+            path="/dashboard/membership-plans/:id"
+            element={<MembershipPlanDetails />}
           />
           <Route path="/dashboard/locations" element={<Locations />} />
           <Route

@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DatePicker } from "@/components/ui/date-picker";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -185,7 +186,11 @@ export function UpdateSubscriptionStatusModal({
                 <FormItem>
                   <FormLabel>End Date (Optional)</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <DatePicker
+                      value={field.value}
+                      onChange={(date) => field.onChange(date || "")}
+                      placeholder="Select end date"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -151,9 +151,6 @@ export function BillingPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle>Subscription Overview</CardTitle>
-                      <CardDescription>
-                        Subscription ID: {data.subscription.id}
-                      </CardDescription>
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant={getStatusVariant(data.subscription.status)}>

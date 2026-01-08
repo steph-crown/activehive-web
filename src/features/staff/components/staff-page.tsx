@@ -265,7 +265,7 @@ export function StaffPage() {
                     <span>{selectedLocation.locationName}</span>
                   </div>
                 ) : (
-                  <div className="w-64">
+                  <div className="w-max">
                     <Select
                       value={localLocationId || "all"}
                       onValueChange={(value) =>

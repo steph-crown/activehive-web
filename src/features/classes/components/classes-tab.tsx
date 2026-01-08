@@ -46,14 +46,18 @@ const createClassesColumns = (
     accessorKey: "metadata.category",
     header: "Category",
     cell: ({ row }) => (
-      <Badge variant="outline">{row.original.metadata?.category || "N/A"}</Badge>
+      <Badge variant="outline">
+        {row.original.metadata?.category || "N/A"}
+      </Badge>
     ),
   },
   {
     accessorKey: "metadata.difficulty",
     header: "Difficulty",
     cell: ({ row }) => (
-      <Badge variant="secondary">{row.original.metadata?.difficulty || "N/A"}</Badge>
+      <Badge variant="secondary">
+        {row.original.metadata?.difficulty || "N/A"}
+      </Badge>
     ),
   },
   {
@@ -166,9 +170,11 @@ export function ClassesTab() {
     (loc) => loc.id === selectedLocationId
   );
 
-  const { data: classes, isLoading, refetch } = useClassesQuery(
-    effectiveLocationId
-  );
+  const {
+    data: classes,
+    isLoading,
+    refetch,
+  } = useClassesQuery(effectiveLocationId);
   const { mutateAsync: deleteClass } = useDeleteClassMutation();
 
   const handleDelete = async (classId: string) => {
@@ -214,7 +220,7 @@ export function ClassesTab() {
               <span>{selectedLocation.locationName}</span>
             </div>
           ) : (
-            <div className="w-64">
+            <div className="w-max">
               <Select
                 value={localLocationId || "all"}
                 onValueChange={(value) =>

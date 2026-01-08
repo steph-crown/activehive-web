@@ -104,9 +104,11 @@ export function MembersPage() {
     (loc) => loc.id === selectedLocationId
   );
 
-  const { data: members, isLoading, refetch } = useMembersQuery(
-    effectiveLocationId
-  );
+  const {
+    data: members,
+    isLoading,
+    refetch,
+  } = useMembersQuery(effectiveLocationId);
 
   const handleModalSuccess = () => {
     refetch();
@@ -137,7 +139,7 @@ export function MembersPage() {
                 <span>{selectedLocation.locationName}</span>
               </div>
             ) : (
-              <div className="w-64">
+              <div className="w-max">
                 <Select
                   value={localLocationId || "all"}
                   onValueChange={(value) =>

@@ -33,6 +33,9 @@ const LocationFacilities = lazy(
 );
 const Staff = lazy(() => import("@/app/dashboard/staff/page"));
 const Subscriptions = lazy(() => import("@/app/dashboard/subscriptions/page"));
+const SubscriptionDetails = lazy(
+  () => import("@/app/dashboard/subscriptions/[id]/page")
+);
 const Classes = lazy(() => import("@/app/dashboard/classes/page"));
 const ClassDetails = lazy(() => import("@/app/dashboard/classes/[id]/page"));
 
@@ -68,6 +71,10 @@ function App() {
           />
           <Route path="/dashboard/staff" element={<Staff />} />
           <Route path="/dashboard/subscriptions" element={<Subscriptions />} />
+          <Route
+            path="/dashboard/subscriptions/:id"
+            element={<SubscriptionDetails />}
+          />
           <Route path="/dashboard/classes" element={<Classes />} />
           <Route path="/dashboard/classes/:id" element={<ClassDetails />} />
         </Routes>

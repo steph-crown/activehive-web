@@ -36,7 +36,7 @@ import {
 } from "../services";
 import type { Subscription } from "../types";
 import { SUBSCRIPTION_STATUS } from "../types";
-import type { MembershipPlan } from "@/features/membership-plans/types";
+import { useMembershipPlansQuery } from "@/features/membership-plans/services";
 
 // Update Status Modal
 const updateStatusSchema = yup.object({
@@ -321,7 +321,6 @@ interface ChangeSubscriptionPlanModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   subscription: Subscription | null;
-  membershipPlans: MembershipPlan[];
   onSuccess: () => void;
 }
 
@@ -329,12 +328,13 @@ export function ChangeSubscriptionPlanModal({
   open,
   onOpenChange,
   subscription,
-  membershipPlans,
   onSuccess,
 }: ChangeSubscriptionPlanModalProps) {
   const { showSuccess, showError } = useToast();
   const { mutateAsync: changePlan, isPending } =
     useChangeSubscriptionPlanMutation();
+  const { data: membershipPlans, isLoading: plansLoading } =
+    useMembershipPlansQuery(subscription?.location.id);
 
   const form = useForm<ChangePlanFormValues>({
     resolver: yupResolver(changePlanSchema) as any,
@@ -376,7 +376,7 @@ export function ChangeSubscriptionPlanModal({
     }
   };
 
-  const availablePlans = membershipPlans.filter(
+  const availablePlans = (membershipPlans || []).filter(
     (plan) => plan.id !== subscription?.membershipPlanId
   );
 
@@ -401,6 +401,7 @@ export function ChangeSubscriptionPlanModal({
                   <Select
                     onValueChange={field.onChange}
                     value={field.value}
+                    disabled={plansLoading}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -408,11 +409,21 @@ export function ChangeSubscriptionPlanModal({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {availablePlans.map((plan) => (
-                        <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} - ${plan.price}/{plan.duration}
+                      {plansLoading ? (
+                        <SelectItem value="loading" disabled>
+                          Loading plans...
                         </SelectItem>
-                      ))}
+                      ) : availablePlans.length === 0 ? (
+                        <SelectItem value="no-plans" disabled>
+                          No other plans available
+                        </SelectItem>
+                      ) : (
+                        availablePlans.map((plan) => (
+                          <SelectItem key={plan.id} value={plan.id}>
+                            {plan.name} - ${plan.price}/{plan.duration}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />

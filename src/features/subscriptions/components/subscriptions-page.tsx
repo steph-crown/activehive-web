@@ -403,7 +403,6 @@ export function SubscriptionsPage() {
         open={isChangePlanOpen}
         onOpenChange={setIsChangePlanOpen}
         subscription={selectedSubscription}
-        membershipPlans={membershipPlans || []}
         onSuccess={handleActionSuccess}
       />
     </DashboardLayout>

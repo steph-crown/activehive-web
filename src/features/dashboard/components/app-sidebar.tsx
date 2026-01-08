@@ -11,7 +11,6 @@ import {
   IconMapPin,
   IconReceipt,
   IconReport,
-  IconSettings,
   IconUsers
 } from "@tabler/icons-react";
 import * as React from "react";
@@ -28,6 +27,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useProfileQuery } from "../services";
+import { GetHelpModal } from "./get-help-modal";
 
 const navMain = [
   {
@@ -122,11 +122,11 @@ const data = {
     },
   ],
   navSecondary: [
-    {
-      title: "Settings",
-      url: "#",
-      icon: IconSettings,
-    },
+    // {
+    //   title: "Settings",
+    //   url: "#",
+    //   icon: IconSettings,
+    // },
     {
       title: "Get Help",
       url: "#",
@@ -159,6 +159,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: profile, isLoading } = useProfileQuery();
+  const [isGetHelpOpen, setIsGetHelpOpen] = React.useState(false);
 
   const user = React.useMemo(() => {
     if (!profile) {
@@ -177,6 +178,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       avatar: profile.profileImage || "",
     };
   }, [profile]);
+
+  const navSecondaryWithHandler = React.useMemo(
+    () =>
+      data.navSecondary.map((item) =>
+        item.title === "Get Help"
+          ? { ...item, onClick: () => setIsGetHelpOpen(true) }
+          : item
+      ),
+    []
+  );
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -199,9 +210,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={navMain} />
         {/* <NavDocuments items={data.documents} /> */}
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavSecondary items={navSecondaryWithHandler} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>{!isLoading && <NavUser user={user} />}</SidebarFooter>
+      <GetHelpModal open={isGetHelpOpen} onOpenChange={setIsGetHelpOpen} />
     </Sidebar>
   );
 }

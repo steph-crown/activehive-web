@@ -43,13 +43,15 @@ const Classes = lazy(() => import("@/app/dashboard/classes/page"));
 const ClassDetails = lazy(() => import("@/app/dashboard/classes/[id]/page"));
 const Billing = lazy(() => import("@/app/billing/page"));
 const Profile = lazy(() => import("@/app/profile/page"));
+const Landing = lazy(() => import("@/app/landing/page"));
 
 function App() {
   return (
     <Router>
       <Suspense fallback={<BlockLoader />}>
         <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/" element={<Landing />} />
+          <Route path="/landing" element={<Landing />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/otp" element={<Otp />} />
           <Route path="/complete-setup" element={<CompleteSetup />} />

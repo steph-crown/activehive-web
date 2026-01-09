@@ -67,27 +67,7 @@ export function SubscriptionDetailsPage() {
     setSelectedSubscription(null);
   };
 
-  if (isLoading) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center py-10">
-          <BlockLoader />
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  if (!subscription) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center py-10">
-          <p className="text-muted-foreground">Subscription not found</p>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  const getStatusVariant = (status: string) => {
+  const getStatusVariant = React.useCallback((status: string) => {
     switch (status) {
       case SUBSCRIPTION_STATUS.ACTIVE:
         return "default";
@@ -98,7 +78,7 @@ export function SubscriptionDetailsPage() {
       default:
         return "secondary";
     }
-  };
+  }, []);
 
   const subscriptionColumns: ColumnDef<Subscription>[] = React.useMemo(
     () => [
@@ -207,8 +187,28 @@ export function SubscriptionDetailsPage() {
         },
       },
     ],
-    [navigate]
+    [navigate, handleUpdateStatus, handleCancel, handleChangePlan]
   );
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center py-10">
+          <BlockLoader />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!subscription) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center py-10">
+          <p className="text-muted-foreground">Subscription not found</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>

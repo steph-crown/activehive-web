@@ -1,12 +1,7 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-import { Suspense, lazy } from "react";
-import "./App.css";
 import { BlockLoader } from "@/components/loader/block-loader";
+import { Suspense, lazy } from "react";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import "./App.css";
 
 const Login = lazy(() => import("@/app/(auth)/login/page"));
 const SignUp = lazy(() => import("@/app/(auth)/signup/page"));

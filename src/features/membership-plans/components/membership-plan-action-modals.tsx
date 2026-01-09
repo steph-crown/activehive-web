@@ -114,14 +114,23 @@ export function UpdateMembershipPlanModal({
     if (!plan) return;
 
     try {
+      const payload: any = {
+        ...data,
+        imageUrl: data.imageUrl || undefined,
+        trialPeriodDays: data.trialPeriodDays || undefined,
+        classesPerWeek: data.classesPerWeek || undefined,
+      };
+
+      // Filter out undefined values from features array
+      if (data.features) {
+        payload.features = data.features.filter(
+          (f): f is string => f !== undefined
+        );
+      }
+
       await updatePlan({
         id: plan.id,
-        payload: {
-          ...data,
-          imageUrl: data.imageUrl || undefined,
-          trialPeriodDays: data.trialPeriodDays || undefined,
-          classesPerWeek: data.classesPerWeek || undefined,
-        },
+        payload,
       });
       showSuccess("Success", "Membership plan updated successfully!");
       onSuccess();
@@ -224,7 +233,11 @@ export function UpdateMembershipPlanModal({
                 <FormItem>
                   <FormLabel>Image URL</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="https://example.com/image.jpg" />
+                    <Input
+                      {...field}
+                      value={field.value || ""}
+                      placeholder="https://example.com/image.jpg"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

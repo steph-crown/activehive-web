@@ -73,10 +73,24 @@ export function UpdateSubscriptionStatusModal({
   const { mutateAsync: updateStatus, isPending } =
     useUpdateSubscriptionStatusMutation();
 
+  const getValidStatus = (status: string): UpdateStatusFormValues["status"] => {
+    if (
+      status === SUBSCRIPTION_STATUS.ACTIVE ||
+      status === SUBSCRIPTION_STATUS.EXPIRED ||
+      status === SUBSCRIPTION_STATUS.CANCELLED ||
+      status === SUBSCRIPTION_STATUS.PENDING
+    ) {
+      return status;
+    }
+    return SUBSCRIPTION_STATUS.ACTIVE;
+  };
+
   const form = useForm<UpdateStatusFormValues>({
     resolver: yupResolver(updateStatusSchema) as any,
     defaultValues: {
-      status: subscription?.status || SUBSCRIPTION_STATUS.ACTIVE,
+      status: subscription
+        ? getValidStatus(subscription.status)
+        : SUBSCRIPTION_STATUS.ACTIVE,
       reason: "",
       endDate: "",
     },
@@ -85,7 +99,7 @@ export function UpdateSubscriptionStatusModal({
   React.useEffect(() => {
     if (subscription) {
       form.reset({
-        status: subscription.status,
+        status: getValidStatus(subscription.status),
         reason: "",
         endDate: subscription.endDate.split("T")[0],
       });

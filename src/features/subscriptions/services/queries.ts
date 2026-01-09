@@ -5,7 +5,6 @@ import {
 } from "@tanstack/react-query";
 import { subscriptionsApi } from "./api";
 import type {
-  Subscription,
   SubscriptionsFilters,
   UpdateSubscriptionStatusPayload,
   CancelSubscriptionPayload,

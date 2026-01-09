@@ -15,7 +15,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Separator } from "@/components/ui/separator";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { IconDotsVertical } from "@tabler/icons-react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -29,7 +28,6 @@ import {
   RemovePromoCodeModal,
   TogglePromoCodeModal,
 } from "./membership-plan-action-modals";
-import type { MembershipPlanWithPromoCodes } from "../types";
 
 export function MembershipPlanDetailsPage() {
   const { id } = useParams<{ id: string }>();

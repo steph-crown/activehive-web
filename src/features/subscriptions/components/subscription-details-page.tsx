@@ -421,7 +421,7 @@ export function SubscriptionDetailsPage() {
             </CardHeader>
             <CardContent>
               <DataTable
-                data={subscriptionsData?.data || []}
+                data={subscriptionsData || []}
                 columns={subscriptionColumns}
                 getRowId={(row) => row.id}
                 emptyMessage="No related subscriptions found."

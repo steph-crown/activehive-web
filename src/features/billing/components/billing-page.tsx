@@ -7,87 +7,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
-import * as React from "react";
-import { apiClient } from "@/lib/api-client";
-
-interface MySubscriptionResponse {
-  subscription: {
-    id: string;
-    gymOwnerId: string;
-    trainerId: string | null;
-    gymId: string;
-    platformPlanId: string | null;
-    plan: string;
-    status: string;
-    monthlyPrice: number | null;
-    trialStartDate: string | null;
-    trialEndDate: string | null;
-    subscriptionStartDate: string | null;
-    subscriptionEndDate: string | null;
-    lastPaymentDate: string | null;
-    nextPaymentDate: string | null;
-    autoRenew: boolean;
-    cancellationDate: string | null;
-    cancellationReason: string | null;
-    subscribedBy: string | null;
-    isTrial: boolean;
-    createdAt: string;
-    updatedAt: string;
-    gymOwner: {
-      id: string;
-      email: string;
-      firstName: string;
-      lastName: string;
-      phoneNumber: string | null;
-      profileImage: string | null;
-    };
-    gym: {
-      id: string;
-      name: string;
-      logo: string | null;
-      address: {
-        street: string;
-        city: string;
-        state: string;
-        zipCode: string;
-        country: string;
-      };
-      phoneNumber: string;
-      email: string;
-    };
-  };
-  isTrial: boolean;
-  daysRemaining: number;
-  isActive: boolean;
-}
+import type { MySubscriptionResponse } from "../types";
+import { useMySubscriptionQuery } from "../services";
 
 export function BillingPage() {
-  const [data, setData] = React.useState<MySubscriptionResponse | null>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    const fetchMySubscription = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const response = await apiClient.get<MySubscriptionResponse>(
-          "/api/subscriptions/my-subscription"
-        );
-        console.log("My Subscription Response:", response);
-        setData(response);
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : "Failed to fetch subscription";
-        console.error("Error fetching subscription:", err);
-        setError(errorMessage);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchMySubscription();
-  }, []);
+  const { data, isLoading, error } = useMySubscriptionQuery();
+  const subscriptionData = data as MySubscriptionResponse | undefined;
+  const errorMessage = error ? error.message : null;
 
   const getStatusVariant = (status: string) => {
     switch (status.toLowerCase()) {
@@ -133,16 +59,29 @@ export function BillingPage() {
         </div>
 
         <div className="px-4 lg:px-6">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-10">
-              <BlockLoader />
-            </div>
-          ) : error ? (
-            <div className="flex items-center justify-center py-10">
-              <p className="text-destructive">Error: {error}</p>
-            </div>
-          ) : data ? (
-            <div className="space-y-6">
+          {(() => {
+            if (isLoading) {
+              return (
+                <div className="flex items-center justify-center py-10">
+                  <BlockLoader />
+                </div>
+              );
+            }
+
+            if (errorMessage) {
+              return (
+                <div className="flex items-center justify-center py-10">
+                  <p className="text-destructive">Error: {errorMessage}</p>
+                </div>
+              );
+            }
+
+            if (!subscriptionData) {
+              return null;
+            }
+
+            return (
+              <div className="space-y-6">
               {/* Subscription Overview */}
               <Card>
                 <CardHeader>
@@ -151,13 +90,17 @@ export function BillingPage() {
                       <CardTitle>Subscription Overview</CardTitle>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant={getStatusVariant(data.subscription.status)}>
-                        {data.subscription.status.toUpperCase()}
+                      <Badge
+                        variant={getStatusVariant(
+                          subscriptionData.subscription.status
+                        )}
+                      >
+                        {subscriptionData.subscription.status.toUpperCase()}
                       </Badge>
-                      {data.isTrial && (
+                      {subscriptionData.isTrial && (
                         <Badge variant="outline">Trial</Badge>
                       )}
-                      {data.isActive && (
+                      {subscriptionData.isActive && (
                         <Badge variant="default">Active</Badge>
                       )}
                     </div>
@@ -168,7 +111,7 @@ export function BillingPage() {
                     <div>
                       <p className="text-sm text-muted-foreground">Plan</p>
                       <p className="font-medium capitalize">
-                        {data.subscription.plan}
+                        {subscriptionData.subscription.plan}
                       </p>
                     </div>
                     <div>
@@ -176,11 +119,13 @@ export function BillingPage() {
                         Monthly Price
                       </p>
                       <p className="font-medium">
-                        {data.subscription.monthlyPrice
+                        {subscriptionData.subscription.monthlyPrice
                           ? new Intl.NumberFormat("en-US", {
                               style: "currency",
                               currency: "USD",
-                            }).format(data.subscription.monthlyPrice)
+                            }).format(
+                              subscriptionData.subscription.monthlyPrice
+                            )
                           : "N/A"}
                       </p>
                     </div>
@@ -189,7 +134,9 @@ export function BillingPage() {
                         Auto Renew
                       </p>
                       <p className="font-medium">
-                        {data.subscription.autoRenew ? "Yes" : "No"}
+                          {subscriptionData.subscription.autoRenew
+                            ? "Yes"
+                            : "No"}
                       </p>
                     </div>
                     <div>
@@ -198,10 +145,12 @@ export function BillingPage() {
                       </p>
                       <p
                         className={`font-medium ${
-                          data.daysRemaining <= 7 ? "text-orange-600" : ""
+                          subscriptionData.daysRemaining <= 7
+                            ? "text-orange-600"
+                            : ""
                         }`}
                       >
-                        {data.daysRemaining}
+                        {subscriptionData.daysRemaining}
                       </p>
                     </div>
                   </div>
@@ -209,7 +158,7 @@ export function BillingPage() {
               </Card>
 
               {/* Trial Information */}
-              {data.isTrial && (
+              {subscriptionData.isTrial && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Trial Information</CardTitle>
@@ -221,7 +170,9 @@ export function BillingPage() {
                           Trial Start Date
                         </p>
                         <p className="font-medium">
-                          {formatDateTime(data.subscription.trialStartDate)}
+                          {formatDateTime(
+                            subscriptionData.subscription.trialStartDate
+                          )}
                         </p>
                       </div>
                       <div>
@@ -229,7 +180,9 @@ export function BillingPage() {
                           Trial End Date
                         </p>
                         <p className="font-medium">
-                          {formatDateTime(data.subscription.trialEndDate)}
+                          {formatDateTime(
+                            subscriptionData.subscription.trialEndDate
+                          )}
                         </p>
                       </div>
                     </div>
@@ -249,7 +202,9 @@ export function BillingPage() {
                         Subscription Start Date
                       </p>
                       <p className="font-medium">
-                        {formatDate(data.subscription.subscriptionStartDate)}
+                          {formatDate(
+                            subscriptionData.subscription.subscriptionStartDate
+                          )}
                       </p>
                     </div>
                     <div>
@@ -257,7 +212,9 @@ export function BillingPage() {
                         Subscription End Date
                       </p>
                       <p className="font-medium">
-                        {formatDate(data.subscription.subscriptionEndDate)}
+                          {formatDate(
+                            subscriptionData.subscription.subscriptionEndDate
+                          )}
                       </p>
                     </div>
                     <div>
@@ -265,7 +222,9 @@ export function BillingPage() {
                         Last Payment Date
                       </p>
                       <p className="font-medium">
-                        {formatDate(data.subscription.lastPaymentDate)}
+                          {formatDate(
+                            subscriptionData.subscription.lastPaymentDate
+                          )}
                       </p>
                     </div>
                     <div>
@@ -273,7 +232,9 @@ export function BillingPage() {
                         Next Payment Date
                       </p>
                       <p className="font-medium">
-                        {formatDate(data.subscription.nextPaymentDate)}
+                          {formatDate(
+                            subscriptionData.subscription.nextPaymentDate
+                          )}
                       </p>
                     </div>
                   </div>
@@ -281,7 +242,7 @@ export function BillingPage() {
               </Card>
 
               {/* Cancellation Information */}
-              {data.subscription.cancellationDate && (
+              {subscriptionData.subscription.cancellationDate && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Cancellation Information</CardTitle>
@@ -293,13 +254,16 @@ export function BillingPage() {
                           Cancellation Date
                         </p>
                         <p className="font-medium">
-                          {formatDate(data.subscription.cancellationDate)}
+                          {formatDate(
+                            subscriptionData.subscription.cancellationDate
+                          )}
                         </p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Reason</p>
                         <p className="font-medium">
-                          {data.subscription.cancellationReason || "N/A"}
+                          {subscriptionData.subscription.cancellationReason ||
+                            "N/A"}
                         </p>
                       </div>
                     </div>
@@ -317,21 +281,21 @@ export function BillingPage() {
                     <div>
                       <p className="text-sm text-muted-foreground">Name</p>
                       <p className="font-medium">
-                        {data.subscription.gymOwner.firstName}{" "}
-                        {data.subscription.gymOwner.lastName}
+                        {subscriptionData.subscription.gymOwner.firstName}{" "}
+                        {subscriptionData.subscription.gymOwner.lastName}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Email</p>
                       <p className="font-medium">
-                        {data.subscription.gymOwner.email}
+                        {subscriptionData.subscription.gymOwner.email}
                       </p>
                     </div>
-                    {data.subscription.gymOwner.phoneNumber && (
+                    {subscriptionData.subscription.gymOwner.phoneNumber && (
                       <div>
                         <p className="text-sm text-muted-foreground">Phone</p>
                         <p className="font-medium">
-                          {data.subscription.gymOwner.phoneNumber}
+                          {subscriptionData.subscription.gymOwner.phoneNumber}
                         </p>
                       </div>
                     )}
@@ -349,31 +313,31 @@ export function BillingPage() {
                     <div>
                       <p className="text-sm text-muted-foreground">Gym Name</p>
                       <p className="font-medium">
-                        {data.subscription.gym.name}
+                        {subscriptionData.subscription.gym.name}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Email</p>
                       <p className="font-medium">
-                        {data.subscription.gym.email}
+                        {subscriptionData.subscription.gym.email}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Phone</p>
                       <p className="font-medium">
-                        {data.subscription.gym.phoneNumber}
+                        {subscriptionData.subscription.gym.phoneNumber}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Address</p>
                       <p className="font-medium">
-                        {data.subscription.gym.address.street}
+                        {subscriptionData.subscription.gym.address.street}
                         <br />
-                        {data.subscription.gym.address.city},{" "}
-                        {data.subscription.gym.address.state}{" "}
-                        {data.subscription.gym.address.zipCode}
+                        {subscriptionData.subscription.gym.address.city},{" "}
+                        {subscriptionData.subscription.gym.address.state}{" "}
+                        {subscriptionData.subscription.gym.address.zipCode}
                         <br />
-                        {data.subscription.gym.address.country}
+                        {subscriptionData.subscription.gym.address.country}
                       </p>
                     </div>
                   </div>
@@ -389,19 +353,24 @@ export function BillingPage() {
                   <div>
                     <p className="text-sm text-muted-foreground">Created At</p>
                     <p className="font-medium">
-                      {formatDateTime(data.subscription.createdAt)}
+                      {formatDateTime(
+                        subscriptionData.subscription.createdAt
+                      )}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Updated At</p>
                     <p className="font-medium">
-                      {formatDateTime(data.subscription.updatedAt)}
+                      {formatDateTime(
+                        subscriptionData.subscription.updatedAt
+                      )}
                     </p>
                   </div>
                 </CardContent>
               </Card>
             </div>
-          ) : null}
+            );
+          })()}
         </div>
       </div>
     </DashboardLayout>

@@ -27,6 +27,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useProfileQuery } from "../services";
+import { useMySubscriptionQuery } from "@/features/billing/services";
 import { GetHelpModal } from "./get-help-modal";
 
 const navMain = [
@@ -159,6 +160,9 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: profile, isLoading } = useProfileQuery();
+  // Trigger global subscription fetch on all dashboard pages.
+  // The hook updates the subscription store; we don't need the data here.
+  useMySubscriptionQuery();
   const [isGetHelpOpen, setIsGetHelpOpen] = React.useState(false);
 
   const user = React.useMemo(() => {

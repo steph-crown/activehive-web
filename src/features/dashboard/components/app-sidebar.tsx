@@ -14,6 +14,7 @@ import {
   IconUsers
 } from "@tabler/icons-react";
 import * as React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { Logo } from "@/components/icons/logo";
 import { NavMain, NavSecondary, NavUser } from "@/components/layout";
@@ -28,6 +29,8 @@ import {
 } from "@/components/ui/sidebar";
 import { useProfileQuery } from "../services";
 import { useMySubscriptionQuery } from "@/features/billing/services";
+import { useSubscriptionStore } from "@/store";
+import { useToast } from "@/hooks/use-toast";
 import { GetHelpModal } from "./get-help-modal";
 
 const navMain = [
@@ -160,10 +163,37 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: profile, isLoading } = useProfileQuery();
-  // Trigger global subscription fetch on all dashboard pages.
-  // The hook updates the subscription store; we don't need the data here.
-  useMySubscriptionQuery();
+  const { isLoading: isSubscriptionLoading, isFetched } = useMySubscriptionQuery();
+  const { hasActiveSubscription } = useSubscriptionStore();
+  const { showError } = useToast();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [isGetHelpOpen, setIsGetHelpOpen] = React.useState(false);
+  const hasRedirectedRef = React.useRef(false);
+
+  React.useEffect(() => {
+    if (isSubscriptionLoading || !isFetched) return;
+    if (hasRedirectedRef.current) return;
+
+    const currentPath = location.pathname;
+    const isBillingPage = currentPath === "/billing";
+
+    if (!isBillingPage && !hasActiveSubscription) {
+      hasRedirectedRef.current = true;
+      showError(
+        "Subscription required",
+        "You need an active subscription to access this page. Redirecting to billing."
+      );
+      navigate("/billing");
+    }
+  }, [
+    hasActiveSubscription,
+    isFetched,
+    isSubscriptionLoading,
+    location.pathname,
+    navigate,
+    showError,
+  ]);
 
   const user = React.useMemo(() => {
     if (!profile) {

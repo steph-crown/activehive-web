@@ -51,14 +51,6 @@ export type DocumentsPayload = {
   additionalDocuments?: File[];
 };
 
-export type PaymentAccountDetails = {
-  accountName: string;
-  accountNumber: string;
-  routingNumber: string;
-  bankName: string;
-  accountType: "checking" | "savings";
-};
-
 export type LocationPayload = {
   locationName: string;
   address: string;
@@ -69,7 +61,6 @@ export type LocationPayload = {
   phone: string;
   email: string;
   isHeadquarters: boolean;
-  paymentAccount: PaymentAccountDetails;
 };
 
 export type LocationsPayload = {

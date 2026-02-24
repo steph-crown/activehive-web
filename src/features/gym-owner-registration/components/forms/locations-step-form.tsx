@@ -3,13 +3,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -60,13 +54,6 @@ export function LocationsStepForm({
           phone: "",
           email: "",
           isHeadquarters: true,
-          paymentAccount: {
-            accountName: "",
-            accountNumber: "",
-            routingNumber: "",
-            bankName: "",
-            accountType: "checking",
-          },
         },
       ],
     },
@@ -137,11 +124,11 @@ export function LocationsStepForm({
       >
         <div className="flex flex-col items-center gap-2 text-center">
           <h1 className="text-2xl font-bold">
-            Step 4 · Gym locations & payment accounts
+            Step 4 · Gym locations
           </h1>
           <p className="text-muted-foreground text-sm text-balance">
-            Add each address you operate from and set up payment accounts for
-            each location. You can always come back to add more later.
+            Add each address you operate from. You can always come back to add
+            more later.
           </p>
         </div>
         <div className="space-y-6">
@@ -288,128 +275,32 @@ export function LocationsStepForm({
                 control={form.control}
                 name={`locations.${index}.isHeadquarters`}
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Headquarters</FormLabel>
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                     <FormControl>
-                      <Select
-                        value={field.value ? "true" : "false"}
-                        onValueChange={(value) =>
-                          field.onChange(value === "true")
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="true">Yes</SelectItem>
-                          <SelectItem value="false">No</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={(checked) => {
+                          const isChecked = Boolean(checked);
+                          const locations = form.getValues("locations");
+                          locations.forEach((_, i) => {
+                            form.setValue(
+                              `locations.${i}.isHeadquarters`,
+                              i === index ? isChecked : false
+                            );
+                          });
+                        }}
+                      />
                     </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Set as headquarters</FormLabel>
+                      <p className="text-sm text-muted-foreground">
+                        Only one location can be marked as headquarters at a time.
+                      </p>
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
-              <div className="border-t pt-4 space-y-4">
-                <p className="font-medium text-sm">Payment Account</p>
-
-                <FormField
-                  control={form.control}
-                  name={`locations.${index}.paymentAccount.accountName`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Account name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Gym Account Name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
-                  <FormField
-                    control={form.control}
-                    name={`locations.${index}.paymentAccount.accountNumber`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Account number</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`locations.${index}.paymentAccount.routingNumber`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Routing number</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="123456789"
-                            maxLength={9}
-                            {...field}
-                            onChange={(e) => {
-                              const value = e.target.value.replace(/\D/g, "");
-                              if (value.length <= 9) {
-                                field.onChange(value);
-                              }
-                            }}
-                          />
-                        </FormControl>
-                        <p className="text-muted-foreground text-xs">
-                          Must be exactly 9 digits
-                        </p>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
-                  <FormField
-                    control={form.control}
-                    name={`locations.${index}.paymentAccount.bankName`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Bank name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Chase Bank" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`locations.${index}.paymentAccount.accountType`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Account type</FormLabel>
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Choose type" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="checking">Checking</SelectItem>
-                            <SelectItem value="savings">Savings</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
             </div>
           ))}
 
@@ -428,13 +319,6 @@ export function LocationsStepForm({
                 phone: "",
                 email: "",
                 isHeadquarters: false,
-                paymentAccount: {
-                  accountName: "",
-                  accountNumber: "",
-                  routingNumber: "",
-                  bankName: "",
-                  accountType: "checking",
-                },
               })
             }
           >

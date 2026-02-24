@@ -126,21 +126,6 @@ export const documentsSchema = yup.object({
   ),
 });
 
-// Step 4: Locations schema
-export const paymentAccountSchema = yup.object({
-  accountName: yup.string().required("Account name is required"),
-  accountNumber: yup.string().required("Account number is required"),
-  routingNumber: yup
-    .string()
-    .matches(/^\d{9}$/, "Routing number must be exactly 9 digits")
-    .required("Routing number is required"),
-  bankName: yup.string().required("Bank name is required"),
-  accountType: yup
-    .string()
-    .oneOf(["checking", "savings"])
-    .required("Account type is required"),
-});
-
 export const locationSchema = yup.object({
   locationName: yup.string().required("Location name is required"),
   address: yup.string().required("Address is required"),
@@ -154,7 +139,6 @@ export const locationSchema = yup.object({
     .email("Please enter a valid email address")
     .required("Email is required"),
   isHeadquarters: yup.boolean().required("Headquarters status is required"),
-  paymentAccount: paymentAccountSchema.required("Payment account is required"),
 });
 
 export const locationsSchema = yup.object({

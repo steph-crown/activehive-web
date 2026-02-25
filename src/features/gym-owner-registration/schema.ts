@@ -57,22 +57,7 @@ export const brandingSchema = yup.object({
 
 // Step 3: Documents schema
 export const documentsSchema = yup.object({
-  taxIdDocument: yup
-    .mixed<File>()
-    .required("Tax ID document is required")
-    .test("fileSize", "File size must be less than 10MB", (value) => {
-      if (!value) return false;
-      return value.size <= 10 * 1024 * 1024;
-    })
-    .test("fileType", "File must be PNG, JPG, or PDF", (value) => {
-      if (!value) return false;
-      return [
-        "image/png",
-        "image/jpeg",
-        "image/jpg",
-        "application/pdf",
-      ].includes(value.type);
-    }),
+  companyRegNo: yup.string().required("Company registration number is required"),
   governmentId: yup
     .mixed<File>()
     .required("Government ID is required")
@@ -89,6 +74,9 @@ export const documentsSchema = yup.object({
         "application/pdf",
       ].includes(value.type);
     }),
+  governmentIdType: yup
+    .string()
+    .required("Government ID type is required"),
   addressProof: yup
     .mixed<File>()
     .required("Address proof is required")
@@ -106,24 +94,26 @@ export const documentsSchema = yup.object({
       ].includes(value.type);
     }),
   addressProofDate: yup.string().required("Address proof date is required"),
-  additionalDocuments: yup.array().of(
-    yup
-      .mixed<File>()
-      .required("Additional documents are required")
-      .test("fileSize", "File size must be less than 10MB", (value) => {
-        if (!value) return true;
-        return value.size <= 10 * 1024 * 1024;
-      })
-      .test("fileType", "File must be PNG, JPG, or PDF", (value) => {
-        if (!value) return true;
-        return [
-          "image/png",
-          "image/jpeg",
-          "image/jpg",
-          "application/pdf",
-        ].includes(value.type);
-      })
-  ),
+  additionalDocuments: yup
+    .array()
+    .of(
+      yup
+        .mixed<File>()
+        .test("fileSize", "File size must be less than 10MB", (value) => {
+          if (!value) return true;
+          return value.size <= 10 * 1024 * 1024;
+        })
+        .test("fileType", "File must be PNG, JPG, or PDF", (value) => {
+          if (!value) return true;
+          return [
+            "image/png",
+            "image/jpeg",
+            "image/jpg",
+            "application/pdf",
+          ].includes(value.type);
+        })
+    )
+    .optional(),
 });
 
 export const locationSchema = yup.object({

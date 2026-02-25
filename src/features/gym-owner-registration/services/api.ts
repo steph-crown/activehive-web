@@ -56,16 +56,18 @@ export const gymOwnerRegistrationApi = {
 
   stepThree: ({
     sessionId,
-    taxIdDocument,
+    companyRegNo,
     governmentId,
+    governmentIdType,
     addressProof,
     addressProofDate,
     additionalDocuments,
   }: DocumentsPayload) => {
     const formData = new FormData();
     formData.append("sessionId", sessionId);
-    formData.append("taxIdDocument", taxIdDocument);
+    formData.append("companyRegNo", companyRegNo);
     formData.append("governmentId", governmentId);
+    formData.append("governmentIdType", governmentIdType);
     formData.append("addressProof", addressProof);
     formData.append("addressProofDate", addressProofDate);
 

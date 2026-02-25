@@ -44,8 +44,9 @@ export type BrandingPayload = {
 
 export type DocumentsPayload = {
   sessionId: string;
-  taxIdDocument: File;
+  companyRegNo: string;
   governmentId: File;
+  governmentIdType: string;
   addressProof: File;
   addressProofDate: string;
   additionalDocuments?: File[];

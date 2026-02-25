@@ -22,8 +22,6 @@ import {
   documentsSchema,
   type DocumentsFormValues,
 } from "@/features/gym-owner-registration/schema";
-
-// type DocumentsFormValues = yup.InferType<typeof documentsSchema>;
 export function DocumentsStepForm({
   className,
   ...props
@@ -53,8 +51,9 @@ export function DocumentsStepForm({
     try {
       await submitDocuments({
         sessionId,
-        taxIdDocument: data.taxIdDocument,
+        companyRegNo: data.companyRegNo,
         governmentId: data.governmentId,
+        governmentIdType: data.governmentIdType,
         addressProof: data.addressProof,
         addressProofDate: data.addressProofDate,
         additionalDocuments: (data.additionalDocuments || []).filter(
@@ -97,25 +96,14 @@ export function DocumentsStepForm({
         <div className="grid gap-6">
           <FormField
             control={form.control}
-            name="taxIdDocument"
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            render={({ field: { onChange, value: _unused, ...field } }) => (
+            name="companyRegNo"
+            render={({ field }) => (
               <FormItem>
-                <FormLabel>Tax ID / EIN document</FormLabel>
+                <FormLabel>Company registration number (RC No.)</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
-                    type="file"
-                    accept=".png,.jpg,.jpeg,.pdf"
-                    ref={(ref) => {
-                      fileRefs.current.taxIdDocument = ref;
-                    }}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        onChange(file);
-                      }
-                    }}
+                    placeholder="Enter your company registration number"
                   />
                 </FormControl>
                 <FormMessage />
@@ -144,6 +132,23 @@ export function DocumentsStepForm({
                         onChange(file);
                       }
                     }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="governmentIdType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Type of government ID</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="e.g. Passport, Driver's License"
                   />
                 </FormControl>
                 <FormMessage />

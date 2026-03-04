@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { billingApi } from "./api";
 import type { MySubscriptionResponse } from "../types";
@@ -9,21 +10,32 @@ export const billingQueryKeys = {
 };
 
 export const useMySubscriptionQuery = () => {
-  const setSubscription = useSubscriptionStore((state) => state.setSubscription);
+  const setSubscription = useSubscriptionStore(
+    (state) => state.setSubscription,
+  );
 
-  return useQuery({
+  const queryResult = useQuery<MySubscriptionResponse>({
     queryKey: billingQueryKeys.mySubscription(),
     queryFn: () => billingApi.getMySubscription(),
-    onSuccess: (data: MySubscriptionResponse) => {
-      // Treat inactive subscriptions as "no active subscription" in the store
-      if (data.isActive) {
+  });
+
+  useEffect(() => {
+    if (queryResult.status === "success" && queryResult.data) {
+      const data = queryResult.data;
+      console.log({ data });
+
+      // Treat users as having access if they have either an active subscription or an active trial
+      if (data.isActive || data.isTrial) {
         setSubscription(data);
       } else {
         setSubscription(null);
       }
-    },
-    onError: () => {
+    }
+
+    if (queryResult.status === "error") {
       setSubscription(null);
-    },
-  });
+    }
+  }, [queryResult.status, queryResult.data, setSubscription]);
+
+  return queryResult;
 };

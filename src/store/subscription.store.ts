@@ -17,7 +17,8 @@ export const useSubscriptionStore = create<SubscriptionStore>((set) => ({
   setSubscription: (subscription) =>
     set({
       subscription,
-      hasActiveSubscription: !!subscription?.isActive,
+      // Consider both paid subscriptions and active trials as granting access
+      hasActiveSubscription: !!(subscription?.isActive || subscription?.isTrial),
     }),
   clearSubscription: () =>
     set({

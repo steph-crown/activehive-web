@@ -129,15 +129,7 @@ export const locationSchema = yup.object({
     .email("Please enter a valid email address")
     .required("Email is required"),
   isHeadquarters: yup.boolean().required("Headquarters status is required"),
-});
-
-export const locationsSchema = yup.object({
-  locations: yup
-    .array()
-    .of(locationSchema)
-    .min(1, "At least one location is required")
-    .required("Locations are required"),
-  coverImage: yup
+  coverImageFile: yup
     .mixed<File>()
     .optional()
     .test(
@@ -154,6 +146,14 @@ export const locationsSchema = yup.object({
           value.type,
         ),
     ),
+});
+
+export const locationsSchema = yup.object({
+  locations: yup
+    .array()
+    .of(locationSchema)
+    .min(1, "At least one location is required")
+    .required("Locations are required"),
 });
 
 // Type exports

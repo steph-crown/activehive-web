@@ -62,13 +62,13 @@ export type LocationPayload = {
   phone: string;
   email: string;
   isHeadquarters: boolean;
+  coverImage?: string;
 };
 
 export type LocationsPayload = {
   sessionId: string;
   hasMultipleLocations: boolean;
   locations: LocationPayload[];
-  coverImage?: File;
 };
 
 export type CompleteRegistrationPayload = {

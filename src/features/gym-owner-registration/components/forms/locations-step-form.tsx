@@ -24,6 +24,7 @@ import {
   locationsSchema,
   type LocationsFormValues,
 } from "@/features/gym-owner-registration/schema";
+import { useUpload } from "@/hooks/use-upload";
 
 export function LocationsStepForm({
   className,
@@ -39,6 +40,7 @@ export function LocationsStepForm({
     useLocationsStepMutation();
   const { mutateAsync: completeRegistration, isPending: isCompleting } =
     useCompleteRegistrationMutation();
+  const { upload } = useUpload();
 
   const form = useForm<LocationsFormValues>({
     resolver: yupResolver(locationsSchema) as any,
@@ -54,9 +56,9 @@ export function LocationsStepForm({
           phone: "",
           email: "",
           isHeadquarters: true,
+          coverImageFile: undefined,
         },
       ],
-      coverImage: undefined,
     },
   });
 
@@ -71,11 +73,26 @@ export function LocationsStepForm({
 
   const onSubmit = async (data: LocationsFormValues) => {
     try {
+      const mappedLocations = [];
+
+      for (const location of data.locations) {
+        let coverImage: string | undefined;
+        if (location.coverImageFile) {
+          coverImage = await upload(location.coverImageFile, "gym-locations");
+        }
+
+        const { coverImageFile, ...rest } = location;
+
+        mappedLocations.push({
+          ...rest,
+          coverImage,
+        });
+      }
+
       await submitLocations({
         sessionId,
         hasMultipleLocations: data.locations.length > 1,
-        locations: data.locations,
-        coverImage: data.coverImage,
+        locations: mappedLocations,
       });
       setStepStatus(4, "completed");
 
@@ -275,6 +292,28 @@ export function LocationsStepForm({
 
               <FormField
                 control={form.control}
+                name={`locations.${index}.coverImageFile`}
+                render={({ field: { value, onChange, ...field } }) => (
+                  <FormItem>
+                    <FormLabel>Cover image (optional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="file"
+                        accept="image/jpeg,image/png,image/gif,image/webp"
+                        {...field}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          onChange(file);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name={`locations.${index}.isHeadquarters`}
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-start space-x-3 space-y-0">
@@ -327,28 +366,6 @@ export function LocationsStepForm({
             Add another location
           </Button>
         </div>
-
-        <FormField
-          control={form.control}
-          name="coverImage"
-          render={({ field: { value, onChange, ...field } }) => (
-            <FormItem>
-              <FormLabel>Gym cover image (optional)</FormLabel>
-              <FormControl>
-                <Input
-                  type="file"
-                  accept="image/jpeg,image/png,image/gif,image/webp"
-                  {...field}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    onChange(file);
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button

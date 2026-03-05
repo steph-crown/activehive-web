@@ -70,4 +70,19 @@ export const locationsApi = {
     apiClient.delete<void>(
       `${locationsPath}/${locationId}/images/${imageIndex}`
     ),
+  uploadCoverImage: (locationId: string, image: File): Promise<{ imageUrl: string }> => {
+    const formData = new FormData();
+    formData.append("image", image);
+    return apiClient.post<{ imageUrl: string }>(
+      `${locationsPath}/${locationId}/cover-image`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+  },
+  getCoverImage: (locationId: string): Promise<{ imageUrl: string }> =>
+    apiClient.get<{ imageUrl: string }>(`${locationsPath}/${locationId}/cover-image`),
 };

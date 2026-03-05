@@ -41,7 +41,7 @@ export function LocationsStepForm({
     useCompleteRegistrationMutation();
 
   const form = useForm<LocationsFormValues>({
-    resolver: yupResolver(locationsSchema),
+    resolver: yupResolver(locationsSchema) as any,
     defaultValues: {
       locations: [
         {
@@ -56,6 +56,7 @@ export function LocationsStepForm({
           isHeadquarters: true,
         },
       ],
+      coverImage: undefined,
     },
   });
 
@@ -74,6 +75,7 @@ export function LocationsStepForm({
         sessionId,
         hasMultipleLocations: data.locations.length > 1,
         locations: data.locations,
+        coverImage: data.coverImage,
       });
       setStepStatus(4, "completed");
 
@@ -325,6 +327,28 @@ export function LocationsStepForm({
             Add another location
           </Button>
         </div>
+
+        <FormField
+          control={form.control}
+          name="coverImage"
+          render={({ field: { value, onChange, ...field } }) => (
+            <FormItem>
+              <FormLabel>Gym cover image (optional)</FormLabel>
+              <FormControl>
+                <Input
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  {...field}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    onChange(file);
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button

@@ -68,6 +68,7 @@ export type LocationsPayload = {
   sessionId: string;
   hasMultipleLocations: boolean;
   locations: LocationPayload[];
+  coverImage?: File;
 };
 
 export type CompleteRegistrationPayload = {

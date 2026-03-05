@@ -137,6 +137,23 @@ export const locationsSchema = yup.object({
     .of(locationSchema)
     .min(1, "At least one location is required")
     .required("Locations are required"),
+  coverImage: yup
+    .mixed<File>()
+    .optional()
+    .test(
+      "fileSize",
+      "Cover image must be less than 5MB",
+      (value) => !value || value.size <= 5 * 1024 * 1024,
+    )
+    .test(
+      "fileType",
+      "Cover image must be a valid image",
+      (value) =>
+        !value ||
+        ["image/png", "image/jpeg", "image/jpg", "image/gif", "image/webp"].includes(
+          value.type,
+        ),
+    ),
 });
 
 // Type exports

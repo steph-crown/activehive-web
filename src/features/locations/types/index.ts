@@ -11,6 +11,7 @@ export type GymLocation = {
     country: string;
   };
   images: string[];
+  coverImage?: string | null;
   isHeadquarters: boolean;
   isActive: boolean;
   paymentAccount: {
@@ -46,6 +47,7 @@ export type LocationDetailsResponse = {
       zipCode: string;
     };
     images: string[];
+    coverImage?: string | null;
     isHeadquarters: boolean;
     isActive: boolean;
     paymentAccount: {

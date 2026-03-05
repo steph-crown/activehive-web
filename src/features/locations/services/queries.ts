@@ -13,6 +13,8 @@ export const locationsQueryKeys = {
   detail: (id: string) => [...locationsQueryKeys.all, "detail", id] as const,
   facilities: (locationId: string) =>
     [...locationsQueryKeys.all, "facilities", locationId] as const,
+  coverImage: (locationId: string) =>
+    [...locationsQueryKeys.all, "cover-image", locationId] as const,
 };
 
 export const useLocationsQuery = () =>
@@ -119,6 +121,23 @@ export const useDeleteLocationImageMutation = (locationId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: locationsQueryKeys.detail(locationId),
+      });
+    },
+  });
+};
+
+export const useUploadCoverImageMutation = (locationId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (image: File) =>
+      locationsApi.uploadCoverImage(locationId, image),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: locationsQueryKeys.detail(locationId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: locationsQueryKeys.list(),
       });
     },
   });

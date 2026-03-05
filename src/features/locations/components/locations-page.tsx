@@ -16,8 +16,37 @@ import * as React from "react";
 import { useLocationsQuery } from "../services";
 import type { GymLocation } from "../types";
 import { CreateLocationModal } from "./create-location-modal";
+import { UpdateCoverImageModal } from "./update-cover-image-modal";
+
+const getImageUrl = (imagePath: string): string => {
+  const baseURL =
+    import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ??
+    "https://activehiveapi.onrender.com";
+  return imagePath.startsWith("http") ? imagePath : `${baseURL}/${imagePath}`;
+};
 
 const locationColumns: ColumnDef<GymLocation>[] = [
+  {
+    accessorKey: "coverImage",
+    header: "Cover",
+    cell: ({ row }) => {
+      const coverImage = row.original.coverImage || row.original.images?.[0];
+      if (!coverImage) {
+        return (
+          <div className="text-xs text-muted-foreground italic">
+            No image
+          </div>
+        );
+      }
+      return (
+        <img
+          src={getImageUrl(coverImage)}
+          alt="Cover"
+          className="h-10 w-16 rounded-md object-cover border"
+        />
+      );
+    },
+  },
   {
     accessorKey: "locationName",
     header: "Location Name",
@@ -98,7 +127,8 @@ const locationColumns: ColumnDef<GymLocation>[] = [
 ];
 
 const createLocationsColumnsWithActions = (
-  navigate: (path: string) => void
+  navigate: (path: string) => void,
+  onUpdateCover: (location: GymLocation) => void
 ): ColumnDef<GymLocation>[] => [
   ...locationColumns,
   {
@@ -118,11 +148,14 @@ const createLocationsColumnsWithActions = (
               <span className="sr-only">Open menu</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-32">
+          <DropdownMenuContent align="end" className="w-40">
             <DropdownMenuItem
               onClick={() => navigate(`/dashboard/locations/${location.id}`)}
             >
               View
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onUpdateCover(location)}>
+              Update cover image
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -134,6 +167,10 @@ const createLocationsColumnsWithActions = (
 export function LocationsPage() {
   const navigate = useNavigate();
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
+  const [isCoverModalOpen, setIsCoverModalOpen] = React.useState(false);
+  const [selectedLocationId, setSelectedLocationId] = React.useState<string | null>(
+    null,
+  );
   const { data: locations, isLoading, refetch } = useLocationsQuery();
 
   const handleModalSuccess = () => {
@@ -141,8 +178,18 @@ export function LocationsPage() {
     setIsCreateModalOpen(false);
   };
 
+  const handleCoverSuccess = () => {
+    refetch();
+    setIsCoverModalOpen(false);
+  };
+
+  const handleOpenCoverModal = (location: GymLocation) => {
+    setSelectedLocationId(location.id);
+    setIsCoverModalOpen(true);
+  };
+
   const columns = React.useMemo(
-    () => createLocationsColumnsWithActions(navigate),
+    () => createLocationsColumnsWithActions(navigate, handleOpenCoverModal),
     [navigate]
   );
 
@@ -184,6 +231,14 @@ export function LocationsPage() {
         onOpenChange={setIsCreateModalOpen}
         onSuccess={handleModalSuccess}
       />
+      {selectedLocationId && (
+        <UpdateCoverImageModal
+          open={isCoverModalOpen}
+          onOpenChange={setIsCoverModalOpen}
+          locationId={selectedLocationId}
+          onSuccess={handleCoverSuccess}
+        />
+      )}
     </DashboardLayout>
   );
 }

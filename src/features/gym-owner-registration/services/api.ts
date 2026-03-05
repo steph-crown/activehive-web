@@ -86,8 +86,27 @@ export const gymOwnerRegistrationApi = {
     );
   },
 
-  stepFour: (payload: LocationsPayload) =>
-    apiClient.post<GenericMessageResponse>(`${basePath}/step-4`, payload),
+  stepFour: ({
+    sessionId,
+    hasMultipleLocations,
+    locations,
+    coverImage,
+  }: LocationsPayload) => {
+    const formData = new FormData();
+    formData.append("sessionId", sessionId);
+    formData.append("hasMultipleLocations", String(hasMultipleLocations));
+    formData.append("locations", JSON.stringify(locations));
+
+    if (coverImage) {
+      formData.append("coverImage", coverImage);
+    }
+
+    return apiClient.post<GenericMessageResponse>(`${basePath}/step-4`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  },
 
   stepSix: (payload: CompleteRegistrationPayload) =>
     apiClient.post<GenericMessageResponse>(`${basePath}/step-6`, payload),

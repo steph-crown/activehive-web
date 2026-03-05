@@ -49,6 +49,11 @@ export function DocumentsStepForm({
 
   const onSubmit = async (data: DocumentsFormValues) => {
     try {
+      const additionalDocuments =
+        (data.additionalDocuments || []).filter(
+          (file): file is File => !!file && (file as File).size > 0,
+        );
+
       await submitDocuments({
         sessionId,
         companyRegNo: data.companyRegNo,
@@ -56,9 +61,7 @@ export function DocumentsStepForm({
         governmentIdType: data.governmentIdType,
         addressProof: data.addressProof,
         addressProofDate: data.addressProofDate,
-        additionalDocuments: (data.additionalDocuments || []).filter(
-          (file: any) => file && file.size > 0
-        ),
+        additionalDocuments,
       });
       setStepStatus(3, "completed");
       showSuccess("Documents uploaded", "Next, let's add your locations.");

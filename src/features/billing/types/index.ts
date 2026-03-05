@@ -48,3 +48,26 @@ export interface MySubscriptionResponse {
   daysRemaining: number;
   isActive: boolean;
 }
+
+export interface GymOwnerSubscriptionPlan {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  billingPeriod: string;
+  features: string[];
+  trialDays: number;
+  isActive: boolean;
+  isDefault: boolean;
+  planType: string;
+}
+
+export interface GymOwnerSubscriptionPlansResponse {
+  plans: GymOwnerSubscriptionPlan[];
+}
+
+export interface SwitchPlanPayload {
+  subscriptionId: string;
+  newPlanId: string;
+  reason?: string;
+}

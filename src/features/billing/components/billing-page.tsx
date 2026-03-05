@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { BlockLoader } from "@/components/loader/block-loader";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -7,13 +9,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
-import type { MySubscriptionResponse } from "../types";
 import { useMySubscriptionQuery } from "../services";
+import { SubscriptionPlanModal } from "./subscription-plan-modal";
 
 export function BillingPage() {
   const { data, isLoading, error } = useMySubscriptionQuery();
-  const subscriptionData = data as MySubscriptionResponse | undefined;
+  const subscriptionData = data;
   const errorMessage = error ? error.message : null;
+  const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
 
   const getStatusVariant = (status: string) => {
     switch (status.toLowerCase()) {
@@ -51,11 +54,21 @@ export function BillingPage() {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-        <div className="px-4 lg:px-6">
-          <h1 className="text-3xl font-bold">Billing</h1>
-          <p className="text-muted-foreground mt-2">
-            View your subscription and billing information
-          </p>
+        <div className="flex items-center justify-between px-4 lg:px-6">
+          <div>
+            <h1 className="text-3xl font-bold">Billing</h1>
+            <p className="text-muted-foreground mt-2">
+              View your subscription and billing information
+            </p>
+          </div>
+          {subscriptionData && (
+            <Button
+              variant="outline"
+              onClick={() => setIsPlanModalOpen(true)}
+            >
+              Change plan
+            </Button>
+          )}
         </div>
 
         <div className="px-4 lg:px-6">
@@ -373,6 +386,12 @@ export function BillingPage() {
           })()}
         </div>
       </div>
+
+      <SubscriptionPlanModal
+        open={isPlanModalOpen}
+        onOpenChange={setIsPlanModalOpen}
+        subscription={subscriptionData}
+      />
     </DashboardLayout>
   );
 }

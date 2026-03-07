@@ -1,9 +1,5 @@
 import { useEffect } from "react";
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { billingApi } from "./api";
 import type {
   GymOwnerSubscriptionPlansResponse,

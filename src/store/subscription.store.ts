@@ -14,12 +14,15 @@ export const useSubscriptionStore = create<SubscriptionStore>((set) => ({
   subscription: null,
   hasActiveSubscription: false,
   lastRedirectPath: null,
-  setSubscription: (subscription) =>
-    set({
+  setSubscription: (subscription) => {
+    return set({
       subscription,
       // Consider both paid subscriptions and active trials as granting access
-      hasActiveSubscription: !!(subscription?.isActive || subscription?.isTrial),
-    }),
+      hasActiveSubscription: !!(
+        subscription?.isActive || subscription?.isTrial
+      ),
+    });
+  },
   clearSubscription: () =>
     set({
       subscription: null,

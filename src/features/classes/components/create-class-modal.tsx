@@ -44,7 +44,6 @@ const createClassSchema = yup.object({
       yup.object({
         date: yup.string().required("Date is required"),
         startTime: yup.string().required("Start time is required"),
-        endTime: yup.string().required("End time is required"),
         notes: yup.string().optional(),
       })
     )
@@ -86,7 +85,6 @@ export function CreateClassModal({
         {
           date: "",
           startTime: "",
-          endTime: "",
           notes: "",
         },
       ],
@@ -102,6 +100,27 @@ export function CreateClassModal({
     name: "schedules",
   });
 
+  const addMinutesToTime = (time: string, minutesToAdd: number) => {
+    const [hoursRaw, minutesRaw] = time.split(":");
+    const hours = Number(hoursRaw);
+    const minutes = Number(minutesRaw);
+
+    if (
+      Number.isNaN(hours) ||
+      Number.isNaN(minutes) ||
+      !Number.isFinite(minutesToAdd)
+    ) {
+      // Fallback: if parsing fails, keep the original startTime.
+      return time;
+    }
+
+    const totalMinutes = hours * 60 + minutes + minutesToAdd;
+    const endHours = Math.floor(totalMinutes / 60) % 24;
+    const endMinutes = totalMinutes % 60;
+
+    return `${String(endHours).padStart(2, "0")}:${String(endMinutes).padStart(2, "0")}`;
+  };
+
   const onSubmit = async (data: CreateClassFormValues) => {
     try {
       const payload = {
@@ -109,7 +128,7 @@ export function CreateClassModal({
         schedules: data.schedules.map((s) => ({
           date: s.date,
           startTime: s.startTime,
-          endTime: s.endTime,
+          endTime: addMinutesToTime(s.startTime, data.duration),
           notes: s.notes || undefined,
         })),
         locationId: data.locationId === "none" ? undefined : data.locationId || undefined,
@@ -129,7 +148,6 @@ export function CreateClassModal({
           {
             date: "",
             startTime: "",
-            endTime: "",
             notes: "",
           },
         ],
@@ -368,7 +386,6 @@ export function CreateClassModal({
                     append({
                       date: "",
                       startTime: "",
-                      endTime: "",
                       notes: "",
                     })
                   }
@@ -380,7 +397,7 @@ export function CreateClassModal({
               {fields.map((field, index) => (
                 <div
                   key={field.id}
-                  className="grid grid-cols-4 gap-2 mb-2 items-end"
+                  className="grid grid-cols-3 gap-2 mb-2 items-end"
                 >
                   <FormField
                     control={form.control}
@@ -401,19 +418,6 @@ export function CreateClassModal({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-xs">Start Time</FormLabel>
-                        <FormControl>
-                          <Input type="time" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`schedules.${index}.endTime`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">End Time</FormLabel>
                         <FormControl>
                           <Input type="time" {...field} />
                         </FormControl>
@@ -450,7 +454,6 @@ export function CreateClassModal({
                       {
                         date: "",
                         startTime: "",
-                        endTime: "",
                         notes: "",
                       },
                     ],

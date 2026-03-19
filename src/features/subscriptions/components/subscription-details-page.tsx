@@ -128,7 +128,7 @@ export function SubscriptionDetailsPage() {
             <div className="text-right font-medium">
               {new Intl.NumberFormat("en-US", {
                 style: "currency",
-                currency: "USD",
+                currency: "NGN",
               }).format(amount)}
             </div>
           );
@@ -254,7 +254,7 @@ export function SubscriptionDetailsPage() {
                   <p className="font-medium">
                     {new Intl.NumberFormat("en-US", {
                       style: "currency",
-                      currency: "USD",
+                      currency: "NGN",
                     }).format(subscription.price)}
                   </p>
                 </div>
@@ -349,7 +349,7 @@ export function SubscriptionDetailsPage() {
                   <p className="font-medium">
                     {new Intl.NumberFormat("en-US", {
                       style: "currency",
-                      currency: "USD",
+                      currency: "NGN",
                     }).format(subscription.membershipPlan.price)}
                   </p>
                 </div>

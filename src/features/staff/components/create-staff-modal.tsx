@@ -23,12 +23,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Toggle } from "@/components/ui/toggle";
 import { useLocationsQuery } from "@/features/locations/services";
 import { useToast } from "@/hooks/use-toast";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { useCreateStaffMutation, useAvailableRolesQuery } from "../services";
+import * as React from "react";
+import { CreateRoleModal } from "./create-role-modal";
 
 const createStaffSchema = yup.object({
   firstName: yup.string().required("First name is required"),
@@ -36,7 +39,6 @@ const createStaffSchema = yup.object({
   email: yup.string().email("Invalid email").required("Email is required"),
   phone: yup.string().required("Phone number is required"),
   roleId: yup.string().required("Role is required"),
-  department: yup.string().required("Department is required"),
   locationIds: yup
     .array()
     .of(yup.string().required())
@@ -63,9 +65,16 @@ export function CreateStaffModal({
   onOpenChange,
   onSuccess,
 }: CreateStaffModalProps) {
+  const [isCreateRoleModalOpen, setIsCreateRoleModalOpen] =
+    React.useState(false);
+
   const { showSuccess, showError } = useToast();
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
-  const { data: roles, isLoading: rolesLoading } = useAvailableRolesQuery();
+  const {
+    data: roles,
+    isLoading: rolesLoading,
+    refetch: refetchRoles,
+  } = useAvailableRolesQuery();
   const { mutateAsync: createStaff, isPending } = useCreateStaffMutation();
 
   const form = useForm<CreateStaffFormValues>({
@@ -76,7 +85,6 @@ export function CreateStaffModal({
       email: "",
       phone: "",
       roleId: "",
-      department: "",
       locationIds: [],
       hireDate: new Date().toISOString().split("T")[0],
       status: "active",
@@ -96,7 +104,6 @@ export function CreateStaffModal({
         email: "",
         phone: "",
         roleId: "",
-        department: "",
         locationIds: [],
         hireDate: new Date().toISOString().split("T")[0],
         status: "active",
@@ -121,8 +128,9 @@ export function CreateStaffModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add New Staff Member</DialogTitle>
           <DialogDescription>
@@ -198,7 +206,7 @@ export function CreateStaffModal({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <FormField
                 control={form.control}
                 name="roleId"
@@ -227,26 +235,22 @@ export function CreateStaffModal({
                             </SelectItem>
                           ))
                         ) : (
-                          <SelectItem value="no-roles" disabled>
-                            No roles available
-                          </SelectItem>
+                          <div className="py-2 px-2">
+                            <div className="px-2 py-1 text-sm text-muted-foreground">
+                              No roles available
+                            </div>
+                            <Button
+                              type="button"
+                              variant="link"
+                              className="h-auto p-0 text-left mt-1"
+                              onClick={() => setIsCreateRoleModalOpen(true)}
+                            >
+                              Create Role
+                            </Button>
+                          </div>
                         )}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="department"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Department</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Front Desk" {...field} />
-                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -270,25 +274,22 @@ export function CreateStaffModal({
                           {locations.map((location) => (
                             <div
                               key={location.id}
-                              className="flex items-center space-x-2"
+                              className="flex items-center justify-between gap-4"
                             >
-                              <input
-                                type="checkbox"
-                                id={`location-${location.id}`}
-                                checked={selectedLocationIds.includes(
+                              <span className="text-sm font-medium">
+                                {location.locationName}
+                              </span>
+                              <Toggle
+                                aria-label={`Toggle ${location.locationName}`}
+                                pressed={selectedLocationIds.includes(
                                   location.id
                                 )}
-                                onChange={() =>
+                                onPressedChange={() =>
                                   handleLocationToggle(location.id)
                                 }
-                                className="h-4 w-4 rounded border-gray-300"
+                                size="sm"
+                                variant="outline"
                               />
-                              <label
-                                htmlFor={`location-${location.id}`}
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                              >
-                                {location.locationName}
-                              </label>
                             </div>
                           ))}
                         </div>
@@ -356,7 +357,16 @@ export function CreateStaffModal({
             </DialogFooter>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      <CreateRoleModal
+        open={isCreateRoleModalOpen}
+        onOpenChange={setIsCreateRoleModalOpen}
+        onSuccess={() => {
+          void refetchRoles();
+        }}
+      />
+    </>
   );
 }

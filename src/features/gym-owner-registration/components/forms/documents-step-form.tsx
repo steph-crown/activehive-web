@@ -6,6 +6,13 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Form,
   FormControl,
   FormField,
@@ -22,6 +29,7 @@ import {
   documentsSchema,
   type DocumentsFormValues,
 } from "@/features/gym-owner-registration/schema";
+import { NIGERIA_GOVERNMENT_ID_TYPES } from "@/features/gym-owner-registration/constants/nigeria-government-id-types";
 export function DocumentsStepForm({
   className,
   ...props
@@ -35,6 +43,15 @@ export function DocumentsStepForm({
   const { mutateAsync: submitDocuments, isPending } =
     useDocumentsStepMutation();
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  const RequiredAsterisk = () => (
+    <span className="text-destructive" aria-hidden="true">
+      *
+    </span>
+  );
+
+  const OptionalLabelClassName =
+    "italic font-light text-muted-foreground";
 
   const form = useForm<DocumentsFormValues>({
     resolver: yupResolver(documentsSchema) as any,
@@ -93,7 +110,7 @@ export function DocumentsStepForm({
           <h1 className="text-2xl font-bold">Step 3 · Compliance documents</h1>
           <p className="text-muted-foreground text-sm text-balance">
             Upload the required docs to verify your business. We accept PNG,
-            JPG, or PDF files up to 10MB.
+            JPG, PDF, and DOCX files up to 5MB.
           </p>
         </div>
         <div className="grid gap-6">
@@ -102,7 +119,9 @@ export function DocumentsStepForm({
             name="companyRegNo"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Company registration number (RC No.)</FormLabel>
+                <FormLabel>
+                  Company registration number (RC No.) <RequiredAsterisk />
+                </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
@@ -116,16 +135,48 @@ export function DocumentsStepForm({
 
           <FormField
             control={form.control}
+            name="governmentIdType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Type of government ID <RequiredAsterisk />
+                </FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={(value) => field.onChange(value)}
+                    value={field.value ?? ""}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your government ID type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {NIGERIA_GOVERNMENT_ID_TYPES.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          {type.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
             name="governmentId"
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             render={({ field: { onChange, value: _unused, ...field } }) => (
               <FormItem>
-                <FormLabel>Government-issued ID</FormLabel>
+                <FormLabel>
+                  Government-issued ID <RequiredAsterisk />
+                </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     type="file"
-                    accept=".png,.jpg,.jpeg,.pdf"
+                    accept=".png,.jpg,.jpeg,.gif,.webp,.pdf,.doc,.docx"
                     ref={(ref) => {
                       fileRefs.current.governmentId = ref;
                     }}
@@ -144,33 +195,18 @@ export function DocumentsStepForm({
 
           <FormField
             control={form.control}
-            name="governmentIdType"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Type of government ID</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="e.g. Passport, Driver's License"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
             name="addressProof"
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             render={({ field: { onChange, value: _unused, ...field } }) => (
               <FormItem>
-                <FormLabel>Address proof</FormLabel>
+                <FormLabel>
+                  Address proof <RequiredAsterisk />
+                </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     type="file"
-                    accept=".png,.jpg,.jpeg,.pdf"
+                    accept=".png,.jpg,.jpeg,.gif,.webp,.pdf,.doc,.docx"
                     ref={(ref) => {
                       fileRefs.current.addressProof = ref;
                     }}
@@ -192,7 +228,9 @@ export function DocumentsStepForm({
             name="addressProofDate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Date on the address proof</FormLabel>
+                <FormLabel>
+                  Date on the address proof <RequiredAsterisk />
+                </FormLabel>
                 <FormControl>
                   <Input type="date" {...field} />
                 </FormControl>
@@ -207,12 +245,14 @@ export function DocumentsStepForm({
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             render={({ field: { onChange, value: _unused, ...field } }) => (
               <FormItem>
-                <FormLabel>Additional documents (optional)</FormLabel>
+                <FormLabel className={OptionalLabelClassName}>
+                  Additional documents (optional)
+                </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     type="file"
-                    accept=".png,.jpg,.jpeg,.pdf"
+                    accept=".png,.jpg,.jpeg,.gif,.webp,.pdf,.doc,.docx"
                     multiple
                     ref={(ref) => {
                       fileRefs.current.additionalDocuments = ref;

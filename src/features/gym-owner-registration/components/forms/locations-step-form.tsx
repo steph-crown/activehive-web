@@ -5,6 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Form,
   FormControl,
   FormField,
@@ -25,6 +32,8 @@ import {
   type LocationsFormValues,
 } from "@/features/gym-owner-registration/schema";
 import { useUpload } from "@/hooks/use-upload";
+import { InlineLoader } from "@/components/loader/inline-loader";
+import { NIGERIA_STATES } from "@/features/gym-owner-registration/constants/nigeria-states";
 
 export function LocationsStepForm({
   className,
@@ -40,7 +49,7 @@ export function LocationsStepForm({
     useLocationsStepMutation();
   const { mutateAsync: completeRegistration, isPending: isCompleting } =
     useCompleteRegistrationMutation();
-  const { upload } = useUpload();
+  const { upload, isUploading } = useUpload();
 
   const form = useForm<LocationsFormValues>({
     resolver: yupResolver(locationsSchema) as any,
@@ -201,12 +210,29 @@ export function LocationsStepForm({
               <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
                 <FormField
                   control={form.control}
-                  name={`locations.${index}.city`}
+                  name={`locations.${index}.state`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>City</FormLabel>
+                      <FormLabel>State / Region</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Select
+                          onValueChange={(value) => field.onChange(value)}
+                          value={field.value ?? ""}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select state" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {NIGERIA_STATES.map((state) => (
+                              <SelectItem
+                                key={state.value}
+                                value={state.value}
+                              >
+                                {state.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -215,10 +241,10 @@ export function LocationsStepForm({
 
                 <FormField
                   control={form.control}
-                  name={`locations.${index}.state`}
+                  name={`locations.${index}.city`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>State / Region</FormLabel>
+                      <FormLabel>City</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -264,7 +290,11 @@ export function LocationsStepForm({
                     <FormItem>
                       <FormLabel>Phone</FormLabel>
                       <FormControl>
-                        <Input placeholder="+1 (555) 123-4567" {...field} />
+                        <Input
+                          placeholder="Enter phone nunber"
+                          type="tel"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -371,9 +401,16 @@ export function LocationsStepForm({
           <Button
             type="submit"
             className="flex-1"
-            disabled={isPending || isCompleting}
+            disabled={isPending || isCompleting || isUploading}
           >
-            {isPending || isCompleting ? "Processing..." : "Save & continue"}
+            {isPending || isCompleting || isUploading ? (
+              <span className="flex items-center justify-center gap-2">
+                <InlineLoader size="small" />
+                Processing...
+              </span>
+            ) : (
+              "Save & continue"
+            )}
           </Button>
           <Button
             type="button"

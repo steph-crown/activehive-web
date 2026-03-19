@@ -62,7 +62,7 @@ const membershipPlanColumns: ColumnDef<MembershipPlan>[] = [
       const price = parseFloat(row.getValue("price"));
       return (
         <div className="text-right font-medium">
-          ${price.toFixed(2)} / {row.original.duration}
+          ₦{price.toFixed(2)} / {row.original.duration}
         </div>
       );
     },

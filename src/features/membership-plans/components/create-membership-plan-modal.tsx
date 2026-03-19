@@ -32,6 +32,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useCreateMembershipPlanMutation } from "../services";
 import { useLocationsQuery } from "@/features/locations/services";
 import type { CreateMembershipPlanPayload } from "../types";
+import { useUpload } from "@/hooks/use-upload";
 
 const createMembershipPlanSchema = yup.object({
   locationId: yup.string().required("Location is required"),
@@ -95,6 +96,7 @@ export function CreateMembershipPlanModal({
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
   const { mutateAsync: createPlan, isPending } =
     useCreateMembershipPlanMutation();
+  const { upload, isUploading: isUploadingImage } = useUpload();
 
   const form = useForm<CreateMembershipPlanFormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -103,7 +105,7 @@ export function CreateMembershipPlanModal({
       locationId: "",
       name: "",
       description: "",
-      price: 0,
+      price: undefined as unknown as number,
       duration: "monthly",
       features: [""],
       isActive: true,
@@ -240,9 +242,17 @@ export function CreateMembershipPlanModal({
                         step="0.01"
                         placeholder="49.99"
                         {...field}
-                        onChange={(e) =>
-                          field.onChange(parseFloat(e.target.value) || 0)
-                        }
+                        value={field.value ?? ""}
+                        onChange={(e) => {
+                          if (e.target.value === "") {
+                            field.onChange(undefined as unknown as number);
+                            return;
+                          }
+                          const parsed = parseFloat(e.target.value);
+                          field.onChange(
+                            Number.isNaN(parsed) ? (undefined as unknown as number) : parsed,
+                          );
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
@@ -329,9 +339,17 @@ export function CreateMembershipPlanModal({
                         type="number"
                         placeholder="3"
                         {...field}
-                        onChange={(e) =>
-                          field.onChange(parseInt(e.target.value) || 0)
-                        }
+                        value={field.value ?? ""}
+                        onChange={(e) => {
+                          if (e.target.value === "") {
+                            field.onChange(undefined as unknown as number);
+                            return;
+                          }
+                          const parsed = parseInt(e.target.value, 10);
+                          field.onChange(
+                            Number.isNaN(parsed) ? (undefined as unknown as number) : parsed,
+                          );
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
@@ -369,14 +387,43 @@ export function CreateMembershipPlanModal({
               name="imageUrl"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Image URL (Optional)</FormLabel>
+                  <FormLabel>Image (Optional)</FormLabel>
                   <FormControl>
-                    <Input
-                      type="url"
-                      placeholder="https://example.com/plan-image.jpg"
-                      {...field}
-                      value={field.value ?? ""}
-                    />
+                    <div className="space-y-2">
+                      {field.value ? (
+                        <img
+                          src={field.value}
+                          alt="Plan preview"
+                          className="h-24 w-24 rounded-md object-cover"
+                        />
+                      ) : null}
+                      <Input
+                        type="file"
+                        accept="image/png,image/jpeg,image/jpg,image/webp"
+                        disabled={isUploadingImage}
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) {
+                            field.onChange(null);
+                            return;
+                          }
+
+                          try {
+                            const url = await upload(file, "membership-plans");
+                            field.onChange(url);
+                          } catch (err) {
+                            const message =
+                              err instanceof Error
+                                ? err.message
+                                : "Failed to upload image.";
+                            showError("Error", message);
+                          }
+                        }}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Uploads to Cloudinary; the resulting URL is saved.
+                      </p>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

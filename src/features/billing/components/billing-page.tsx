@@ -135,7 +135,7 @@ export function BillingPage() {
                         {subscriptionData.subscription.monthlyPrice
                           ? new Intl.NumberFormat("en-US", {
                               style: "currency",
-                              currency: "USD",
+                              currency: "NGN",
                             }).format(
                               subscriptionData.subscription.monthlyPrice
                             )

@@ -28,7 +28,7 @@ type SubscriptionPlanModalProps = {
 const formatCurrency = (amount: number) =>
   new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "USD",
+    currency: "NGN",
     maximumFractionDigits: 0,
   }).format(amount / 100 || amount);
 

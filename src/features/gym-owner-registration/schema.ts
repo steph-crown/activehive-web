@@ -1,4 +1,7 @@
 import * as yup from "yup";
+import {
+  NIGERIA_GOVERNMENT_ID_TYPE_VALUES,
+} from "./constants/nigeria-government-id-types";
 
 // Step 1: Signup schema
 export const signupSchema = yup.object({
@@ -61,36 +64,43 @@ export const documentsSchema = yup.object({
   governmentId: yup
     .mixed<File>()
     .required("Government ID is required")
-    .test("fileSize", "File size must be less than 10MB", (value) => {
+    .test("fileSize", "File size must be less than 5MB", (value) => {
       if (!value) return false;
-      return value.size <= 10 * 1024 * 1024;
+      return value.size <= 5 * 1024 * 1024;
     })
-    .test("fileType", "File must be PNG, JPG, or PDF", (value) => {
+    .test("fileType", "File must be PNG, JPG, PDF, or DOCX", (value) => {
       if (!value) return false;
       return [
         "image/png",
         "image/jpeg",
-        "image/jpg",
+        "image/gif",
+        "image/webp",
         "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       ].includes(value.type);
     }),
   governmentIdType: yup
     .string()
+    .oneOf(NIGERIA_GOVERNMENT_ID_TYPE_VALUES, "Invalid government ID type")
     .required("Government ID type is required"),
   addressProof: yup
     .mixed<File>()
     .required("Address proof is required")
-    .test("fileSize", "File size must be less than 10MB", (value) => {
+    .test("fileSize", "File size must be less than 5MB", (value) => {
       if (!value) return false;
-      return value.size <= 10 * 1024 * 1024;
+      return value.size <= 5 * 1024 * 1024;
     })
-    .test("fileType", "File must be PNG, JPG, or PDF", (value) => {
+    .test("fileType", "File must be PNG, JPG, PDF, or DOCX", (value) => {
       if (!value) return false;
       return [
         "image/png",
         "image/jpeg",
-        "image/jpg",
+        "image/gif",
+        "image/webp",
         "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       ].includes(value.type);
     }),
   addressProofDate: yup.string().required("Address proof date is required"),
@@ -99,17 +109,20 @@ export const documentsSchema = yup.object({
     .of(
       yup
         .mixed<File>()
-        .test("fileSize", "File size must be less than 10MB", (value) => {
+        .test("fileSize", "File size must be less than 5MB", (value) => {
           if (!value) return true;
-          return value.size <= 10 * 1024 * 1024;
+          return value.size <= 5 * 1024 * 1024;
         })
-        .test("fileType", "File must be PNG, JPG, or PDF", (value) => {
+        .test("fileType", "File must be PNG, JPG, PDF, or DOCX", (value) => {
           if (!value) return true;
           return [
             "image/png",
             "image/jpeg",
-            "image/jpg",
+            "image/gif",
+            "image/webp",
             "application/pdf",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
           ].includes(value.type);
         })
     )
@@ -123,7 +136,20 @@ export const locationSchema = yup.object({
   state: yup.string().required("State/Region is required"),
   zipCode: yup.string().required("Zip code is required"),
   country: yup.string().required("Country is required"),
-  phone: yup.string().required("Phone is required"),
+  phone: yup
+    .string()
+    .required("Phone is required")
+    .test(
+      "nigeria-phone",
+      "Please enter a valid Nigerian phone number",
+      (value) => {
+        if (!value) return false;
+        // Normalize common user input like spaces/dashes.
+        const normalized = value.trim().replace(/[\s()-]/g, "");
+        // Accept either +234XXXXXXXXXX or 0XXXXXXXXXX (mobile-like numbers).
+        return /^(?:\+234|0)[789]\d{9}$/.test(normalized);
+      },
+    ),
   email: yup
     .string()
     .email("Please enter a valid email address")

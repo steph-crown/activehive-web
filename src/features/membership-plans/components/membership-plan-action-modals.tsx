@@ -26,6 +26,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { DatePicker } from "@/components/ui/date-picker";
 import { useToast } from "@/hooks/use-toast";
+import { useUpload } from "@/hooks/use-upload";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -74,18 +75,19 @@ export function UpdateMembershipPlanModal({
   const { showSuccess, showError } = useToast();
   const { mutateAsync: updatePlan, isPending } =
     useUpdateMembershipPlanMutation();
+  const { upload, isUploading: isUploadingImage } = useUpload();
 
   const form = useForm<UpdatePlanFormValues>({
     resolver: yupResolver(updatePlanSchema) as any,
     defaultValues: {
       name: "",
       description: "",
-      price: 0,
+      price: undefined as unknown as number,
       duration: "",
       features: [],
       isActive: true,
       imageUrl: "",
-      gracePeriodDays: 0,
+      gracePeriodDays: undefined,
       hasTrialPeriod: false,
       trialPeriodDays: null,
       classesPerWeek: null,
@@ -190,9 +192,17 @@ export function UpdateMembershipPlanModal({
                         type="number"
                         step="0.01"
                         {...field}
-                        onChange={(e) =>
-                          field.onChange(parseFloat(e.target.value) || 0)
-                        }
+                        value={field.value ?? ""}
+                        onChange={(e) => {
+                          if (e.target.value === "") {
+                            field.onChange(undefined);
+                            return;
+                          }
+                          const parsed = parseFloat(e.target.value);
+                          field.onChange(
+                            Number.isNaN(parsed) ? undefined : parsed,
+                          );
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
@@ -231,13 +241,46 @@ export function UpdateMembershipPlanModal({
               name="imageUrl"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Image URL</FormLabel>
+                  <FormLabel>Image (Optional)</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      value={field.value || ""}
-                      placeholder="https://example.com/image.jpg"
-                    />
+                    <div className="space-y-2">
+                      {field.value ? (
+                        <img
+                          src={field.value}
+                          alt="Plan preview"
+                          className="h-24 w-24 rounded-md object-cover"
+                        />
+                      ) : null}
+                      <Input
+                        type="file"
+                        accept="image/png,image/jpeg,image/jpg,image/webp"
+                        disabled={isUploadingImage}
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) {
+                            field.onChange(null);
+                            return;
+                          }
+
+                          try {
+                            const url = await upload(
+                              file,
+                              "membership-plans",
+                            );
+                            field.onChange(url);
+                          } catch (err) {
+                            const message =
+                              err instanceof Error
+                                ? err.message
+                                : "Failed to upload image.";
+                            showError("Error", message);
+                          }
+                        }}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Uploads to Cloudinary; the resulting URL is saved.
+                      </p>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -254,9 +297,17 @@ export function UpdateMembershipPlanModal({
                       <Input
                         type="number"
                         {...field}
-                        onChange={(e) =>
-                          field.onChange(parseInt(e.target.value) || 0)
-                        }
+                        value={field.value ?? ""}
+                        onChange={(e) => {
+                          if (e.target.value === "") {
+                            field.onChange(undefined);
+                            return;
+                          }
+                          const parsed = parseInt(e.target.value, 10);
+                          field.onChange(
+                            Number.isNaN(parsed) ? undefined : parsed,
+                          );
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
@@ -573,7 +624,7 @@ export function AddPromoCodeModal({
     defaultValues: {
       code: "",
       discountType: "percentage",
-      discountValue: 0,
+      discountValue: undefined as unknown as number,
       validFrom: "",
       validUntil: "",
       maxUses: undefined,
@@ -664,9 +715,17 @@ export function AddPromoCodeModal({
                         type="number"
                         step="0.01"
                         {...field}
-                        onChange={(e) =>
-                          field.onChange(parseFloat(e.target.value) || 0)
-                        }
+                        value={field.value ?? ""}
+                        onChange={(e) => {
+                          if (e.target.value === "") {
+                            field.onChange(undefined);
+                            return;
+                          }
+                          const parsed = parseFloat(e.target.value);
+                          field.onChange(
+                            Number.isNaN(parsed) ? undefined : parsed,
+                          );
+                        }}
                       />
                     </FormControl>
                     <FormMessage />

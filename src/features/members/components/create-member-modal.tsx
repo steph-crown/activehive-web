@@ -268,7 +268,7 @@ export function CreateMemberModal({
                       ) : membershipPlans && membershipPlans.length > 0 ? (
                         membershipPlans.map((plan) => (
                           <SelectItem key={plan.id} value={plan.id}>
-                            {plan.name} - ${plan.price}
+                            {plan.name} - ₦{plan.price}
                           </SelectItem>
                         ))
                       ) : (

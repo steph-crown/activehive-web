@@ -34,6 +34,8 @@ import {
   useAvailablePermissionsQuery,
 } from "../services";
 import type { Staff } from "../types";
+import { CreateRoleModal } from "./create-role-modal";
+import { CreatePermissionModal } from "./create-permission-modal";
 
 const assignPermissionsSchema = yup.object({
   roleId: yup.string().optional(),
@@ -56,9 +58,21 @@ export function AssignPermissionsModal({
   onSuccess,
 }: AssignPermissionsModalProps) {
   const { showSuccess, showError } = useToast();
-  const { data: roles, isLoading: rolesLoading } = useAvailableRolesQuery();
-  const { data: permissions, isLoading: permissionsLoading } =
-    useAvailablePermissionsQuery();
+  const [isCreateRoleModalOpen, setIsCreateRoleModalOpen] =
+    React.useState(false);
+  const [isCreatePermissionModalOpen, setIsCreatePermissionModalOpen] =
+    React.useState(false);
+
+  const {
+    data: roles,
+    isLoading: rolesLoading,
+    refetch: refetchRoles,
+  } = useAvailableRolesQuery();
+  const {
+    data: permissions,
+    isLoading: permissionsLoading,
+    refetch: refetchPermissions,
+  } = useAvailablePermissionsQuery();
   const { mutateAsync: assignPermissions, isPending } =
     useAssignRolePermissionsMutation();
 
@@ -117,8 +131,9 @@ export function AssignPermissionsModal({
   if (!staff) return null;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Assign Permissions</DialogTitle>
           <DialogDescription>
@@ -153,6 +168,21 @@ export function AssignPermissionsModal({
                           {role.name}
                         </SelectItem>
                       ))}
+                      {!rolesLoading && (!roles || roles.length === 0) && (
+                        <div className="py-2 px-2">
+                          <div className="px-2 py-1 text-sm text-muted-foreground">
+                            No roles available
+                          </div>
+                          <Button
+                            type="button"
+                            variant="link"
+                            className="h-auto p-0 text-left mt-1"
+                            onClick={() => setIsCreateRoleModalOpen(true)}
+                          >
+                            Create Role
+                          </Button>
+                        </div>
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -204,7 +234,17 @@ export function AssignPermissionsModal({
                         </div>
                       ) : (
                         <div className="text-sm text-muted-foreground">
-                          No permissions available
+                          <div>No permissions available</div>
+                          <Button
+                            type="button"
+                            variant="link"
+                            className="h-auto p-0 text-left mt-1"
+                            onClick={() =>
+                              setIsCreatePermissionModalOpen(true)
+                            }
+                          >
+                            Create Permission
+                          </Button>
                         </div>
                       )}
                     </div>
@@ -228,7 +268,24 @@ export function AssignPermissionsModal({
             </DialogFooter>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      <CreateRoleModal
+        open={isCreateRoleModalOpen}
+        onOpenChange={setIsCreateRoleModalOpen}
+        onSuccess={() => {
+          void refetchRoles();
+        }}
+      />
+
+      <CreatePermissionModal
+        open={isCreatePermissionModalOpen}
+        onOpenChange={setIsCreatePermissionModalOpen}
+        onSuccess={() => {
+          void refetchPermissions();
+        }}
+      />
+    </>
   );
 }

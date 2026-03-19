@@ -79,7 +79,7 @@ const benefits = [
 const pricingPlans = [
   {
     name: "Starter",
-    price: "$49",
+    price: "₦49",
     period: "per month",
     description: "Perfect for small gyms getting started",
     features: [
@@ -94,7 +94,7 @@ const pricingPlans = [
   },
   {
     name: "Professional",
-    price: "$99",
+    price: "₦99",
     period: "per month",
     description: "Ideal for growing fitness businesses",
     features: [

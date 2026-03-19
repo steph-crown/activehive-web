@@ -114,7 +114,7 @@ const createSubscriptionColumns = (
         <div className="text-right font-medium">
           {new Intl.NumberFormat("en-US", {
             style: "currency",
-            currency: "USD",
+            currency: "NGN",
           }).format(amount)}
         </div>
       );
@@ -308,7 +308,7 @@ export function SubscriptionsPage() {
                 <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
                   {new Intl.NumberFormat("en-US", {
                     style: "currency",
-                    currency: "USD",
+                    currency: "NGN",
                   }).format(statistics.totalRevenue)}
                 </CardTitle>
               </CardHeader>
@@ -319,7 +319,7 @@ export function SubscriptionsPage() {
                 <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
                   {new Intl.NumberFormat("en-US", {
                     style: "currency",
-                    currency: "USD",
+                    currency: "NGN",
                   }).format(statistics.monthlyRevenue)}
                 </CardTitle>
               </CardHeader>

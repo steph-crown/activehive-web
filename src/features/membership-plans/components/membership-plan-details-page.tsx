@@ -153,7 +153,7 @@ export function MembershipPlanDetailsPage() {
                 <div>
                   <p className="text-sm text-muted-foreground">Price</p>
                   <p className="font-medium">
-                    ${parseFloat(plan.price).toFixed(2)} / {plan.duration}
+                    ₦{parseFloat(plan.price).toFixed(2)} / {plan.duration}
                   </p>
                 </div>
                 <div>
@@ -245,7 +245,7 @@ export function MembershipPlanDetailsPage() {
                         <p className="text-sm text-muted-foreground mt-1">
                           {promoCode.discountType === "percentage"
                             ? `${promoCode.discountValue}% off`
-                            : `$${promoCode.discountValue} off`}
+                            : `₦${promoCode.discountValue} off`}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
                           Valid from {new Date(promoCode.validFrom).toLocaleDateString()}{" "}

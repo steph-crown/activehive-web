@@ -1,6 +1,6 @@
-import { OperatingHoursDummyPage } from "@/features/locations/components/operating-hours-dummy-page";
+import { OperatingHoursPage } from "@/features/locations/components/operating-hours-page";
 
 export default function Page() {
-  return <OperatingHoursDummyPage />;
+  return <OperatingHoursPage />;
 }
 

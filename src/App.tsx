@@ -23,6 +23,7 @@ const MembershipPlanDetails = lazy(
   () => import("@/app/dashboard/membership-plans/[id]/page")
 );
 const Locations = lazy(() => import("@/app/dashboard/locations/page"));
+const GymProfile = lazy(() => import("@/app/dashboard/gym-profile/page"));
 const LocationDetails = lazy(
   () => import("@/app/dashboard/locations/[id]/page")
 );
@@ -37,6 +38,9 @@ const SubscriptionDetails = lazy(
 const Classes = lazy(() => import("@/app/dashboard/classes/page"));
 const ClassDetails = lazy(() => import("@/app/dashboard/classes/[id]/page"));
 const CheckIn = lazy(() => import("@/app/dashboard/check-in/page"));
+const OperatingHoursDummy = lazy(
+  () => import("@/app/dashboard/operating-hours/page")
+);
 const OperatingHours = lazy(
   () => import("@/app/dashboard/locations/[id]/operating-hours/page")
 );
@@ -90,6 +94,7 @@ function App() {
             element={<MembershipPlanDetails />}
           />
           <Route path="/dashboard/locations" element={<Locations />} />
+          <Route path="/dashboard/gym-profile" element={<GymProfile />} />
           <Route
             path="/dashboard/locations/:id"
             element={<LocationDetails />}
@@ -101,6 +106,10 @@ function App() {
           <Route
             path="/dashboard/locations/:id/operating-hours"
             element={<OperatingHours />}
+          />
+          <Route
+            path="/dashboard/operating-hours"
+            element={<OperatingHoursDummy />}
           />
           <Route path="/dashboard/staff" element={<Staff />} />
           <Route path="/dashboard/staff/roles" element={<StaffRoles />} />

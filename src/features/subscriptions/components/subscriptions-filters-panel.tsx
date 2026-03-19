@@ -269,11 +269,13 @@ export function SubscriptionsFiltersPanel({
           </div>
 
           <div className="flex justify-end gap-2 pt-4">
-            <Button variant="outline" onClick={handleClear}>
+            <Button variant="outline" size="sm" onClick={handleClear}>
               <IconX className="h-4 w-4 " />
               Clear
             </Button>
-            <Button onClick={handleApply}>Apply Filters</Button>
+            <Button size="sm" onClick={handleApply}>
+              Apply Filters
+            </Button>
           </div>
         </div>
       </DialogContent>

@@ -52,22 +52,17 @@ type NavMainGroupedProps = Readonly<{
 export function NavMainGrouped({ selectedLocationId }: NavMainGroupedProps) {
   const location = useLocation();
   const pathname = location.pathname;
+  void selectedLocationId; // currently unused (dummy links)
 
-  const gymProfileHref = selectedLocationId
-    ? `/dashboard/locations/${selectedLocationId}`
-    : "/dashboard/locations";
-  const operatingHoursHref = selectedLocationId
-    ? `/dashboard/locations/${selectedLocationId}/operating-hours`
-    : "/dashboard/locations";
+  // These are currently dummy pages (not backed by the location-dependent UI yet).
+  const gymProfileHref = "/dashboard/gym-profile";
+  const operatingHoursHref = "/dashboard/operating-hours";
 
   const isDashboardActive = pathname === "/dashboard";
   const isCheckInActive = pathname === "/dashboard/check-in";
 
-  const isGymProfileActive = selectedLocationId
-    ? pathname === `/dashboard/locations/${selectedLocationId}`
-    : /^\/dashboard\/locations\/[^/]+$/.test(pathname);
-  const isOperatingHoursActive =
-    /^\/dashboard\/locations\/[^/]+\/operating-hours$/.test(pathname);
+  const isGymProfileActive = pathname === "/dashboard/gym-profile";
+  const isOperatingHoursActive = pathname === "/dashboard/operating-hours";
 
   const isPlansActive =
     pathname === "/dashboard/membership-plans" ||
@@ -297,7 +292,7 @@ export function NavMainGrouped({ selectedLocationId }: NavMainGroupedProps) {
             >
               <Link to="/dashboard/locations">
                 <IconMapPin />
-                <span>Locations</span>
+                <span>LOCATIONS</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

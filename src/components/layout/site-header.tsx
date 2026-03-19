@@ -9,6 +9,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === "/dashboard/members") return "Members";
   if (pathname === "/dashboard/membership-plans") return "Membership Plans";
   if (pathname === "/dashboard/locations") return "Locations";
+  if (pathname === "/dashboard/gym-profile") return "Gym Profile";
   if (pathname === "/dashboard/staff") return "Staff";
   if (pathname === "/dashboard/subscriptions") return "Subscriptions";
   if (pathname === "/dashboard/staff/roles") return "Roles";
@@ -20,6 +21,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname.startsWith("/dashboard/marketing/")) {
     return pathname.replace("/dashboard/marketing/", "").replace(/-/g, " ");
   }
+  if (pathname === "/dashboard/operating-hours") return "Operating Hours";
   if (pathname.startsWith("/dashboard/locations/") && pathname.endsWith("/operating-hours")) {
     return "Operating Hours";
   }

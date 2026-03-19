@@ -65,9 +65,9 @@ const FreeTrialCard: FC<{ readonly daysRemaining: number }> = ({
           </Badge>
         </div>
         <div className="flex items-baseline gap-1">
-          <span className="text-3xl font-bold">Free</span>
+          <span className="text-2xl font-semibold">Free</span>
         </div>
-        <p className="text-muted-foreground mt-2 text-sm">
+        <p className="text-muted-foreground mt-1 text-sm">
           You&apos;re currently on a free trial. Choose a paid plan to keep
           using ActiveHive after your trial ends.
         </p>
@@ -174,9 +174,7 @@ export const SubscriptionPlanModal: FC<
         {!isLoading && !error && plans.length > 0 && (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {showFreeTrialCard && (
-              <FreeTrialCard
-                daysRemaining={subscription?.daysRemaining ?? 0}
-              />
+              <FreeTrialCard daysRemaining={subscription?.daysRemaining ?? 0} />
             )}
             {plans.map((plan) => {
               let isCurrent = false;
@@ -205,7 +203,7 @@ export const SubscriptionPlanModal: FC<
                       )}
                     </div>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-bold">
+                      <span className="text-2xl font-semibold">
                         {isFree ? "Free" : formatCurrency(plan.price)}
                       </span>
                       {!isFree && (
@@ -215,7 +213,7 @@ export const SubscriptionPlanModal: FC<
                       )}
                     </div>
                     {plan.description && (
-                      <p className="text-muted-foreground mt-2 text-sm">
+                      <p className="text-muted-foreground mt-1 text-sm">
                         {plan.description}
                       </p>
                     )}

@@ -1,12 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -25,7 +20,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
-import { useProfileQuery, useUpdateProfileMutation, useChangePasswordMutation } from "../services";
+import {
+  useProfileQuery,
+  useUpdateProfileMutation,
+  useChangePasswordMutation,
+} from "../services";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -269,8 +268,8 @@ export function ProfilePage() {
         <div className="px-4 lg:px-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold">Profile</h1>
-              <p className="text-muted-foreground mt-2">
+              <h1 className="text-2xl font-semibold">Profile</h1>
+              <p className="text-muted-foreground mt-1 text-sm">
                 Manage your account information and settings
               </p>
             </div>
@@ -297,7 +296,9 @@ export function ProfilePage() {
                   <CardTitle>Profile Overview</CardTitle>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant={profile.isEmailVerified ? "default" : "secondary"}>
+                  <Badge
+                    variant={profile.isEmailVerified ? "default" : "secondary"}
+                  >
                     {profile.isEmailVerified ? "Verified" : "Unverified"}
                   </Badge>
                   <Badge variant="outline" className="capitalize">
@@ -320,9 +321,7 @@ export function ProfilePage() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Phone</p>
-                  <p className="font-medium">
-                    {profile.phoneNumber || "N/A"}
-                  </p>
+                  <p className="font-medium">{profile.phoneNumber || "N/A"}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Date of Birth</p>
@@ -612,7 +611,10 @@ export function ProfilePage() {
       </Dialog>
 
       {/* Change Password Modal */}
-      <Dialog open={isChangePasswordOpen} onOpenChange={setIsChangePasswordOpen}>
+      <Dialog
+        open={isChangePasswordOpen}
+        onOpenChange={setIsChangePasswordOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Change Password</DialogTitle>

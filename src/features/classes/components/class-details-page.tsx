@@ -33,7 +33,7 @@ export function ClassDetailsPage() {
 
   const { data: classItem, isLoading, refetch } = useClassQuery(id || "");
   const { data: report, isLoading: reportLoading } = useClassReportQuery(
-    showReport ? id || "" : ""
+    showReport ? id || "" : "",
   );
   const { mutateAsync: deleteClass, isPending: isDeleting } =
     useDeleteClassMutation();
@@ -107,8 +107,10 @@ export function ClassDetailsPage() {
           </Button>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold">{classItem.name}</h1>
-              <p className="text-muted-foreground mt-2">Class Details</p>
+              <h1 className="text-2xl font-semibold">{classItem.name}</h1>
+              <p className="text-muted-foreground mt-1 text-sm">
+                Class Details
+              </p>
             </div>
             <div className="flex gap-2">
               <Button
@@ -126,7 +128,11 @@ export function ClassDetailsPage() {
               <Button variant="outline" onClick={() => setIsUpdateOpen(true)}>
                 Update
               </Button>
-              <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
                 Delete
               </Button>
             </div>
@@ -227,23 +233,24 @@ export function ClassDetailsPage() {
                 </div>
               </div>
 
-              {classItem.metadata?.equipment && classItem.metadata.equipment.length > 0 && (
-                <>
-                  <Separator />
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground mb-2">
-                      Equipment
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {classItem.metadata.equipment.map((item, index) => (
-                        <Badge key={index} variant="outline">
-                          {item}
-                        </Badge>
-                      ))}
+              {classItem.metadata?.equipment &&
+                classItem.metadata.equipment.length > 0 && (
+                  <>
+                    <Separator />
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground mb-2">
+                        Equipment
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {classItem.metadata.equipment.map((item, index) => (
+                          <Badge key={index} variant="outline">
+                            {item}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                </>
-              )}
+                  </>
+                )}
 
               <Separator />
 

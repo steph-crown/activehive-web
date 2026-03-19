@@ -9,12 +9,11 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
+        default: "bg-[#121212] text-white shadow-xs hover:bg-[#121212]/90",
         destructive:
           "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
+          "bg-transparent border-[1.5px] border-[#121212] text-[#121212] shadow-none hover:bg-[#121212]/5 hover:text-[#121212] focus-visible:ring-[3px] focus-visible:ring-[#121212]/20 dark:bg-transparent dark:border-[#121212] dark:text-[#121212] dark:hover:bg-[#121212]/10",
         secondary:
           "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
         ghost:
@@ -22,8 +21,8 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-11 rounded-full px-4 py-2 has-[>svg]:px-3",
-        sm: "h-11 rounded-full gap-1.5 px-4 has-[>svg]:px-3",
+        default: "h-11 rounded-full px-5 py-2 ",
+        sm: "h-11 rounded-full gap-1.5 px-5 ",
         lg: "h-11 rounded-full px-6 has-[>svg]:px-4",
         icon: "size-11 rounded-full",
       },
@@ -32,7 +31,7 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 function Button({

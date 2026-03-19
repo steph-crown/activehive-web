@@ -47,7 +47,7 @@ const createSubscriptionColumns = (
   navigate: (path: string) => void,
   onUpdateStatus: (subscription: Subscription) => void,
   onCancel: (subscription: Subscription) => void,
-  onChangePlan: (subscription: Subscription) => void
+  onChangePlan: (subscription: Subscription) => void,
 ): ColumnDef<Subscription>[] => [
   {
     accessorKey: "member.firstName",
@@ -91,8 +91,8 @@ const createSubscriptionColumns = (
         status === SUBSCRIPTION_STATUS.ACTIVE
           ? "default"
           : status === SUBSCRIPTION_STATUS.CANCELLED
-          ? "destructive"
-          : "secondary";
+            ? "destructive"
+            : "secondary";
       return (
         <Badge variant={variant} className="capitalize">
           {status}
@@ -217,7 +217,7 @@ export function SubscriptionsPage() {
   const effectiveLocationId = selectedLocationId || localLocationId;
 
   const selectedLocation = locations?.find(
-    (loc) => loc.id === selectedLocationId
+    (loc) => loc.id === selectedLocationId,
   );
 
   // Build filters with location
@@ -262,9 +262,9 @@ export function SubscriptionsPage() {
         navigate,
         handleUpdateStatus,
         handleCancel,
-        handleChangePlan
+        handleChangePlan,
       ),
-    [navigate]
+    [navigate],
   );
 
   return (
@@ -272,8 +272,8 @@ export function SubscriptionsPage() {
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
         <div className="flex items-center justify-between px-4 lg:px-6">
           <div>
-            <h1 className="text-3xl font-bold">Subscriptions</h1>
-            <p className="text-muted-foreground mt-2">
+            <h1 className="text-2xl font-semibold">Subscriptions</h1>
+            <p className="text-muted-foreground mt-1 text-sm">
               Manage your gym subscriptions and billing.
             </p>
           </div>
@@ -282,16 +282,19 @@ export function SubscriptionsPage() {
         {/* Statistics Cards */}
         {statsLoading ? (
           <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
-            {["stats-card-skeleton-0", "stats-card-skeleton-1", "stats-card-skeleton-2", "stats-card-skeleton-3"].map(
-              (key) => (
-                <Card key={key} className="@container/card">
-                  <CardHeader>
-                    <Skeleton className="h-4 w-44" />
-                    <Skeleton className="h-8 w-32 mt-3" />
-                  </CardHeader>
-                </Card>
-              ),
-            )}
+            {[
+              "stats-card-skeleton-0",
+              "stats-card-skeleton-1",
+              "stats-card-skeleton-2",
+              "stats-card-skeleton-3",
+            ].map((key) => (
+              <Card key={key} className="@container/card">
+                <CardHeader>
+                  <Skeleton className="h-4 w-44" />
+                  <Skeleton className="h-8 w-32 mt-3" />
+                </CardHeader>
+              </Card>
+            ))}
           </div>
         ) : statistics ? (
           <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">

@@ -110,8 +110,8 @@ export function SubscriptionDetailsPage() {
             status === SUBSCRIPTION_STATUS.ACTIVE
               ? "default"
               : status === SUBSCRIPTION_STATUS.CANCELLED
-              ? "destructive"
-              : "secondary";
+                ? "destructive"
+                : "secondary";
           return (
             <Badge variant={variant} className="capitalize">
               {status}
@@ -187,7 +187,7 @@ export function SubscriptionDetailsPage() {
         },
       },
     ],
-    [navigate, handleUpdateStatus, handleCancel, handleChangePlan]
+    [navigate, handleUpdateStatus, handleCancel, handleChangePlan],
   );
 
   if (isLoading) {
@@ -243,8 +243,8 @@ export function SubscriptionDetailsPage() {
           >
             ← Back to Subscriptions
           </Button>
-          <h1 className="text-3xl font-bold">Subscription Details</h1>
-          <p className="text-muted-foreground mt-2">
+          <h1 className="text-2xl font-semibold">Subscription Details</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
             View detailed information about this subscription
           </p>
         </div>
@@ -293,12 +293,12 @@ export function SubscriptionDetailsPage() {
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Days Remaining</p>
+                  <p className="text-sm text-muted-foreground">
+                    Days Remaining
+                  </p>
                   <p
                     className={`font-medium ${
-                      subscription.isExpiringSoon
-                        ? "text-orange-600"
-                        : ""
+                      subscription.isExpiringSoon ? "text-orange-600" : ""
                     }`}
                   >
                     {subscription.daysRemaining}
@@ -326,7 +326,8 @@ export function SubscriptionDetailsPage() {
                 <div>
                   <p className="text-sm text-muted-foreground">Name</p>
                   <p className="font-medium">
-                    {subscription.member.firstName} {subscription.member.lastName}
+                    {subscription.member.firstName}{" "}
+                    {subscription.member.lastName}
                   </p>
                 </div>
                 <div>
@@ -377,7 +378,9 @@ export function SubscriptionDetailsPage() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Plan ID</p>
-                  <p className="font-medium">{subscription.membershipPlan.id}</p>
+                  <p className="font-medium">
+                    {subscription.membershipPlan.id}
+                  </p>
                 </div>
               </div>
             </CardContent>

@@ -228,8 +228,8 @@ export function StaffPage() {
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
         <div className="flex items-center justify-between px-4 lg:px-6">
           <div>
-            <h1 className="text-3xl font-bold">Staff Management</h1>
-            <p className="text-muted-foreground mt-2">
+            <h1 className="text-2xl font-semibold">Staff Management</h1>
+            <p className="text-muted-foreground mt-1 text-sm">
               Manage your gym staff members, roles, and permissions.
             </p>
           </div>

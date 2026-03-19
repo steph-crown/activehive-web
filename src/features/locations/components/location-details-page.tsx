@@ -117,8 +117,12 @@ export function LocationDetailsPage() {
 
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold">{locationData.locationName}</h1>
-              <p className="text-muted-foreground mt-2">Location Details</p>
+              <h1 className="text-2xl font-semibold">
+                {locationData.locationName}
+              </h1>
+              <p className="text-muted-foreground mt-1 text-sm">
+                Location Details
+              </p>
             </div>
             <Button
               variant="outline"

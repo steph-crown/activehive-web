@@ -133,6 +133,8 @@ export interface DataTableProps<TData> {
   toolbar?: React.ReactNode;
   onDragEnd?: (event: DragEndEvent) => void;
   defaultPageSize?: number;
+  variant?: "default" | "staff";
+  searchQuery?: string;
 }
 
 export function DataTable<TData>({
@@ -148,6 +150,8 @@ export function DataTable<TData>({
   toolbar,
   onDragEnd: externalOnDragEnd,
   defaultPageSize = 10,
+  variant = "default",
+  searchQuery,
 }: DataTableProps<TData>) {
   const [data, setData] = React.useState(() => initialData);
   const [rowSelection, setRowSelection] = React.useState({});
@@ -184,8 +188,16 @@ export function DataTable<TData>({
     [data, getRowId]
   );
 
+  const normalizedQuery = (searchQuery || "").trim().toLowerCase();
+  const filteredData = React.useMemo(() => {
+    if (!normalizedQuery) return data;
+    return data.filter((row) =>
+      JSON.stringify(row).toLowerCase().includes(normalizedQuery)
+    );
+  }, [data, normalizedQuery]);
+
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns,
     state: {
       sorting,
@@ -248,7 +260,13 @@ export function DataTable<TData>({
   }
 
   const tableContent = (
-    <div className="overflow-hidden rounded-lg border">
+    <div
+      className={
+        variant === "staff"
+          ? "overflow-hidden bg-white"
+          : "overflow-hidden rounded-lg border"
+      }
+    >
       {enableDragAndDrop ? (
         <DndContext
           collisionDetection={closestCenter}
@@ -258,12 +276,22 @@ export function DataTable<TData>({
           id={sortableId}
         >
           <Table>
-            <TableHeader className="bg-muted sticky top-0 z-10">
+            <TableHeader
+              className={
+                variant === "staff" ? "" : "bg-muted sticky top-0 z-10"
+              }
+            >
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
                     return (
-                      <TableHead key={header.id} colSpan={header.colSpan}>
+                      <TableHead
+                        key={header.id}
+                        colSpan={header.colSpan}
+                        className={
+                          variant === "staff" ? "h-11 bg-white px-4 text-xs" : ""
+                        }
+                      >
                         {header.isPlaceholder
                           ? null
                           : flexRender(
@@ -281,9 +309,10 @@ export function DataTable<TData>({
                 skeletonRowKeys.map((rowKey) => (
                   <TableRow key={rowKey}>
                     {skeletonColumns.map((col) => (
-                      <TableCell
-                        key={`${rowKey}-${col.id}`}
-                      >
+                        <TableCell
+                          key={`${rowKey}-${col.id}`}
+                          className={variant === "staff" ? "px-4 py-4" : ""}
+                        >
                         <Skeleton className="h-4 w-full" />
                       </TableCell>
                     ))}
@@ -300,11 +329,8 @@ export function DataTable<TData>({
                 </SortableContext>
               ) : (
                 <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    {emptyMessage}
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                    {variant === "staff" ? "No results found." : emptyMessage}
                   </TableCell>
                 </TableRow>
               )}
@@ -312,13 +338,23 @@ export function DataTable<TData>({
           </Table>
         </DndContext>
       ) : (
-        <Table>
-          <TableHeader className="bg-muted sticky top-0 z-10">
+          <Table>
+            <TableHeader
+              className={
+                variant === "staff" ? "" : "bg-muted sticky top-0 z-10"
+              }
+            >
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} colSpan={header.colSpan}>
+                    <TableHead
+                      key={header.id}
+                      colSpan={header.colSpan}
+                      className={
+                        variant === "staff" ? "h-11 bg-white px-4 text-xs" : ""
+                      }
+                    >
                       {header.isPlaceholder ? null : (
                         <div
                           className={
@@ -355,7 +391,10 @@ export function DataTable<TData>({
               skeletonRowKeys.map((rowKey) => (
                 <TableRow key={rowKey}>
                   {skeletonColumns.map((col) => (
-                    <TableCell key={`${rowKey}-${col.id}`}>
+                    <TableCell
+                      key={`${rowKey}-${col.id}`}
+                      className={variant === "staff" ? "px-4 py-4" : ""}
+                    >
                       <Skeleton className="h-4 w-full" />
                     </TableCell>
                   ))}
@@ -368,7 +407,10 @@ export function DataTable<TData>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      className={variant === "staff" ? "px-4 py-4" : ""}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -379,18 +421,21 @@ export function DataTable<TData>({
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  {emptyMessage}
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  {variant === "staff" ? "No results found." : emptyMessage}
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       )}
-      <div className="flex items-center justify-between px-4 py-4">
+      <div
+        className={
+          variant === "staff"
+            ? "flex items-center justify-end px-1 py-2"
+            : "flex items-center justify-between px-4 py-4"
+        }
+      >
         <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
           {enableRowSelection && (
             <>

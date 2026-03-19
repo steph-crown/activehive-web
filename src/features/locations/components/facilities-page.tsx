@@ -56,7 +56,7 @@ type FacilityFormValues = yup.InferType<typeof facilitySchema>;
 const facilitiesColumns = (
   onView: (facility: Facility) => void,
   onEdit: (facility: Facility) => void,
-  onDelete: (facilityId: string) => void
+  onDelete: (facilityId: string) => void,
 ): ColumnDef<Facility>[] => [
   {
     accessorKey: "name",
@@ -120,15 +120,15 @@ export function FacilitiesPage() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
-  const [viewingFacility, setViewingFacility] =
-    React.useState<Facility | null>(null);
-  const [editingFacility, setEditingFacility] =
-    React.useState<Facility | null>(null);
+  const [viewingFacility, setViewingFacility] = React.useState<Facility | null>(
+    null,
+  );
+  const [editingFacility, setEditingFacility] = React.useState<Facility | null>(
+    null,
+  );
 
   const { data: location } = useLocationQuery(id || "");
-  const { data: facilities, isLoading, refetch } = useFacilitiesQuery(
-    id || ""
-  );
+  const { data: facilities, isLoading, refetch } = useFacilitiesQuery(id || "");
   const { mutateAsync: createFacility, isPending: isCreating } =
     useCreateFacilityMutation(id || "");
   const { mutateAsync: updateFacility, isPending: isUpdating } =
@@ -187,7 +187,10 @@ export function FacilitiesPage() {
         formData.append("image", data.image);
       }
 
-      await updateFacility({ facilityId: editingFacility.id, payload: formData });
+      await updateFacility({
+        facilityId: editingFacility.id,
+        payload: formData,
+      });
       showSuccess("Success", "Facility updated successfully!");
       form.reset({
         name: "",
@@ -213,13 +216,11 @@ export function FacilitiesPage() {
         refetch();
       } catch (error) {
         const message =
-          error instanceof Error
-            ? error.message
-            : "Failed to delete facility.";
+          error instanceof Error ? error.message : "Failed to delete facility.";
         showError("Error", message);
       }
     },
-    [deleteFacility, refetch, showSuccess, showError]
+    [deleteFacility, refetch, showSuccess, showError],
   );
 
   const handleView = React.useCallback((facility: Facility) => {
@@ -235,12 +236,12 @@ export function FacilitiesPage() {
         image: undefined,
       });
     },
-    [form]
+    [form],
   );
 
   const columns = React.useMemo(
     () => facilitiesColumns(handleView, handleEdit, handleDelete),
-    [handleView, handleEdit, handleDelete]
+    [handleView, handleEdit, handleDelete],
   );
 
   const isModalOpen = isCreateModalOpen || !!editingFacility;
@@ -275,7 +276,7 @@ export function FacilitiesPage() {
             </p>
           </div>
           <Button onClick={() => setIsCreateModalOpen(true)}>
-            <IconPlus className="h-4 w-4 mr-2" />
+            <IconPlus className="h-4 w-4 " />
             Create Facility
           </Button>
         </div>
@@ -330,7 +331,9 @@ export function FacilitiesPage() {
                 </p>
                 <p className="text-sm">
                   {viewingFacility.description || (
-                    <span className="text-muted-foreground">No description</span>
+                    <span className="text-muted-foreground">
+                      No description
+                    </span>
                   )}
                 </p>
               </div>
@@ -379,10 +382,7 @@ export function FacilitiesPage() {
             </div>
           )}
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setViewingFacility(null)}
-            >
+            <Button variant="outline" onClick={() => setViewingFacility(null)}>
               Close
             </Button>
           </DialogFooter>
@@ -418,7 +418,7 @@ export function FacilitiesPage() {
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(
-                editingFacility ? handleUpdate : handleCreate
+                editingFacility ? handleUpdate : handleCreate,
               )}
               className="grid gap-4 py-4"
             >
@@ -446,7 +446,11 @@ export function FacilitiesPage() {
                   <FormItem>
                     <FormLabel>Description (Optional)</FormLabel>
                     <FormControl>
-                      <Input placeholder="Facility description" {...field} value={field.value || ""} />
+                      <Input
+                        placeholder="Facility description"
+                        {...field}
+                        value={field.value || ""}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -521,8 +525,8 @@ export function FacilitiesPage() {
                       ? "Updating..."
                       : "Creating..."
                     : editingFacility
-                    ? "Update Facility"
-                    : "Create Facility"}
+                      ? "Update Facility"
+                      : "Create Facility"}
                 </Button>
               </DialogFooter>
             </form>

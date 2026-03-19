@@ -77,7 +77,7 @@ export function ClassTemplatesTab() {
             Use Template
           </Button>
           <Button onClick={() => setIsCreateModalOpen(true)}>
-            <IconPlus className="h-4 w-4 mr-2" />
+            <IconPlus className="h-4 w-4 " />
             Create Template
           </Button>
         </div>

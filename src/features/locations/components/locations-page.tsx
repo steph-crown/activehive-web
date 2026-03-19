@@ -33,9 +33,7 @@ const locationColumns: ColumnDef<GymLocation>[] = [
       const coverImage = row.original.coverImage || row.original.images?.[0];
       if (!coverImage) {
         return (
-          <div className="text-xs text-muted-foreground italic">
-            No image
-          </div>
+          <div className="text-xs text-muted-foreground italic">No image</div>
         );
       }
       return (
@@ -128,7 +126,7 @@ const locationColumns: ColumnDef<GymLocation>[] = [
 
 const createLocationsColumnsWithActions = (
   navigate: (path: string) => void,
-  onUpdateCover: (location: GymLocation) => void
+  onUpdateCover: (location: GymLocation) => void,
 ): ColumnDef<GymLocation>[] => [
   ...locationColumns,
   {
@@ -168,9 +166,9 @@ export function LocationsPage() {
   const navigate = useNavigate();
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [isCoverModalOpen, setIsCoverModalOpen] = React.useState(false);
-  const [selectedLocationId, setSelectedLocationId] = React.useState<string | null>(
-    null,
-  );
+  const [selectedLocationId, setSelectedLocationId] = React.useState<
+    string | null
+  >(null);
   const { data: locations, isLoading, refetch } = useLocationsQuery();
 
   const handleModalSuccess = () => {
@@ -190,7 +188,7 @@ export function LocationsPage() {
 
   const columns = React.useMemo(
     () => createLocationsColumnsWithActions(navigate, handleOpenCoverModal),
-    [navigate]
+    [navigate],
   );
 
   return (
@@ -204,7 +202,7 @@ export function LocationsPage() {
             </p>
           </div>
           <Button onClick={() => setIsCreateModalOpen(true)}>
-            <IconPlus className="h-4 w-4 mr-2" />
+            <IconPlus className="h-4 w-4 " />
             Add Location
           </Button>
         </div>

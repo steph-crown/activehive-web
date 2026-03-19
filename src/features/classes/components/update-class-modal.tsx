@@ -47,7 +47,7 @@ const updateClassSchema = yup.object({
         startTime: yup.string().required("Start time is required"),
         endTime: yup.string().required("End time is required"),
         notes: yup.string().optional(),
-      })
+      }),
     )
     .optional(),
   category: yup.string().optional(),
@@ -128,9 +128,12 @@ export function UpdateClassModal({
     try {
       const payload: any = {};
       if (data.name) payload.name = data.name;
-      if (data.description !== undefined) payload.description = data.description || undefined;
+      if (data.description !== undefined)
+        payload.description = data.description || undefined;
       if (data.capacity) payload.capacity = data.capacity;
-      if (data.trainerId !== undefined) payload.trainerId = data.trainerId === "none" ? undefined : data.trainerId || undefined;
+      if (data.trainerId !== undefined)
+        payload.trainerId =
+          data.trainerId === "none" ? undefined : data.trainerId || undefined;
       if (data.schedules) {
         payload.schedules = data.schedules.map((s) => ({
           date: s.date,
@@ -317,7 +320,9 @@ export function UpdateClassModal({
                   <FormItem>
                     <FormLabel>Trainer (Optional)</FormLabel>
                     <Select
-                      onValueChange={(value) => field.onChange(value === "none" ? undefined : value)}
+                      onValueChange={(value) =>
+                        field.onChange(value === "none" ? undefined : value)
+                      }
                       value={field.value || "none"}
                     >
                       <FormControl>
@@ -377,7 +382,7 @@ export function UpdateClassModal({
                     })
                   }
                 >
-                  <IconPlus className="h-4 w-4 mr-2" />
+                  <IconPlus className="h-4 w-4 " />
                   Add Schedule
                 </Button>
               </div>

@@ -46,7 +46,7 @@ const useTemplateSchema = yup.object({
         startTime: yup.string().required("Start time is required"),
         endTime: yup.string().required("End time is required"),
         notes: yup.string().optional(),
-      })
+      }),
     )
     .min(1, "At least one schedule is required")
     .required(),
@@ -106,7 +106,7 @@ export function UseTemplateModal({
             startTime: s.startTime,
             endTime: s.endTime,
             notes: s.notes || undefined,
-          }))
+          })),
         );
       }
     }
@@ -117,7 +117,8 @@ export function UseTemplateModal({
       const payload = {
         templateClassId: data.templateClassId,
         locationId: data.locationId,
-        trainerId: data.trainerId === "none" ? undefined : data.trainerId || undefined,
+        trainerId:
+          data.trainerId === "none" ? undefined : data.trainerId || undefined,
         schedules: data.schedules.map((s) => ({
           date: s.date,
           startTime: s.startTime,
@@ -143,9 +144,7 @@ export function UseTemplateModal({
       onSuccess();
     } catch (error) {
       const message =
-        error instanceof Error
-          ? error.message
-          : "Failed to use template.";
+        error instanceof Error ? error.message : "Failed to use template.";
       showError("Error", message);
     }
   };
@@ -222,7 +221,9 @@ export function UseTemplateModal({
                   <FormItem>
                     <FormLabel>Trainer (Optional)</FormLabel>
                     <Select
-                      onValueChange={(value) => field.onChange(value === "none" ? undefined : value)}
+                      onValueChange={(value) =>
+                        field.onChange(value === "none" ? undefined : value)
+                      }
                       value={field.value || "none"}
                     >
                       <FormControl>
@@ -261,7 +262,7 @@ export function UseTemplateModal({
                     })
                   }
                 >
-                  <IconPlus className="h-4 w-4 mr-2" />
+                  <IconPlus className="h-4 w-4 " />
                   Add Schedule
                 </Button>
               </div>

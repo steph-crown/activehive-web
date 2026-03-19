@@ -33,7 +33,7 @@ export function GetHelpModal({ open, onOpenChange }: GetHelpModalProps) {
                 asChild
               >
                 <a href="tel:+2349388338">
-                  <IconPhone className="h-4 w-4 mr-2" />
+                  <IconPhone className="h-4 w-4 " />
                   +234 938 8338
                 </a>
               </Button>
@@ -43,7 +43,7 @@ export function GetHelpModal({ open, onOpenChange }: GetHelpModalProps) {
                 asChild
               >
                 <a href="mailto:mail@activehive.com">
-                  <IconMail className="h-4 w-4 mr-2" />
+                  <IconMail className="h-4 w-4 " />
                   mail@activehive.com
                 </a>
               </Button>

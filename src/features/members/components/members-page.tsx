@@ -70,8 +70,8 @@ const membersColumns: ColumnDef<MemberSubscription>[] = [
         status === "active"
           ? "default"
           : status === "pending"
-          ? "secondary"
-          : "destructive";
+            ? "secondary"
+            : "destructive";
       return (
         <Badge variant={variant} className="capitalize">
           {status}
@@ -101,7 +101,7 @@ export function MembersPage() {
   const effectiveLocationId = selectedLocationId || localLocationId;
 
   const selectedLocation = locations?.find(
-    (loc) => loc.id === selectedLocationId
+    (loc) => loc.id === selectedLocationId,
   );
 
   const {
@@ -126,7 +126,7 @@ export function MembersPage() {
             </p>
           </div>
           <Button onClick={() => setIsCreateModalOpen(true)}>
-            <IconPlus className="h-4 w-4 mr-2" />
+            <IconPlus className="h-4 w-4 " />
             Add Member
           </Button>
         </div>

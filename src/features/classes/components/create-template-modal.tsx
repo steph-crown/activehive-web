@@ -42,7 +42,7 @@ const createTemplateSchema = yup.object({
         startTime: yup.string().required("Start time is required"),
         endTime: yup.string().required("End time is required"),
         notes: yup.string().optional(),
-      })
+      }),
     )
     .min(1, "At least one schedule is required")
     .required(),
@@ -130,9 +130,7 @@ export function CreateTemplateModal({
       onSuccess();
     } catch (error) {
       const message =
-        error instanceof Error
-          ? error.message
-          : "Failed to create template.";
+        error instanceof Error ? error.message : "Failed to create template.";
       showError("Error", message);
     }
   };
@@ -304,7 +302,7 @@ export function CreateTemplateModal({
                     })
                   }
                 >
-                  <IconPlus className="h-4 w-4 mr-2" />
+                  <IconPlus className="h-4 w-4 " />
                   Add Schedule
                 </Button>
               </div>

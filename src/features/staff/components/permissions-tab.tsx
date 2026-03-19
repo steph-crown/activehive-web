@@ -5,9 +5,7 @@ import { Button } from "@/components/ui/button";
 import { IconPlus } from "@tabler/icons-react";
 import { type ColumnDef } from "@tanstack/react-table";
 import * as React from "react";
-import {
-  useAvailablePermissionsQuery,
-} from "../services";
+import { useAvailablePermissionsQuery } from "../services";
 import type { Permission } from "../types";
 import { CreatePermissionModal } from "./create-permission-modal";
 
@@ -56,8 +54,11 @@ const permissionsColumns: ColumnDef<Permission>[] = [
 
 export function PermissionsTab() {
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
-  const { data: permissions, isLoading, refetch } =
-    useAvailablePermissionsQuery();
+  const {
+    data: permissions,
+    isLoading,
+    refetch,
+  } = useAvailablePermissionsQuery();
 
   const handleModalSuccess = () => {
     refetch();
@@ -74,7 +75,7 @@ export function PermissionsTab() {
           </p>
         </div>
         <Button onClick={() => setIsCreateModalOpen(true)}>
-          <IconPlus className="h-4 w-4 mr-2" />
+          <IconPlus className="h-4 w-4 " />
           Create Permission
         </Button>
       </div>

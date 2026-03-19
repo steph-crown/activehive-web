@@ -37,8 +37,10 @@ export function MembershipPlanDetailsPage() {
   const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
   const [isDuplicateOpen, setIsDuplicateOpen] = React.useState(false);
   const [isAddPromoCodeOpen, setIsAddPromoCodeOpen] = React.useState(false);
-  const [isRemovePromoCodeOpen, setIsRemovePromoCodeOpen] = React.useState(false);
-  const [isTogglePromoCodeOpen, setIsTogglePromoCodeOpen] = React.useState(false);
+  const [isRemovePromoCodeOpen, setIsRemovePromoCodeOpen] =
+    React.useState(false);
+  const [isTogglePromoCodeOpen, setIsTogglePromoCodeOpen] =
+    React.useState(false);
   const [selectedPromoCode, setSelectedPromoCode] = React.useState<string>("");
   const [promoCodeStatus, setPromoCodeStatus] = React.useState<boolean>(false);
 
@@ -86,7 +88,7 @@ export function MembershipPlanDetailsPage() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline">
-                  <IconDotsVertical className="h-4 w-4 mr-2" />
+                  <IconDotsVertical className="h-4 w-4 " />
                   Actions
                 </Button>
               </DropdownMenuTrigger>
@@ -173,7 +175,9 @@ export function MembershipPlanDetailsPage() {
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Classes Per Week</p>
+                  <p className="text-sm text-muted-foreground">
+                    Classes Per Week
+                  </p>
                   <p className="font-medium">
                     {plan.classesPerWeek || "Unlimited"}
                   </p>
@@ -217,10 +221,7 @@ export function MembershipPlanDetailsPage() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Promo Codes</CardTitle>
-                <Button
-                  size="sm"
-                  onClick={() => setIsAddPromoCodeOpen(true)}
-                >
+                <Button size="sm" onClick={() => setIsAddPromoCodeOpen(true)}>
                   Add Promo Code
                 </Button>
               </div>
@@ -237,7 +238,9 @@ export function MembershipPlanDetailsPage() {
                         <div className="flex items-center gap-2">
                           <p className="font-medium">{promoCode.code}</p>
                           <Badge
-                            variant={promoCode.isActive ? "default" : "secondary"}
+                            variant={
+                              promoCode.isActive ? "default" : "secondary"
+                            }
                           >
                             {promoCode.isActive ? "Active" : "Inactive"}
                           </Badge>
@@ -248,12 +251,15 @@ export function MembershipPlanDetailsPage() {
                             : `₦${promoCode.discountValue} off`}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          Valid from {new Date(promoCode.validFrom).toLocaleDateString()}{" "}
-                          to {new Date(promoCode.validUntil).toLocaleDateString()}
+                          Valid from{" "}
+                          {new Date(promoCode.validFrom).toLocaleDateString()}{" "}
+                          to{" "}
+                          {new Date(promoCode.validUntil).toLocaleDateString()}
                         </p>
                         {promoCode.maxUses && (
                           <p className="text-xs text-muted-foreground">
-                            Uses: {promoCode.currentUses || 0} / {promoCode.maxUses}
+                            Uses: {promoCode.currentUses || 0} /{" "}
+                            {promoCode.maxUses}
                           </p>
                         )}
                       </div>

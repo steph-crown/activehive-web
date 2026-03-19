@@ -69,7 +69,7 @@ const createMembershipPlanSchema = yup.object({
       is: true,
       then: (schema) =>
         schema.required(
-          "Trial period days is required when trial period is enabled"
+          "Trial period days is required when trial period is enabled",
         ),
     }),
   classesPerWeek: yup
@@ -250,7 +250,9 @@ export function CreateMembershipPlanModal({
                           }
                           const parsed = parseFloat(e.target.value);
                           field.onChange(
-                            Number.isNaN(parsed) ? (undefined as unknown as number) : parsed,
+                            Number.isNaN(parsed)
+                              ? (undefined as unknown as number)
+                              : parsed,
                           );
                         }}
                       />
@@ -322,7 +324,7 @@ export function CreateMembershipPlanModal({
                 onClick={() => append("")}
                 className="w-full"
               >
-                <IconPlus className="h-4 w-4 mr-2" />
+                <IconPlus className="h-4 w-4 " />
                 Add Feature
               </Button>
             </div>
@@ -347,7 +349,9 @@ export function CreateMembershipPlanModal({
                           }
                           const parsed = parseInt(e.target.value, 10);
                           field.onChange(
-                            Number.isNaN(parsed) ? (undefined as unknown as number) : parsed,
+                            Number.isNaN(parsed)
+                              ? (undefined as unknown as number)
+                              : parsed,
                           );
                         }}
                       />
@@ -371,7 +375,7 @@ export function CreateMembershipPlanModal({
                         value={field.value ?? ""}
                         onChange={(e) =>
                           field.onChange(
-                            e.target.value ? parseInt(e.target.value) : null
+                            e.target.value ? parseInt(e.target.value) : null,
                           )
                         }
                       />
@@ -463,7 +467,7 @@ export function CreateMembershipPlanModal({
                         value={field.value ?? ""}
                         onChange={(e) =>
                           field.onChange(
-                            e.target.value ? parseInt(e.target.value) : null
+                            e.target.value ? parseInt(e.target.value) : null,
                           )
                         }
                       />

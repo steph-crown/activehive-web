@@ -1,14 +1,11 @@
 import { useProfileQuery } from "../services";
+import { WelcomeMessageSkeleton } from "./dashboard-skeleton";
 
 export function WelcomeMessage() {
   const { data: profile, isLoading } = useProfileQuery();
 
   if (isLoading || !profile) {
-    return (
-      <div className="px-4 lg:px-6">
-        <h2 className="text-2xl font-semibold">Welcome!</h2>
-      </div>
-    );
+    return <WelcomeMessageSkeleton />;
   }
 
   const firstName = profile.firstName || "User";

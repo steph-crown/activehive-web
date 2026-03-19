@@ -109,7 +109,7 @@ export function MembershipPlansPage() {
     string | undefined
   >(undefined);
   const [selectedPlan, setSelectedPlan] = React.useState<MembershipPlan | null>(
-    null
+    null,
   );
   const [isUpdateOpen, setIsUpdateOpen] = React.useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
@@ -123,7 +123,7 @@ export function MembershipPlansPage() {
   const effectiveLocationId = selectedLocationId || localLocationId;
 
   const selectedLocation = locations?.find(
-    (loc) => loc.id === selectedLocationId
+    (loc) => loc.id === selectedLocationId,
   );
 
   const { data: plans, isLoading } =
@@ -199,12 +199,12 @@ export function MembershipPlansPage() {
         );
       },
     }),
-    [navigate]
+    [navigate],
   );
 
   const columnsWithActions = React.useMemo(
     () => [...membershipPlanColumns, actionsColumn],
-    [actionsColumn]
+    [actionsColumn],
   );
 
   return (
@@ -218,7 +218,7 @@ export function MembershipPlansPage() {
             </p>
           </div>
           <Button onClick={() => setIsCreateModalOpen(true)}>
-            <IconPlus className="h-4 w-4 mr-2" />
+            <IconPlus className="h-4 w-4 " />
             Create Plan
           </Button>
         </div>

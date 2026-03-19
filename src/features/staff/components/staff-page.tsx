@@ -114,8 +114,8 @@ const staffColumns: ColumnDef<Staff>[] = [
         status === "active"
           ? "default"
           : status === "terminated"
-          ? "destructive"
-          : "secondary";
+            ? "destructive"
+            : "secondary";
       return (
         <Badge variant={variant} className="capitalize">
           {status}
@@ -144,7 +144,7 @@ export function StaffPage() {
   const effectiveLocationId = selectedLocationId || localLocationId;
 
   const selectedLocation = locations?.find(
-    (loc) => loc.id === selectedLocationId
+    (loc) => loc.id === selectedLocationId,
   );
 
   // Filter staff client-side based on location
@@ -152,7 +152,7 @@ export function StaffPage() {
     if (!allStaff) return [];
     if (!effectiveLocationId) return allStaff;
     return allStaff.filter((s) =>
-      s.locations?.some((loc) => loc.id === effectiveLocationId)
+      s.locations?.some((loc) => loc.id === effectiveLocationId),
     );
   }, [allStaff, effectiveLocationId]);
 
@@ -253,7 +253,7 @@ export function StaffPage() {
                   </p>
                 </div>
                 <Button onClick={() => setIsCreateModalOpen(true)}>
-                  <IconPlus className="h-4 w-4 mr-2" />
+                  <IconPlus className="h-4 w-4 " />
                   Add Staff
                 </Button>
               </div>

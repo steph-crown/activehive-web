@@ -59,20 +59,20 @@ export function SubscriptionsFiltersPanel({
 
   const hasActiveFilters = Boolean(
     filters.status ||
-      filters.membershipPlanId ||
-      filters.memberId ||
-      filters.search ||
-      filters.startDateFrom ||
-      filters.startDateTo ||
-      filters.endDateFrom ||
-      filters.endDateTo
+    filters.membershipPlanId ||
+    filters.memberId ||
+    filters.search ||
+    filters.startDateFrom ||
+    filters.startDateTo ||
+    filters.endDateFrom ||
+    filters.endDateTo,
   );
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
-          <IconFilter className="h-4 w-4 mr-2" />
+          <IconFilter className="h-4 w-4 " />
           Filters
           {hasActiveFilters && (
             <span className="ml-2 rounded-full bg-primary text-primary-foreground px-1.5 py-0.5 text-xs w-5 h-5">
@@ -270,7 +270,7 @@ export function SubscriptionsFiltersPanel({
 
           <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={handleClear}>
-              <IconX className="h-4 w-4 mr-2" />
+              <IconX className="h-4 w-4 " />
               Clear
             </Button>
             <Button onClick={handleApply}>Apply Filters</Button>

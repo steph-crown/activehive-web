@@ -1,4 +1,3 @@
-import { BlockLoader } from "@/components/loader/block-loader";
 import { DataTable } from "@/components/molecules/data-table";
 import { Badge } from "@/components/ui/badge";
 import { DashboardLayout } from "./dashboard-layout";
@@ -9,6 +8,11 @@ import { useMembersQuery } from "@/features/members/services";
 import { useLocationStore } from "@/store";
 import { type ColumnDef } from "@tanstack/react-table";
 import type { MemberSubscription } from "@/features/members/types";
+import {
+  ChartAreaSkeleton,
+  MembersTableSkeleton,
+  SectionCardsSkeleton,
+} from "./dashboard-skeleton";
 
 const membersColumns: ColumnDef<MemberSubscription>[] = [
   {
@@ -56,13 +60,14 @@ const membersColumns: ColumnDef<MemberSubscription>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.getValue("status") as string;
-      const variant =
-        status === "active"
-          ? "default"
-          : status === "pending"
-          ? "secondary"
-          : "destructive";
+      const status = String(row.getValue("status"));
+      let variant: "default" | "secondary" | "destructive" = "destructive";
+
+      if (status === "active") {
+        variant = "default";
+      } else if (status === "pending") {
+        variant = "secondary";
+      }
       return (
         <Badge variant={variant} className="capitalize">
           {status}
@@ -88,9 +93,9 @@ export function DashboardPage() {
     <DashboardLayout>
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
         <WelcomeMessage />
-        <SectionCards />
+        {isLoading ? <SectionCardsSkeleton /> : <SectionCards />}
         <div className="px-4 lg:px-6">
-          <ChartAreaInteractive />
+          {isLoading ? <ChartAreaSkeleton /> : <ChartAreaInteractive />}
         </div>
         <div className="px-4 lg:px-6">
           <div className="mb-4">
@@ -100,9 +105,7 @@ export function DashboardPage() {
             </p>
           </div>
           {isLoading ? (
-            <div className="flex items-center justify-center py-10">
-              <BlockLoader />
-            </div>
+            <MembersTableSkeleton />
           ) : (
             <DataTable
               data={members || []}

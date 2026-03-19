@@ -5,9 +5,7 @@ import { Button } from "@/components/ui/button";
 import { IconPlus } from "@tabler/icons-react";
 import { type ColumnDef } from "@tanstack/react-table";
 import * as React from "react";
-import {
-  useAvailableRolesQuery,
-} from "../services";
+import { useAvailableRolesQuery } from "../services";
 import type { Role } from "../types";
 import { CreateRoleModal } from "./create-role-modal";
 
@@ -85,7 +83,7 @@ export function RolesTab() {
           </p>
         </div>
         <Button onClick={() => setIsCreateModalOpen(true)}>
-          <IconPlus className="h-4 w-4 mr-2" />
+          <IconPlus className="h-4 w-4 " />
           Create Role
         </Button>
       </div>

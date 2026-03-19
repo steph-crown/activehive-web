@@ -45,7 +45,7 @@ const createClassSchema = yup.object({
         date: yup.string().required("Date is required"),
         startTime: yup.string().required("Start time is required"),
         notes: yup.string().optional(),
-      })
+      }),
     )
     .min(1, "At least one schedule is required")
     .required(),
@@ -131,8 +131,10 @@ export function CreateClassModal({
           endTime: addMinutesToTime(s.startTime, data.duration),
           notes: s.notes || undefined,
         })),
-        locationId: data.locationId === "none" ? undefined : data.locationId || undefined,
-        trainerId: data.trainerId === "none" ? undefined : data.trainerId || undefined,
+        locationId:
+          data.locationId === "none" ? undefined : data.locationId || undefined,
+        trainerId:
+          data.trainerId === "none" ? undefined : data.trainerId || undefined,
         description: data.description || undefined,
         equipment: data.equipment.filter((e): e is string => e !== undefined),
       };
@@ -323,7 +325,9 @@ export function CreateClassModal({
                   <FormItem>
                     <FormLabel>Location (Optional)</FormLabel>
                     <Select
-                      onValueChange={(value) => field.onChange(value === "none" ? undefined : value)}
+                      onValueChange={(value) =>
+                        field.onChange(value === "none" ? undefined : value)
+                      }
                       value={field.value || "none"}
                     >
                       <FormControl>
@@ -353,7 +357,9 @@ export function CreateClassModal({
                 <FormItem>
                   <FormLabel>Trainer (Optional)</FormLabel>
                   <Select
-                    onValueChange={(value) => field.onChange(value === "none" ? undefined : value)}
+                    onValueChange={(value) =>
+                      field.onChange(value === "none" ? undefined : value)
+                    }
                     value={field.value || "none"}
                   >
                     <FormControl>
@@ -390,7 +396,7 @@ export function CreateClassModal({
                     })
                   }
                 >
-                  <IconPlus className="h-4 w-4 mr-2" />
+                  <IconPlus className="h-4 w-4 " />
                   Add Schedule
                 </Button>
               </div>

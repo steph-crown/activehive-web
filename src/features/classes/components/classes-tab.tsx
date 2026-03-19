@@ -33,7 +33,7 @@ const createClassesColumns = (
   navigate: (path: string) => void,
   onAssignTrainer: (classItem: Class) => void,
   onReuse: (classItem: Class) => void,
-  onDelete: (classId: string) => void
+  onDelete: (classId: string) => void,
 ): ColumnDef<Class>[] => [
   {
     accessorKey: "name",
@@ -156,7 +156,7 @@ export function ClassesTab() {
     string | undefined
   >(undefined);
   const [assigningClass, setAssigningClass] = React.useState<Class | null>(
-    null
+    null,
   );
   const [reusingClass, setReusingClass] = React.useState<Class | null>(null);
 
@@ -167,7 +167,7 @@ export function ClassesTab() {
   const effectiveLocationId = selectedLocationId || localLocationId;
 
   const selectedLocation = locations?.find(
-    (loc) => loc.id === selectedLocationId
+    (loc) => loc.id === selectedLocationId,
   );
 
   const {
@@ -205,9 +205,9 @@ export function ClassesTab() {
         navigate,
         handleAssignTrainer,
         handleReuse,
-        handleDelete
+        handleDelete,
       ),
-    [navigate, handleAssignTrainer, handleReuse, handleDelete]
+    [navigate, handleAssignTrainer, handleReuse, handleDelete],
   );
 
   return (
@@ -244,7 +244,7 @@ export function ClassesTab() {
           )}
         </div>
         <Button onClick={() => setIsCreateModalOpen(true)}>
-          <IconPlus className="h-4 w-4 mr-2" />
+          <IconPlus className="h-4 w-4 " />
           Create Class
         </Button>
       </div>

@@ -44,46 +44,7 @@ import {
   CancelSubscriptionModal,
   ChangeSubscriptionPlanModal,
 } from "./subscription-action-modals";
-
-type StatsCardTheme = {
-  title: string;
-  value: string;
-  icon: React.ReactNode;
-  valueColorClass: string;
-  iconBgClass: string;
-  iconColorClass: string;
-  hoverShadowClass: string;
-};
-
-function SubscriptionStatsCard({
-  title,
-  value,
-  icon,
-  valueColorClass,
-  iconBgClass,
-  iconColorClass,
-  hoverShadowClass,
-}: Readonly<StatsCardTheme>) {
-  return (
-    <Card
-      className={`gap-0 border border-[#F4F4F4] bg-white p-0 shadow-none transition-shadow ${hoverShadowClass}`}
-    >
-      <div className="flex flex-col gap-2 p-5">
-        <div className="flex flex-col items-start gap-5">
-          <div
-            className={`flex size-12 items-center justify-center rounded-[10px] ${iconBgClass} ${iconColorClass}`}
-          >
-            {icon}
-          </div>
-          <span className="text-xs font-semibold text-[#3C3C3C]">{title}</span>
-        </div>
-        <div className={`text-2xl leading-none font-bold ${valueColorClass}`}>
-          {value}
-        </div>
-      </div>
-    </Card>
-  );
-}
+import { SummaryMetricCard } from "@/features/dashboard/components/summary-metric-card";
 
 const createSubscriptionColumns = (
   navigate: (path: string) => void,
@@ -344,7 +305,7 @@ export function SubscriptionsPage() {
           </div>
         ) : statistics ? (
           <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
-            <SubscriptionStatsCard
+            <SummaryMetricCard
               title="Total Subscriptions"
               value={`${statistics.total}`}
               icon={<IconUsers className="size-6" stroke={1.8} />}
@@ -353,7 +314,7 @@ export function SubscriptionsPage() {
               iconColorClass="text-[#7E52FF]"
               hoverShadowClass="hover:shadow-[0_14px_30px_-20px_rgba(126,82,255,0.26)]"
             />
-            <SubscriptionStatsCard
+            <SummaryMetricCard
               title="Active"
               value={`${statistics.active}`}
               icon={<IconCircleCheck className="size-6" stroke={1.8} />}
@@ -362,7 +323,7 @@ export function SubscriptionsPage() {
               iconColorClass="text-[#4342FF]"
               hoverShadowClass="hover:shadow-[0_14px_30px_-20px_rgba(67,66,255,0.26)]"
             />
-            <SubscriptionStatsCard
+            <SummaryMetricCard
               title="Total Revenue"
               value={new Intl.NumberFormat("en-US", {
                 style: "currency",
@@ -374,7 +335,7 @@ export function SubscriptionsPage() {
               iconColorClass="text-[#FF5B04]"
               hoverShadowClass="hover:shadow-[0_14px_30px_-20px_rgba(255,91,4,0.28)]"
             />
-            <SubscriptionStatsCard
+            <SummaryMetricCard
               title="Monthly Revenue"
               value={new Intl.NumberFormat("en-US", {
                 style: "currency",

@@ -1,6 +1,5 @@
-import { DummyDataPage } from "@/components/placeholders/dummy-data-page";
+import { CheckInPage } from "@/features/check-in/components/check-in-page";
 
 export default function Page() {
-  return <DummyDataPage title="Check-In" />;
+  return <CheckInPage />;
 }
-

@@ -227,7 +227,7 @@ export function StaffPage() {
           <div>
             <h1 className="text-2xl font-semibold">Staff Management</h1>
             <p className="text-muted-foreground mt-1 text-sm">
-              Manage your gym staff members, roles, and permissions.
+              Manage your gym staff members and assignments.
             </p>
           </div>
         </div>

@@ -5,7 +5,18 @@ export function RolesPage() {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-        <RolesTab />
+        <div className="flex items-center justify-between px-4 lg:px-6">
+          <div>
+            <h1 className="text-2xl font-semibold">Roles</h1>
+            <p className="text-muted-foreground mt-1 text-sm">
+              Manage staff roles and their permissions.
+            </p>
+          </div>
+        </div>
+
+        <div className="px-4 lg:px-6 mt-6">
+          <RolesTab />
+        </div>
       </div>
     </DashboardLayout>
   );

@@ -76,9 +76,9 @@ export function RolesTab() {
     <>
       <div className="flex items-center justify-between mb-4 ">
         <div>
-          <h2 className="text-2xl font-semibold">Roles</h2>
+          <h2 className="text-2xl font-semibold">Role List</h2>
           <p className="text-muted-foreground text-sm mt-1">
-            Manage staff roles and their permissions
+            Create and maintain role definitions for staff.
           </p>
         </div>
         <Button onClick={() => setIsCreateModalOpen(true)}>

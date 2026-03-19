@@ -68,9 +68,9 @@ export function PermissionsTab() {
     <>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-2xl font-semibold">Permissions</h2>
+          <h2 className="text-2xl font-semibold">Permission List</h2>
           <p className="text-muted-foreground text-sm mt-1">
-            Manage staff permissions
+            Create and manage granular permission access.
           </p>
         </div>
         <Button onClick={() => setIsCreateModalOpen(true)}>

@@ -10,14 +10,20 @@ import {
   IconTrendingUp,
   IconBolt,
   IconUsers,
-  IconX,
 } from "@tabler/icons-react";
 
 import { DataTable } from "@/components/molecules/data-table";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -325,89 +331,65 @@ export function CheckInPage() {
       </div>
 
       <Dialog open={quickCheckInOpen} onOpenChange={setQuickCheckInOpen}>
-        <DialogContent
-          closeButton={false}
-          className="max-w-3xl border-[#F4F4F4] p-0"
-        >
-          <div className="p-8">
-            <div className="mb-8 flex items-start justify-between">
-              <DialogTitle className="text-5xl leading-[0.95] font-black uppercase">
-                Quick Check-In
-              </DialogTitle>
-              <button
-                type="button"
-                onClick={() => setQuickCheckInOpen(false)}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <IconX className="size-8" />
-              </button>
+        <DialogContent className="max-w-2xl border-[#F4F4F4]">
+          <DialogHeader>
+            <DialogTitle className="text-3xl font-black uppercase">
+              Quick Check-In
+            </DialogTitle>
+            <DialogDescription>
+              Search member and record an attendance check-in.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-5 py-2">
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Member Name or ID *</label>
+              <Input placeholder="Search member..." />
             </div>
 
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-2xl leading-none font-medium">
-                  Member Name or ID *
-                </label>
-                <Input
-                  placeholder="Search member..."
-                  className="h-16 rounded-xl border-[#E7E7E7] px-6 text-2xl placeholder:text-[#7B7B7B]"
-                />
-              </div>
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Check-In Method</label>
+              <Select value={quickMethod} onValueChange={setQuickMethod}>
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Manual">Manual</SelectItem>
+                  <SelectItem value="QR Code">QR Code</SelectItem>
+                  <SelectItem value="NFC">NFC</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-              <div className="space-y-2">
-                <label className="text-2xl leading-none font-medium">
-                  Check-In Method
-                </label>
-                <Select value={quickMethod} onValueChange={setQuickMethod}>
-                  <SelectTrigger className="h-16 w-full rounded-xl border-[#E7E7E7] px-6 text-2xl">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Manual">Manual</SelectItem>
-                    <SelectItem value="QR Code">QR Code</SelectItem>
-                    <SelectItem value="NFC">NFC</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Location</label>
+              <Select value={quickLocation} onValueChange={setQuickLocation}>
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Downtown">Downtown</SelectItem>
+                  <SelectItem value="Westside">Westside</SelectItem>
+                  <SelectItem value="Eastside">Eastside</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-              <div className="space-y-2">
-                <label className="text-2xl leading-none font-medium">
-                  Location
-                </label>
-                <Select value={quickLocation} onValueChange={setQuickLocation}>
-                  <SelectTrigger className="h-16 w-full rounded-xl border-[#E7E7E7] px-6 text-2xl">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Downtown">Downtown</SelectItem>
-                    <SelectItem value="Westside">Westside</SelectItem>
-                    <SelectItem value="Eastside">Eastside</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex items-center gap-3 rounded-xl bg-[#F7F7F7] p-5 text-2xl text-[#666666]">
-                <IconAlertTriangle className="size-6 shrink-0" />
-                <span>
-                  Members with incomplete profiles will receive a warning during
-                  check-in.
-                </span>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-3">
-                <Button
-                  variant="outline"
-                  className="h-14 rounded-xl border-[#E7E7E7] px-8 text-2xl font-medium"
-                  onClick={() => setQuickCheckInOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button className="h-14 rounded-xl px-8 text-2xl font-medium">
-                  Check In
-                </Button>
-              </div>
+            <div className="flex items-start gap-2 rounded-md bg-muted/50 px-3 py-3 text-sm text-muted-foreground">
+              <IconAlertTriangle className="mt-0.5 size-4 shrink-0" />
+              <span>
+                Members with incomplete profiles will receive a warning during
+                check-in.
+              </span>
             </div>
           </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setQuickCheckInOpen(false)}>
+              Cancel
+            </Button>
+            <Button>Check In</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </DashboardLayout>

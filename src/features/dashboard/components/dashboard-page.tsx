@@ -224,7 +224,6 @@ export function DashboardPage() {
               <DataTable
                 data={tableMembers}
                 columns={membersColumns}
-                variant="staff"
                 searchQuery={searchQuery}
                 enableTabs={false}
                 enableDragAndDrop={false}

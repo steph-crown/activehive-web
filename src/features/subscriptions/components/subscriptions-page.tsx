@@ -2,12 +2,7 @@ import { DataTable } from "@/components/molecules/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +10,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { IconMapPin, IconDotsVertical } from "@tabler/icons-react";
+import {
+  IconMapPin,
+  IconDotsVertical,
+  IconUsers,
+  IconCircleCheck,
+  IconCurrencyNaira,
+  IconChartBar,
+} from "@tabler/icons-react";
 import {
   Select,
   SelectContent,
@@ -42,6 +44,46 @@ import {
   CancelSubscriptionModal,
   ChangeSubscriptionPlanModal,
 } from "./subscription-action-modals";
+
+type StatsCardTheme = {
+  title: string;
+  value: string;
+  icon: React.ReactNode;
+  valueColorClass: string;
+  iconBgClass: string;
+  iconColorClass: string;
+  hoverShadowClass: string;
+};
+
+function SubscriptionStatsCard({
+  title,
+  value,
+  icon,
+  valueColorClass,
+  iconBgClass,
+  iconColorClass,
+  hoverShadowClass,
+}: Readonly<StatsCardTheme>) {
+  return (
+    <Card
+      className={`gap-0 border border-[#F4F4F4] bg-white p-0 shadow-none transition-shadow ${hoverShadowClass}`}
+    >
+      <div className="flex flex-col gap-2 p-5">
+        <div className="flex flex-col items-start gap-5">
+          <div
+            className={`flex size-12 items-center justify-center rounded-[10px] ${iconBgClass} ${iconColorClass}`}
+          >
+            {icon}
+          </div>
+          <span className="text-xs font-semibold text-[#3C3C3C]">{title}</span>
+        </div>
+        <div className={`text-2xl leading-none font-bold ${valueColorClass}`}>
+          {value}
+        </div>
+      </div>
+    </Card>
+  );
+}
 
 const createSubscriptionColumns = (
   navigate: (path: string) => void,
@@ -288,54 +330,62 @@ export function SubscriptionsPage() {
               "stats-card-skeleton-2",
               "stats-card-skeleton-3",
             ].map((key) => (
-              <Card key={key} className="@container/card">
-                <CardHeader>
-                  <Skeleton className="h-4 w-44" />
-                  <Skeleton className="h-8 w-32 mt-3" />
-                </CardHeader>
+              <Card
+                key={key}
+                className="gap-0 border border-[#F4F4F4] bg-white p-0 shadow-none"
+              >
+                <div className="p-5">
+                  <Skeleton className="mb-5 h-12 w-12 rounded-[10px]" />
+                  <Skeleton className="h-4 w-36" />
+                  <Skeleton className="mt-3 h-8 w-28" />
+                </div>
               </Card>
             ))}
           </div>
         ) : statistics ? (
-          <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
-            <Card className="@container/card">
-              <CardHeader>
-                <CardDescription>Total Subscriptions</CardDescription>
-                <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                  {statistics.total}
-                </CardTitle>
-              </CardHeader>
-            </Card>
-            <Card className="@container/card">
-              <CardHeader>
-                <CardDescription>Active</CardDescription>
-                <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                  {statistics.active}
-                </CardTitle>
-              </CardHeader>
-            </Card>
-            <Card className="@container/card">
-              <CardHeader>
-                <CardDescription>Total Revenue</CardDescription>
-                <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                  {new Intl.NumberFormat("en-US", {
-                    style: "currency",
-                    currency: "NGN",
-                  }).format(statistics.totalRevenue)}
-                </CardTitle>
-              </CardHeader>
-            </Card>
-            <Card className="@container/card">
-              <CardHeader>
-                <CardDescription>Monthly Revenue</CardDescription>
-                <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                  {new Intl.NumberFormat("en-US", {
-                    style: "currency",
-                    currency: "NGN",
-                  }).format(statistics.monthlyRevenue)}
-                </CardTitle>
-              </CardHeader>
-            </Card>
+          <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+            <SubscriptionStatsCard
+              title="Total Subscriptions"
+              value={`${statistics.total}`}
+              icon={<IconUsers className="size-6" stroke={1.8} />}
+              valueColorClass="text-[#7E52FF]"
+              iconBgClass="bg-[#F2EEFF]"
+              iconColorClass="text-[#7E52FF]"
+              hoverShadowClass="hover:shadow-[0_14px_30px_-20px_rgba(126,82,255,0.26)]"
+            />
+            <SubscriptionStatsCard
+              title="Active"
+              value={`${statistics.active}`}
+              icon={<IconCircleCheck className="size-6" stroke={1.8} />}
+              valueColorClass="text-[#4342FF]"
+              iconBgClass="bg-[#ECECFF]"
+              iconColorClass="text-[#4342FF]"
+              hoverShadowClass="hover:shadow-[0_14px_30px_-20px_rgba(67,66,255,0.26)]"
+            />
+            <SubscriptionStatsCard
+              title="Total Revenue"
+              value={new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "NGN",
+              }).format(statistics.totalRevenue)}
+              icon={<IconCurrencyNaira className="size-6" stroke={1.8} />}
+              valueColorClass="text-[#FF5B04]"
+              iconBgClass="bg-[#FFEFE6]"
+              iconColorClass="text-[#FF5B04]"
+              hoverShadowClass="hover:shadow-[0_14px_30px_-20px_rgba(255,91,4,0.28)]"
+            />
+            <SubscriptionStatsCard
+              title="Monthly Revenue"
+              value={new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "NGN",
+              }).format(statistics.monthlyRevenue)}
+              icon={<IconChartBar className="size-6" stroke={1.8} />}
+              valueColorClass="text-[#D32F2F]"
+              iconBgClass="bg-[#FBEAEA]"
+              iconColorClass="text-[#D32F2F]"
+              hoverShadowClass="hover:shadow-[0_14px_30px_-20px_rgba(211,47,47,0.22)]"
+            />
           </div>
         ) : null}
 

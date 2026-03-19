@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { IconCalendar, IconDownload, IconFilter, IconSearch } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,7 @@ type TableFilterBarProps = {
   onDateChange?: (value: string) => void;
   actionLabel?: string;
   onActionClick?: () => void;
+  actionNode?: ReactNode;
 };
 
 export function TableFilterBar({
@@ -48,6 +50,7 @@ export function TableFilterBar({
   onDateChange,
   actionLabel = "Export",
   onActionClick,
+  actionNode,
 }: Readonly<TableFilterBarProps>) {
   return (
     <div className="mb-4 flex flex-wrap items-center gap-2.5">
@@ -107,14 +110,16 @@ export function TableFilterBar({
         <IconCalendar className="text-muted-foreground pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2" />
       </div>
 
-      <Button
-        variant="outline"
-        className="h-10 border-[#F4F4F4]"
-        onClick={onActionClick}
-      >
-        <IconDownload className="mr-1 h-4 w-4" />
-        {actionLabel}
-      </Button>
+      {actionNode ?? (
+        <Button
+          variant="outline"
+          className="h-10 border-[#F4F4F4]"
+          onClick={onActionClick}
+        >
+          <IconDownload className="mr-1 h-4 w-4" />
+          {actionLabel}
+        </Button>
+      )}
     </div>
   );
 }

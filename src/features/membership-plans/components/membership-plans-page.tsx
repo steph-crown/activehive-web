@@ -1,4 +1,5 @@
 import { DataTable } from "@/components/molecules/data-table";
+import { TableFilterBar } from "@/components/molecules/table-filter-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,17 +9,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useLocationsQuery } from "@/features/locations/services";
-import { useLocationStore } from "@/store";
-import { IconDotsVertical, IconMapPin, IconPlus } from "@tabler/icons-react";
+import { IconDotsVertical, IconPlus } from "@tabler/icons-react";
 import { type ColumnDef } from "@tanstack/react-table";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
@@ -104,9 +97,9 @@ const membershipPlanColumns: ColumnDef<MembershipPlan>[] = [
 export function MembershipPlansPage() {
   const navigate = useNavigate();
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
-  const [localLocationId, setLocalLocationId] = React.useState<
-    string | undefined
-  >(undefined);
+  const [locationFilter, setLocationFilter] = React.useState("all");
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [dateFilter, setDateFilter] = React.useState("");
   const [selectedPlan, setSelectedPlan] = React.useState<MembershipPlan | null>(
     null,
   );
@@ -115,15 +108,9 @@ export function MembershipPlansPage() {
   const [isDuplicateOpen, setIsDuplicateOpen] = React.useState(false);
   const [isAddPromoCodeOpen, setIsAddPromoCodeOpen] = React.useState(false);
 
-  const { selectedLocationId } = useLocationStore();
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
 
-  // Use global location if set, otherwise use local filter
-  const effectiveLocationId = selectedLocationId || localLocationId;
-
-  const selectedLocation = locations?.find(
-    (loc) => loc.id === selectedLocationId,
-  );
+  const effectiveLocationId = locationFilter === "all" ? undefined : locationFilter;
 
   const { data: plans, isLoading } =
     useMembershipPlansQuery(effectiveLocationId);
@@ -206,6 +193,27 @@ export function MembershipPlansPage() {
     [actionsColumn],
   );
 
+  const filteredPlans = React.useMemo(() => {
+    const rows = plans || [];
+    return rows.filter((plan) => {
+      const normalizedSearch = searchQuery.trim().toLowerCase();
+      const matchesSearch =
+        normalizedSearch.length === 0 ||
+        `${plan.name} ${plan.description} ${plan.location.locationName}`
+          .toLowerCase()
+          .includes(normalizedSearch);
+
+      if (!dateFilter) return matchesSearch;
+      const selectedDate = new Date(dateFilter).toLocaleDateString();
+      const planCreatedAt = (plan as { createdAt?: string }).createdAt;
+      if (!planCreatedAt) return matchesSearch;
+      return (
+        matchesSearch &&
+        new Date(planCreatedAt).toLocaleDateString() === selectedDate
+      );
+    });
+  }, [dateFilter, plans, searchQuery]);
+
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
@@ -223,39 +231,23 @@ export function MembershipPlansPage() {
         </div>
 
         <div className="px-4 lg:px-6">
-          <div className="mb-4 flex items-center gap-4">
-            {selectedLocationId && selectedLocation ? (
-              <div className="flex items-center gap-1.5 text-sm font-medium">
-                <IconMapPin className="h-4 w-4" />
-                <span>{selectedLocation.locationName}</span>
-              </div>
-            ) : (
-              <div className="w-max">
-                <Select
-                  value={localLocationId || "all"}
-                  onValueChange={(value) =>
-                    setLocalLocationId(value === "all" ? undefined : value)
-                  }
-                  disabled={locationsLoading}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Filter by location" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Locations</SelectItem>
-                    {locations?.map((location) => (
-                      <SelectItem key={location.id} value={location.id}>
-                        {location.locationName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-          </div>
+          <TableFilterBar
+            searchValue={searchQuery}
+            onSearchChange={setSearchQuery}
+            searchPlaceholder="Search plans..."
+            locationValue={locationFilter}
+            onLocationChange={setLocationFilter}
+            locations={(locations ?? []).map((location) => ({
+              value: location.id,
+              label: location.locationName,
+            }))}
+            locationDisabled={locationsLoading}
+            dateValue={dateFilter}
+            onDateChange={setDateFilter}
+          />
 
           <DataTable
-            data={plans || []}
+            data={filteredPlans}
             columns={columnsWithActions}
             getRowId={(row) => row.id}
             enableTabs={false}

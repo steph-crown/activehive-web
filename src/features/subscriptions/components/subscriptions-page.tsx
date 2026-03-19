@@ -1,4 +1,5 @@
 import { DataTable } from "@/components/molecules/data-table";
+import { TableFilterBar } from "@/components/molecules/table-filter-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,24 +12,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  IconMapPin,
   IconDotsVertical,
   IconUsers,
   IconCircleCheck,
   IconCurrencyNaira,
   IconChartBar,
+  IconFilter,
 } from "@tabler/icons-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useLocationsQuery } from "@/features/locations/services";
 import { useMembershipPlansQuery } from "@/features/membership-plans/services";
-import { useLocationStore } from "@/store";
 import { type ColumnDef } from "@tanstack/react-table";
 import { useNavigate } from "react-router-dom";
 import * as React from "react";
@@ -199,9 +192,9 @@ const createSubscriptionColumns = (
 
 export function SubscriptionsPage() {
   const navigate = useNavigate();
-  const [localLocationId, setLocalLocationId] = React.useState<
-    string | undefined
-  >(undefined);
+  const [locationFilter, setLocationFilter] = React.useState("all");
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [dateFilter, setDateFilter] = React.useState("");
   const [filters, setFilters] = React.useState<SubscriptionsFilters>({
     page: 1,
     limit: 20,
@@ -212,16 +205,10 @@ export function SubscriptionsPage() {
   const [isCancelOpen, setIsCancelOpen] = React.useState(false);
   const [isChangePlanOpen, setIsChangePlanOpen] = React.useState(false);
 
-  const { selectedLocationId } = useLocationStore();
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
   const { data: membershipPlans } = useMembershipPlansQuery();
 
-  // Use global location if set, otherwise use local filter
-  const effectiveLocationId = selectedLocationId || localLocationId;
-
-  const selectedLocation = locations?.find(
-    (loc) => loc.id === selectedLocationId,
-  );
+  const effectiveLocationId = locationFilter === "all" ? undefined : locationFilter;
 
   // Build filters with location
   const queryFilters: SubscriptionsFilters = React.useMemo(() => {
@@ -269,6 +256,27 @@ export function SubscriptionsPage() {
       ),
     [navigate],
   );
+
+  const visibleSubscriptions = React.useMemo(() => {
+    const rows = subscriptions || [];
+    return rows.filter((subscription) => {
+      const normalizedSearch = searchQuery.trim().toLowerCase();
+      const matchesSearch =
+        normalizedSearch.length === 0 ||
+        `${subscription.member.firstName} ${subscription.member.lastName} ${subscription.member.email} ${subscription.membershipPlan.name}`
+          .toLowerCase()
+          .includes(normalizedSearch);
+
+      if (!dateFilter) return matchesSearch;
+
+      const formattedDate = new Date(dateFilter).toLocaleDateString();
+      const matchesDate =
+        new Date(subscription.startDate).toLocaleDateString() === formattedDate ||
+        new Date(subscription.endDate).toLocaleDateString() === formattedDate;
+
+      return matchesSearch && matchesDate;
+    });
+  }, [dateFilter, searchQuery, subscriptions]);
 
   return (
     <DashboardLayout>
@@ -351,49 +359,42 @@ export function SubscriptionsPage() {
         ) : null}
 
         <div className="px-4 lg:px-6">
-          <div className="mb-4 flex items-center gap-4 flex-wrap">
-            {selectedLocationId && selectedLocation ? (
-              <div className="flex items-center gap-1.5 text-sm font-medium">
-                <IconMapPin className="h-4 w-4" />
-                <span>{selectedLocation.locationName}</span>
-              </div>
-            ) : (
-              <div className="w-max">
-                <Select
-                  value={localLocationId || "all"}
-                  onValueChange={(value) => {
-                    const newLocationId = value === "all" ? undefined : value;
-                    setLocalLocationId(newLocationId);
-                    setFilters((prev) => ({
-                      ...prev,
-                      locationId: newLocationId,
-                    }));
-                  }}
-                  disabled={locationsLoading}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Filter by location" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Locations</SelectItem>
-                    {locations?.map((location) => (
-                      <SelectItem key={location.id} value={location.id}>
-                        {location.locationName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-            <SubscriptionsFiltersPanel
-              filters={filters}
-              onFiltersChange={setFilters}
-              membershipPlans={membershipPlans || []}
-            />
-          </div>
+          <TableFilterBar
+            searchValue={searchQuery}
+            onSearchChange={setSearchQuery}
+            searchPlaceholder="Search subscriptions..."
+            locationValue={locationFilter}
+            onLocationChange={(value) => {
+              setLocationFilter(value);
+              setFilters((prev) => ({
+                ...prev,
+                locationId: value === "all" ? undefined : value,
+              }));
+            }}
+            locations={(locations ?? []).map((location) => ({
+              value: location.id,
+              label: location.locationName,
+            }))}
+            locationDisabled={locationsLoading}
+            dateValue={dateFilter}
+            onDateChange={setDateFilter}
+            actionNode={
+              <SubscriptionsFiltersPanel
+                filters={filters}
+                onFiltersChange={setFilters}
+                membershipPlans={membershipPlans || []}
+                triggerNode={
+                  <Button variant="outline" className="h-10 border-[#F4F4F4]">
+                    <IconFilter className="h-4 w-4" />
+                    Filter
+                  </Button>
+                }
+              />
+            }
+          />
 
           <DataTable
-            data={subscriptions || []}
+            data={visibleSubscriptions}
             columns={columns}
             enableTabs={false}
             getRowId={(row) => row.id}

@@ -24,17 +24,20 @@ import {
 } from "../types";
 import type { MembershipPlan } from "@/features/membership-plans/types";
 import { useMembersQuery } from "@/features/members/services";
+import type { ReactNode } from "react";
 
 interface SubscriptionsFiltersPanelProps {
   filters: SubscriptionsFilters;
   onFiltersChange: (filters: SubscriptionsFilters) => void;
   membershipPlans: MembershipPlan[];
+  triggerNode?: ReactNode;
 }
 
 export function SubscriptionsFiltersPanel({
   filters,
   onFiltersChange,
   membershipPlans,
+  triggerNode,
 }: Readonly<SubscriptionsFiltersPanelProps>) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [localFilters, setLocalFilters] =
@@ -74,26 +77,28 @@ export function SubscriptionsFiltersPanel({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <IconFilter className="h-4 w-4 " />
-          Filter
-          {hasActiveFilters && (
-            <span className="ml-2 rounded-full bg-primary text-primary-foreground px-1.5 py-0.5 text-xs w-5 h-5">
-              {
-                [
-                  filters.status,
-                  filters.membershipPlanId,
-                  filters.memberId,
-                  filters.search,
-                  filters.startDateFrom,
-                  filters.startDateTo,
-                  filters.endDateFrom,
-                  filters.endDateTo,
-                ].filter(Boolean).length
-              }
-            </span>
-          )}
-        </Button>
+        {triggerNode ?? (
+          <Button variant="outline" size="sm">
+            <IconFilter className="h-4 w-4 " />
+            Filter
+            {hasActiveFilters && (
+              <span className="ml-2 rounded-full bg-primary text-primary-foreground px-1.5 py-0.5 text-xs w-5 h-5">
+                {
+                  [
+                    filters.status,
+                    filters.membershipPlanId,
+                    filters.memberId,
+                    filters.search,
+                    filters.startDateFrom,
+                    filters.startDateTo,
+                    filters.endDateFrom,
+                    filters.endDateTo,
+                  ].filter(Boolean).length
+                }
+              </span>
+            )}
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>

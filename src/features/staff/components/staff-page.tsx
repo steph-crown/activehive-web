@@ -1,13 +1,7 @@
 import { DataTable } from "@/components/molecules/data-table";
+import { TableFilterBar } from "@/components/molecules/table-filter-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,8 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useLocationsQuery } from "@/features/locations/services";
-import { useLocationStore } from "@/store";
-import { IconPlus, IconDotsVertical, IconMapPin } from "@tabler/icons-react";
+import { IconPlus, IconDotsVertical } from "@tabler/icons-react";
 import { type ColumnDef } from "@tanstack/react-table";
 import * as React from "react";
 import { useStaffQuery } from "../services";
@@ -129,28 +122,43 @@ export function StaffPage() {
   const [isAssignLocationsOpen, setIsAssignLocationsOpen] =
     React.useState(false);
   const [isViewStaffOpen, setIsViewStaffOpen] = React.useState(false);
-  const [localLocationId, setLocalLocationId] = React.useState<
-    string | undefined
-  >(undefined);
-  const { selectedLocationId } = useLocationStore();
+  const [locationFilter, setLocationFilter] = React.useState("all");
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [dateFilter, setDateFilter] = React.useState("");
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
   const { data: allStaff, isLoading, refetch } = useStaffQuery();
 
-  // Use global location if set, otherwise use local filter
-  const effectiveLocationId = selectedLocationId || localLocationId;
-
-  const selectedLocation = locations?.find(
-    (loc) => loc.id === selectedLocationId,
-  );
+  const effectiveLocationId =
+    locationFilter === "all" ? undefined : locationFilter;
 
   // Filter staff client-side based on location
   const staff = React.useMemo(() => {
     if (!allStaff) return [];
-    if (!effectiveLocationId) return allStaff;
-    return allStaff.filter((s) =>
-      s.locations?.some((loc) => loc.id === effectiveLocationId),
-    );
-  }, [allStaff, effectiveLocationId]);
+    let rows = allStaff;
+    if (effectiveLocationId) {
+      rows = rows.filter((s) =>
+        s.locations?.some((loc) => loc.id === effectiveLocationId),
+      );
+    }
+
+    const normalizedSearch = searchQuery.trim().toLowerCase();
+    if (normalizedSearch) {
+      rows = rows.filter((s) =>
+        `${s.firstName} ${s.lastName} ${s.email} ${s.phone}`
+          .toLowerCase()
+          .includes(normalizedSearch),
+      );
+    }
+
+    if (dateFilter) {
+      const selectedDate = new Date(dateFilter).toLocaleDateString();
+      rows = rows.filter(
+        (s) => new Date(s.hireDate).toLocaleDateString() === selectedDate,
+      );
+    }
+
+    return rows;
+  }, [allStaff, dateFilter, effectiveLocationId, searchQuery]);
 
   const handleModalSuccess = () => {
     refetch();
@@ -223,16 +231,16 @@ export function StaffPage() {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-        <div className="flex items-center justify-between px-4 lg:px-6">
+        {/* <div className="flex items-center justify-between px-4 lg:px-6">
           <div>
             <h1 className="text-2xl font-semibold">Staff Management</h1>
             <p className="text-muted-foreground mt-1 text-sm">
               Manage your gym staff members and assignments.
             </p>
           </div>
-        </div>
+        </div> */}
 
-        <div className="px-4 lg:px-6 mt-6">
+        <div className="px-4 lg:px-6 ">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-2xl font-semibold">Staff Members</h2>
@@ -246,36 +254,20 @@ export function StaffPage() {
             </Button>
           </div>
 
-          <div className="mb-4 flex items-center gap-4">
-            {selectedLocationId && selectedLocation ? (
-              <div className="flex items-center gap-1.5 text-sm font-medium">
-                <IconMapPin className="h-4 w-4" />
-                <span>{selectedLocation.locationName}</span>
-              </div>
-            ) : (
-              <div className="w-max">
-                <Select
-                  value={localLocationId || "all"}
-                  onValueChange={(value) =>
-                    setLocalLocationId(value === "all" ? undefined : value)
-                  }
-                  disabled={locationsLoading}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Filter by location" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Locations</SelectItem>
-                    {locations?.map((location) => (
-                      <SelectItem key={location.id} value={location.id}>
-                        {location.locationName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-          </div>
+          <TableFilterBar
+            searchValue={searchQuery}
+            onSearchChange={setSearchQuery}
+            searchPlaceholder="Search staff..."
+            locationValue={locationFilter}
+            onLocationChange={setLocationFilter}
+            locations={(locations ?? []).map((location) => ({
+              value: location.id,
+              label: location.locationName,
+            }))}
+            locationDisabled={locationsLoading}
+            dateValue={dateFilter}
+            onDateChange={setDateFilter}
+          />
 
           <DataTable
             data={staff || []}

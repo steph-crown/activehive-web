@@ -1,17 +1,10 @@
 import { DataTable } from "@/components/molecules/data-table";
+import { TableFilterBar } from "@/components/molecules/table-filter-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useLocationsQuery } from "@/features/locations/services";
-import { useLocationStore } from "@/store";
-import { IconPlus, IconMapPin } from "@tabler/icons-react";
+import { IconPlus } from "@tabler/icons-react";
 import { type ColumnDef } from "@tanstack/react-table";
 import * as React from "react";
 import { useMembersQuery } from "../services";
@@ -90,18 +83,12 @@ const membersColumns: ColumnDef<MemberSubscription>[] = [
 
 export function MembersPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
-  const [localLocationId, setLocalLocationId] = React.useState<
-    string | undefined
-  >(undefined);
-  const { selectedLocationId } = useLocationStore();
+  const [locationFilter, setLocationFilter] = React.useState("all");
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [dateFilter, setDateFilter] = React.useState("");
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
 
-  // Use global location if set, otherwise use local filter
-  const effectiveLocationId = selectedLocationId || localLocationId;
-
-  const selectedLocation = locations?.find(
-    (loc) => loc.id === selectedLocationId,
-  );
+  const effectiveLocationId = locationFilter === "all" ? undefined : locationFilter;
 
   const {
     data: members,
@@ -113,6 +100,23 @@ export function MembersPage() {
     refetch();
     setIsCreateModalOpen(false);
   };
+
+  const filteredMembers = React.useMemo(() => {
+    const rows = members || [];
+    return rows.filter((member) => {
+      const normalizedSearch = searchQuery.trim().toLowerCase();
+      const matchesSearch =
+        normalizedSearch.length === 0 ||
+        `${member.member.firstName} ${member.member.lastName} ${member.member.email} ${member.membershipPlan.name}`
+          .toLowerCase()
+          .includes(normalizedSearch);
+
+      if (!dateFilter) return matchesSearch;
+      const selectedDate = new Date(dateFilter).toLocaleDateString();
+      const rowDate = new Date(member.createdAt).toLocaleDateString();
+      return matchesSearch && rowDate === selectedDate;
+    });
+  }, [dateFilter, members, searchQuery]);
 
   return (
     <DashboardLayout>
@@ -131,39 +135,23 @@ export function MembersPage() {
         </div>
 
         <div className="px-4 lg:px-6">
-          <div className="mb-4 flex items-center gap-4">
-            {selectedLocationId && selectedLocation ? (
-              <div className="flex items-center gap-1.5 text-sm font-medium">
-                <IconMapPin className="h-4 w-4" />
-                <span>{selectedLocation.locationName}</span>
-              </div>
-            ) : (
-              <div className="w-max">
-                <Select
-                  value={localLocationId || "all"}
-                  onValueChange={(value) =>
-                    setLocalLocationId(value === "all" ? undefined : value)
-                  }
-                  disabled={locationsLoading}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Filter by location" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Locations</SelectItem>
-                    {locations?.map((location) => (
-                      <SelectItem key={location.id} value={location.id}>
-                        {location.locationName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-          </div>
+          <TableFilterBar
+            searchValue={searchQuery}
+            onSearchChange={setSearchQuery}
+            searchPlaceholder="Search members..."
+            locationValue={locationFilter}
+            onLocationChange={setLocationFilter}
+            locations={(locations ?? []).map((location) => ({
+              value: location.id,
+              label: location.locationName,
+            }))}
+            locationDisabled={locationsLoading}
+            dateValue={dateFilter}
+            onDateChange={setDateFilter}
+          />
 
           <DataTable
-            data={members || []}
+            data={filteredMembers}
             columns={membersColumns}
             enableTabs={false}
             getRowId={(row) => row.id}

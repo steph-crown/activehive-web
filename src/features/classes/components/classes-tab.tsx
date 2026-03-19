@@ -1,4 +1,5 @@
 import { DataTable } from "@/components/molecules/data-table";
+import { TableFilterBar } from "@/components/molecules/table-filter-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,20 +9,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { IconPlus, IconDotsVertical, IconMapPin } from "@tabler/icons-react";
+import { IconPlus, IconDotsVertical } from "@tabler/icons-react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { useNavigate } from "react-router-dom";
 import * as React from "react";
 import { useClassesQuery, useDeleteClassMutation } from "../services";
 import { useLocationsQuery } from "@/features/locations/services";
-import { useLocationStore } from "@/store";
 import type { Class } from "../types";
 import { CreateClassModal } from "./create-class-modal";
 import { AssignTrainerModal } from "./assign-trainer-modal";
@@ -151,23 +144,16 @@ export function ClassesTab() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
-  const [localLocationId, setLocalLocationId] = React.useState<
-    string | undefined
-  >(undefined);
+  const [locationFilter, setLocationFilter] = React.useState("all");
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [dateFilter, setDateFilter] = React.useState("");
   const [assigningClass, setAssigningClass] = React.useState<Class | null>(
     null,
   );
   const [reusingClass, setReusingClass] = React.useState<Class | null>(null);
 
-  const { selectedLocationId } = useLocationStore();
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
-
-  // Use global location if set, otherwise use local filter
-  const effectiveLocationId = selectedLocationId || localLocationId;
-
-  const selectedLocation = locations?.find(
-    (loc) => loc.id === selectedLocationId,
-  );
+  const effectiveLocationId = locationFilter === "all" ? undefined : locationFilter;
 
   const {
     data: classes,
@@ -209,47 +195,54 @@ export function ClassesTab() {
     [navigate, handleAssignTrainer, handleReuse, handleDelete],
   );
 
+  const filteredClasses = React.useMemo(() => {
+    const rows = classes || [];
+    return rows.filter((classItem) => {
+      const normalizedSearch = searchQuery.trim().toLowerCase();
+      const matchesSearch =
+        normalizedSearch.length === 0 ||
+        `${classItem.name} ${classItem.metadata?.category || ""} ${classItem.metadata?.difficulty || ""} ${classItem.location?.locationName || ""}`
+          .toLowerCase()
+          .includes(normalizedSearch);
+
+      if (!dateFilter) return matchesSearch;
+      const selectedDate = new Date(dateFilter).toLocaleDateString();
+      const createdAt = (classItem as { createdAt?: string }).createdAt;
+      if (!createdAt) return matchesSearch;
+      return (
+        matchesSearch &&
+        new Date(createdAt).toLocaleDateString() === selectedDate
+      );
+    });
+  }, [classes, dateFilter, searchQuery]);
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          {selectedLocationId && selectedLocation ? (
-            <div className="flex items-center gap-1.5 text-sm font-medium">
-              <IconMapPin className="h-4 w-4" />
-              <span>{selectedLocation.locationName}</span>
-            </div>
-          ) : (
-            <div className="w-max">
-              <Select
-                value={localLocationId || "all"}
-                onValueChange={(value) =>
-                  setLocalLocationId(value === "all" ? undefined : value)
-                }
-                disabled={locationsLoading}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Filter by location" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Locations</SelectItem>
-                  {locations?.map((location) => (
-                    <SelectItem key={location.id} value={location.id}>
-                      {location.locationName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-        </div>
+        <div />
         <Button onClick={() => setIsCreateModalOpen(true)}>
           <IconPlus className="h-4 w-4 " />
           Create Class
         </Button>
       </div>
 
+      <TableFilterBar
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="Search classes..."
+        locationValue={locationFilter}
+        onLocationChange={setLocationFilter}
+        locations={(locations ?? []).map((location) => ({
+          value: location.id,
+          label: location.locationName,
+        }))}
+        locationDisabled={locationsLoading}
+        dateValue={dateFilter}
+        onDateChange={setDateFilter}
+      />
+
       <DataTable
-        data={classes || []}
+        data={filteredClasses}
         columns={columns}
         enableTabs={false}
         getRowId={(row) => row.id}

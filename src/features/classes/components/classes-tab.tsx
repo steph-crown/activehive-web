@@ -1,4 +1,3 @@
-import { BlockLoader } from "@/components/loader/block-loader";
 import { DataTable } from "@/components/molecules/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -249,19 +248,14 @@ export function ClassesTab() {
         </Button>
       </div>
 
-      {isLoading ? (
-        <div className="flex items-center justify-center py-10">
-          <BlockLoader />
-        </div>
-      ) : (
-        <DataTable
-          data={classes || []}
-          columns={columns}
-          enableTabs={false}
-          getRowId={(row) => row.id}
-          emptyMessage="No classes found."
-        />
-      )}
+      <DataTable
+        data={classes || []}
+        columns={columns}
+        enableTabs={false}
+        getRowId={(row) => row.id}
+        emptyMessage="No classes found."
+        isLoading={isLoading}
+      />
 
       <CreateClassModal
         open={isCreateModalOpen}

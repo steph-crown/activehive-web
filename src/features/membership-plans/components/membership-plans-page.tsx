@@ -1,4 +1,3 @@
-import { BlockLoader } from "@/components/loader/block-loader";
 import { DataTable } from "@/components/molecules/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -255,19 +254,14 @@ export function MembershipPlansPage() {
             )}
           </div>
 
-          {isLoading ? (
-            <div className="flex items-center justify-center py-10">
-              <BlockLoader />
-            </div>
-          ) : (
-            <DataTable
-              data={plans || []}
-              columns={columnsWithActions}
-              getRowId={(row) => row.id}
-              enableTabs={false}
-              emptyMessage="No membership plans found."
-            />
-          )}
+          <DataTable
+            data={plans || []}
+            columns={columnsWithActions}
+            getRowId={(row) => row.id}
+            enableTabs={false}
+            emptyMessage="No membership plans found."
+            isLoading={isLoading}
+          />
         </div>
       </div>
 

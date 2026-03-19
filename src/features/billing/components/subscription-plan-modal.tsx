@@ -10,13 +10,13 @@ import {
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import type {
   GymOwnerSubscriptionPlan,
   GymOwnerSubscriptionPlansResponse,
   MySubscriptionResponse,
 } from "../types";
 import { useGymOwnerPlansQuery, useSwitchPlanMutation } from "../services";
-import { BlockLoader } from "@/components/loader/block-loader";
 import { useToast } from "@/hooks/use-toast";
 
 type SubscriptionPlanModalProps = {
@@ -147,8 +147,18 @@ export const SubscriptionPlanModal: FC<
         </DialogHeader>
 
         {isLoading && (
-          <div className="flex items-center justify-center py-8">
-            <BlockLoader />
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <Card key={`plans-skeleton-${idx}`}>
+                <CardHeader>
+                  <Skeleton className="h-6 w-40" />
+                  <Skeleton className="h-4 w-24 mt-3" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-10 w-full" />
+                </CardContent>
+              </Card>
+            ))}
           </div>
         )}
         {!isLoading && error && (

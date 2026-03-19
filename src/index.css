@@ -1,8 +1,43 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap');
 
 @custom-variant dark (&:is(.dark *));
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("/assets/fonts/Satoshi-Light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("/assets/fonts/Satoshi-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("/assets/fonts/Satoshi-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("/assets/fonts/Satoshi-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("/assets/fonts/Satoshi-Black.otf") format("opentype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -78,17 +113,21 @@
   --sidebar-ring: oklch(0.704 0.04 256.788);
   --header-height: 2.5rem;
 
-  /* One-line switch for the whole app typography.
-     Change these two values to:
-     - "Bricolage Grotesque"
-     - "Syne"
-     - "Hanken Grotesk"
-  */
-  --font-body: "Hanken Grotesk";
-  --font-heading: var(--font-body);
-  --main-font: var(--font-body), ui-sans-serif, system-ui, -apple-system,
+  /* Typography switch:
+     - Change `--font-body` to switch body font
+     - Change `--font-heading` to switch header font (can be different) */
+  --font-bricolage: "Bricolage Grotesque";
+  --font-syne: "Syne";
+  --font-hanken: "Hanken Grotesk";
+  --font-satoshi: "Satoshi";
+
+  --font-body: var(--font-satoshi);
+  --font-heading: var(--font-satoshi);
+  --main-font:
+    var(--font-body), ui-sans-serif, system-ui, -apple-system,
     BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  --heading-font: var(--font-heading), ui-sans-serif, system-ui, -apple-system,
+  --heading-font:
+    var(--font-heading), ui-sans-serif, system-ui, -apple-system,
     BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
 }
 

@@ -1,4 +1,3 @@
-import { BlockLoader } from "@/components/loader/block-loader";
 import { DataTable } from "@/components/molecules/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -208,19 +207,14 @@ export function LocationsPage() {
         </div>
 
         <div className="px-4 lg:px-6">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-10">
-              <BlockLoader />
-            </div>
-          ) : (
-            <DataTable
-              data={locations || []}
-              columns={columns}
-              enableTabs={false}
-              getRowId={(row) => row.id}
-              emptyMessage="No locations found."
-            />
-          )}
+          <DataTable
+            data={locations || []}
+            columns={columns}
+            enableTabs={false}
+            getRowId={(row) => row.id}
+            emptyMessage="No locations found."
+            isLoading={isLoading}
+          />
         </div>
       </div>
 

@@ -1,7 +1,7 @@
-import { BlockLoader } from "@/components/loader/block-loader";
 import { DataTable } from "@/components/molecules/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Card,
   CardDescription,
@@ -281,8 +281,17 @@ export function SubscriptionsPage() {
 
         {/* Statistics Cards */}
         {statsLoading ? (
-          <div className="flex items-center justify-center py-10">
-            <BlockLoader />
+          <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+            {["stats-card-skeleton-0", "stats-card-skeleton-1", "stats-card-skeleton-2", "stats-card-skeleton-3"].map(
+              (key) => (
+                <Card key={key} className="@container/card">
+                  <CardHeader>
+                    <Skeleton className="h-4 w-44" />
+                    <Skeleton className="h-8 w-32 mt-3" />
+                  </CardHeader>
+                </Card>
+              ),
+            )}
           </div>
         ) : statistics ? (
           <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
@@ -369,19 +378,14 @@ export function SubscriptionsPage() {
             />
           </div>
 
-          {isLoading ? (
-            <div className="flex items-center justify-center py-10">
-              <BlockLoader />
-            </div>
-          ) : (
-            <DataTable
-              data={subscriptions || []}
-              columns={columns}
-              enableTabs={false}
-              getRowId={(row) => row.id}
-              emptyMessage="No subscriptions found."
-            />
-          )}
+          <DataTable
+            data={subscriptions || []}
+            columns={columns}
+            enableTabs={false}
+            getRowId={(row) => row.id}
+            emptyMessage="No subscriptions found."
+            isLoading={isLoading}
+          />
         </div>
       </div>
 

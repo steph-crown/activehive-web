@@ -1,6 +1,6 @@
-import { BlockLoader } from "@/components/loader/block-loader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Card,
   CardContent,
@@ -55,8 +55,30 @@ export function ClassDetailsPage() {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center py-10">
-          <BlockLoader />
+        <div className="flex flex-col gap-4 px-4 py-4 md:gap-6 md:px-6 md:py-6">
+          <Skeleton className="h-10 w-72" />
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-6 w-44" />
+                <Skeleton className="h-4 w-56 mt-2" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4 mt-3" />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-6 w-52" />
+                <Skeleton className="h-4 w-40 mt-2" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-2/3 mt-3" />
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </DashboardLayout>
     );

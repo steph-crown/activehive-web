@@ -1,4 +1,3 @@
-import { BlockLoader } from "@/components/loader/block-loader";
 import { DataTable } from "@/components/molecules/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -289,19 +288,14 @@ export function StaffPage() {
                 )}
               </div>
 
-              {isLoading ? (
-                <div className="flex items-center justify-center py-10">
-                  <BlockLoader />
-                </div>
-              ) : (
-                <DataTable
-                  data={staff || []}
-                  columns={columnsWithActions}
-                  enableTabs={false}
-                  getRowId={(row) => row.id}
-                  emptyMessage="No staff members found."
-                />
-              )}
+              <DataTable
+                data={staff || []}
+                columns={columnsWithActions}
+                enableTabs={false}
+                getRowId={(row) => row.id}
+                emptyMessage="No staff members found."
+                isLoading={isLoading}
+              />
             </TabsContent>
 
             <TabsContent value="roles" className="mt-6">

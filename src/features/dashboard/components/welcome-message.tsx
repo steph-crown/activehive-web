@@ -16,7 +16,7 @@ export function WelcomeMessage() {
       <h2 className="text-2xl font-semibold">
         {greeting}, {firstName}! 👋
       </h2>
-      <p className="text-muted-foreground mt-1">
+      <p className="text-muted-foreground mt-1 text-sm">
         Here's what's happening with your gym today.
       </p>
     </div>

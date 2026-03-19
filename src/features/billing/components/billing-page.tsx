@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { BlockLoader } from "@/components/loader/block-loader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Card,
   CardContent,
@@ -75,8 +75,18 @@ export function BillingPage() {
           {(() => {
             if (isLoading) {
               return (
-                <div className="flex items-center justify-center py-10">
-                  <BlockLoader />
+                <div className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <Skeleton className="h-6 w-52" />
+                      <Skeleton className="h-4 w-40 mt-3" />
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-4 w-2/3" />
+                    </CardContent>
+                  </Card>
                 </div>
               );
             }

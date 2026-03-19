@@ -48,6 +48,7 @@ import { z } from "zod";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -128,6 +129,7 @@ export interface DataTableProps<TData> {
   enableColumnVisibility?: boolean;
   getRowId?: (row: TData) => string;
   emptyMessage?: string;
+  isLoading?: boolean;
   toolbar?: React.ReactNode;
   onDragEnd?: (event: DragEndEvent) => void;
   defaultPageSize?: number;
@@ -142,6 +144,7 @@ export function DataTable<TData>({
   enableColumnVisibility = true,
   getRowId,
   emptyMessage = "No results.",
+  isLoading = false,
   toolbar,
   onDragEnd: externalOnDragEnd,
   defaultPageSize = 10,
@@ -217,6 +220,18 @@ export function DataTable<TData>({
       : undefined,
   });
 
+  const skeletonRowKeys = [
+    "skeleton-row-0",
+    "skeleton-row-1",
+    "skeleton-row-2",
+    "skeleton-row-3",
+    "skeleton-row-4",
+    "skeleton-row-5",
+    "skeleton-row-6",
+    "skeleton-row-7",
+  ];
+  const skeletonColumns = table.getAllLeafColumns();
+
   function handleDragEnd(event: DragEndEvent) {
     if (externalOnDragEnd) {
       externalOnDragEnd(event);
@@ -262,7 +277,19 @@ export function DataTable<TData>({
               ))}
             </TableHeader>
             <TableBody className="**:data-[slot=table-cell]:first:w-8">
-              {table.getRowModel().rows?.length ? (
+              {isLoading ? (
+                skeletonRowKeys.map((rowKey) => (
+                  <TableRow key={rowKey}>
+                    {skeletonColumns.map((col) => (
+                      <TableCell
+                        key={`${rowKey}-${col.id}`}
+                      >
+                        <Skeleton className="h-4 w-full" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : table.getRowModel().rows?.length ? (
                 <SortableContext
                   items={dataIds}
                   strategy={verticalListSortingStrategy}
@@ -324,7 +351,17 @@ export function DataTable<TData>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {isLoading ? (
+              skeletonRowKeys.map((rowKey) => (
+                <TableRow key={rowKey}>
+                  {skeletonColumns.map((col) => (
+                    <TableCell key={`${rowKey}-${col.id}`}>
+                      <Skeleton className="h-4 w-full" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
@@ -391,49 +428,66 @@ export function DataTable<TData>({
             </Select>
           </div>
           <div className="flex w-fit items-center justify-center text-sm font-medium">
-            Page {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount()}
+            {isLoading ? (
+              <Skeleton className="h-4 w-44" />
+            ) : (
+              <>
+                Page {table.getState().pagination.pageIndex + 1} of{" "}
+                {table.getPageCount()}
+              </>
+            )}
           </div>
           <div className="ml-auto flex items-center gap-2 lg:ml-0">
-            <Button
-              variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => table.setPageIndex(0)}
-              disabled={!table.getCanPreviousPage()}
-            >
-              <span className="sr-only">Go to first page</span>
-              <IconChevronsLeft />
-            </Button>
-            <Button
-              variant="outline"
-              className="size-8"
-              size="icon"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              <span className="sr-only">Go to previous page</span>
-              <IconChevronLeft />
-            </Button>
-            <Button
-              variant="outline"
-              className="size-8"
-              size="icon"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              <span className="sr-only">Go to next page</span>
-              <IconChevronRight />
-            </Button>
-            <Button
-              variant="outline"
-              className="hidden size-8 lg:flex"
-              size="icon"
-              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-              disabled={!table.getCanNextPage()}
-            >
-              <span className="sr-only">Go to last page</span>
-              <IconChevronsRight />
-            </Button>
+            {isLoading ? (
+              <>
+                <Skeleton className="hidden h-9 w-9 rounded-md lg:flex" />
+                <Skeleton className="h-9 w-9 rounded-md" />
+                <Skeleton className="h-9 w-9 rounded-md" />
+                <Skeleton className="hidden h-9 w-9 rounded-md lg:flex" />
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  className="hidden h-8 w-8 p-0 lg:flex"
+                  onClick={() => table.setPageIndex(0)}
+                  disabled={!table.getCanPreviousPage()}
+                >
+                  <span className="sr-only">Go to first page</span>
+                  <IconChevronsLeft />
+                </Button>
+                <Button
+                  variant="outline"
+                  className="size-8"
+                  size="icon"
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage()}
+                >
+                  <span className="sr-only">Go to previous page</span>
+                  <IconChevronLeft />
+                </Button>
+                <Button
+                  variant="outline"
+                  className="size-8"
+                  size="icon"
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage()}
+                >
+                  <span className="sr-only">Go to next page</span>
+                  <IconChevronRight />
+                </Button>
+                <Button
+                  variant="outline"
+                  className="hidden size-8 lg:flex"
+                  size="icon"
+                  onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                  disabled={!table.getCanNextPage()}
+                >
+                  <span className="sr-only">Go to last page</span>
+                  <IconChevronsRight />
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>

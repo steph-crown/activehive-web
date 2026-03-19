@@ -69,8 +69,8 @@ export function WeeklyAttendanceChart() {
                   }}
                 />
                 <Bar dataKey="morning" fill="#FABE12" name="Morning" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="afternoon" fill="#F59E0B" name="Afternoon" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="evening" fill="#FCD34D" name="Evening" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="afternoon" fill="#F97316" name="Afternoon" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="evening" fill="#7E52FF" name="Evening" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

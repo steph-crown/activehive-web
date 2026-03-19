@@ -91,7 +91,9 @@ const membersColumns: ColumnDef<MemberSubscription>[] = [
 
 export function DashboardPage() {
   const { selectedLocationId } = useLocationStore();
-  const { data: members, isLoading } = useMembersQuery(selectedLocationId || undefined);
+  const { data: members, isLoading } = useMembersQuery(
+    selectedLocationId || undefined,
+  );
 
   return (
     <DashboardLayout>

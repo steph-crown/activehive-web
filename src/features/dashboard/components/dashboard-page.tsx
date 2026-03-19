@@ -3,13 +3,14 @@ import { Badge } from "@/components/ui/badge";
 import { DashboardLayout } from "./dashboard-layout";
 import { WelcomeMessage } from "./welcome-message";
 import { SectionCards } from "./section-cards";
-import { ChartAreaInteractive } from "./chart-area-interactive";
+import { RevenueChart } from "./revenue-chart";
+import { MembersChart } from "./members-chart";
 import { useMembersQuery } from "@/features/members/services";
 import { useLocationStore } from "@/store";
 import { type ColumnDef } from "@tanstack/react-table";
 import type { MemberSubscription } from "@/features/members/types";
 import {
-  ChartAreaSkeleton,
+  ChartsSkeleton,
   MembersTableSkeleton,
   SectionCardsSkeleton,
 } from "./dashboard-skeleton";
@@ -95,7 +96,14 @@ export function DashboardPage() {
         <WelcomeMessage />
         {isLoading ? <SectionCardsSkeleton /> : <SectionCards />}
         <div className="px-4 lg:px-6">
-          {isLoading ? <ChartAreaSkeleton /> : <ChartAreaInteractive />}
+          {isLoading ? (
+            <ChartsSkeleton />
+          ) : (
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <RevenueChart />
+              <MembersChart />
+            </div>
+          )}
         </div>
         <div className="px-4 lg:px-6">
           <div className="mb-4">

@@ -1,14 +1,9 @@
 import { useMemo, useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/molecules/data-table";
+import { TableFilterBar } from "@/components/molecules/table-filter-bar";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useLocationsQuery } from "@/features/locations/services";
 
 type WithLocation = {
   id: string;
@@ -30,20 +25,54 @@ export function ScheduleStyleTablePage<T extends WithLocation>({
   data,
   emptyMessage,
 }: Readonly<ScheduleStyleTablePageProps<T>>) {
+  const [searchQuery, setSearchQuery] = useState("");
   const [locationFilter, setLocationFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("");
+  const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
 
-  const locations = useMemo(() => {
-    const unique = new Set<string>();
-    data.forEach((item) => {
-      if (item.location) unique.add(item.location);
-    });
-    return Array.from(unique);
-  }, [data]);
+  const locationOptions = useMemo(
+    () =>
+      (locations ?? []).map((location) => ({
+        value: location.id,
+        label: location.locationName,
+      })),
+    [locations],
+  );
 
   const filteredData = useMemo(() => {
-    if (locationFilter === "all") return data;
-    return data.filter((item) => item.location === locationFilter);
-  }, [data, locationFilter]);
+    return data.filter((item) => {
+      const selectedLocationName =
+        locationFilter === "all"
+          ? undefined
+          : locations?.find((location) => location.id === locationFilter)
+              ?.locationName;
+
+      const matchesLocation =
+        !selectedLocationName || item.location === selectedLocationName;
+
+      const normalizedSearch = searchQuery.trim().toLowerCase();
+      const matchesSearch =
+        normalizedSearch.length === 0 ||
+        Object.values(item).some((value) =>
+          String(value).toLowerCase().includes(normalizedSearch),
+        );
+
+      if (!dateFilter) {
+        return matchesLocation && matchesSearch;
+      }
+
+      const formattedDate = new Date(dateFilter).toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
+      });
+      const matchesDate = Object.values(item).some((value) =>
+        String(value).includes(formattedDate),
+      );
+
+      return matchesLocation && matchesSearch && matchesDate;
+    });
+  }, [data, dateFilter, locationFilter, locations, searchQuery]);
 
   return (
     <DashboardLayout>
@@ -55,21 +84,17 @@ export function ScheduleStyleTablePage<T extends WithLocation>({
 
         <div className="px-4 lg:px-6">
           <div className="space-y-4">
-            <div className="w-max">
-              <Select value={locationFilter} onValueChange={setLocationFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Filter by location" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Locations</SelectItem>
-                  {locations.map((location) => (
-                    <SelectItem key={location} value={location}>
-                      {location}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <TableFilterBar
+              searchValue={searchQuery}
+              onSearchChange={setSearchQuery}
+              searchPlaceholder={`Search ${title.toLowerCase()}...`}
+              locationValue={locationFilter}
+              onLocationChange={setLocationFilter}
+              locations={locationOptions}
+              locationDisabled={locationsLoading}
+              dateValue={dateFilter}
+              onDateChange={setDateFilter}
+            />
 
             <DataTable
               data={filteredData}

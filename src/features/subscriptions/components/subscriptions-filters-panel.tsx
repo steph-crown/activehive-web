@@ -17,8 +17,11 @@ import {
 import { DatePicker } from "@/components/ui/date-picker";
 import { IconFilter, IconX } from "@tabler/icons-react";
 import * as React from "react";
-import type { SubscriptionsFilters } from "../types";
-import { SUBSCRIPTION_STATUS, type SubscriptionStatus } from "../types";
+import {
+  SUBSCRIPTION_STATUS,
+  type SubscriptionStatus,
+  type SubscriptionsFilters,
+} from "../types";
 import type { MembershipPlan } from "@/features/membership-plans/types";
 import { useMembersQuery } from "@/features/members/services";
 
@@ -32,7 +35,7 @@ export function SubscriptionsFiltersPanel({
   filters,
   onFiltersChange,
   membershipPlans,
-}: SubscriptionsFiltersPanelProps) {
+}: Readonly<SubscriptionsFiltersPanelProps>) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [localFilters, setLocalFilters] =
     React.useState<SubscriptionsFilters>(filters);
@@ -73,7 +76,7 @@ export function SubscriptionsFiltersPanel({
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <IconFilter className="h-4 w-4 " />
-          Filters
+          Filter
           {hasActiveFilters && (
             <span className="ml-2 rounded-full bg-primary text-primary-foreground px-1.5 py-0.5 text-xs w-5 h-5">
               {

@@ -2,18 +2,16 @@ import { useMemo, useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   IconAlertTriangle,
-  IconCalendar,
   IconClockHour3,
-  IconFilter,
-  IconDownload,
-  IconSearch,
   IconTrendingUp,
   IconBolt,
   IconUsers,
 } from "@tabler/icons-react";
 
 import { DataTable } from "@/components/molecules/data-table";
+import { TableFilterBar } from "@/components/molecules/table-filter-bar";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
+import { useLocationsQuery } from "@/features/locations/services";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,13 +23,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SummaryMetricCard } from "@/features/dashboard/components/summary-metric-card";
 
 type CheckInMethod = "QR Code" | "Manual" | "NFC";
@@ -143,9 +135,11 @@ export function CheckInPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [methodFilter, setMethodFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("");
   const [quickCheckInOpen, setQuickCheckInOpen] = useState(false);
   const [quickMethod, setQuickMethod] = useState("Manual");
   const [quickLocation, setQuickLocation] = useState("Downtown");
+  const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
 
   const filteredData = useMemo(() => {
     return checkInData.filter((record) => {
@@ -154,11 +148,28 @@ export function CheckInPage() {
         .includes(searchQuery.toLowerCase().trim());
       const matchesMethod =
         methodFilter === "all" || record.method === methodFilter;
+      const selectedLocationName =
+        locationFilter === "all"
+          ? undefined
+          : locations?.find((location) => location.id === locationFilter)
+              ?.locationName;
       const matchesLocation =
-        locationFilter === "all" || record.location === locationFilter;
-      return matchesSearch && matchesMethod && matchesLocation;
+        !selectedLocationName || record.location === selectedLocationName;
+
+      if (!dateFilter) {
+        return matchesSearch && matchesMethod && matchesLocation;
+      }
+
+      const formattedDate = new Date(dateFilter).toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
+      });
+      const matchesDate = record.date.includes(formattedDate);
+
+      return matchesSearch && matchesMethod && matchesLocation && matchesDate;
     });
-  }, [locationFilter, methodFilter, searchQuery]);
+  }, [dateFilter, locationFilter, locations, methodFilter, searchQuery]);
 
   const columns: ColumnDef<CheckInRecord>[] = useMemo(
     () => [
@@ -268,54 +279,28 @@ export function CheckInPage() {
         </div>
 
         <div className="px-4 lg:px-6">
-          <div className="mb-4 flex flex-wrap items-center gap-2.5">
-            <div className="relative min-w-[260px] flex-1">
-              <IconSearch className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-              <Input
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search by member name..."
-                className="h-10 border-[#F4F4F4] bg-white pl-9"
-              />
-            </div>
-            <Select value={methodFilter} onValueChange={setMethodFilter}>
-              <SelectTrigger className="h-10 w-[140px] border-[#F4F4F4] bg-white">
-                <div className="flex items-center gap-2">
-                  <IconFilter className="size-4" />
-                  <SelectValue placeholder="All Methods" />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Methods</SelectItem>
-                <SelectItem value="Manual">Manual</SelectItem>
-                <SelectItem value="QR Code">QR Code</SelectItem>
-                <SelectItem value="NFC">NFC</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={locationFilter} onValueChange={setLocationFilter}>
-              <SelectTrigger className="h-10 w-[140px] border-[#F4F4F4] bg-white">
-                <SelectValue placeholder="All Locations" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Locations</SelectItem>
-                <SelectItem value="Downtown">Downtown</SelectItem>
-                <SelectItem value="Westside">Westside</SelectItem>
-                <SelectItem value="Eastside">Eastside</SelectItem>
-              </SelectContent>
-            </Select>
-            <div className="relative">
-              <Input
-                type="date"
-                defaultValue="2026-03-15"
-                className="h-10 w-[145px] border-[#F4F4F4] bg-white pr-9"
-              />
-              <IconCalendar className="text-muted-foreground pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2" />
-            </div>
-            <Button variant="outline" className="h-10 border-[#F4F4F4]">
-              <IconDownload className="mr-1 h-4 w-4" />
-              Export
-            </Button>
-          </div>
+          <TableFilterBar
+            searchValue={searchQuery}
+            onSearchChange={setSearchQuery}
+            searchPlaceholder="Search by member name..."
+            locationValue={locationFilter}
+            onLocationChange={setLocationFilter}
+            locations={(locations ?? []).map((location) => ({
+              value: location.id,
+              label: location.locationName,
+            }))}
+            locationDisabled={locationsLoading}
+            showMethodFilter
+            methodValue={methodFilter}
+            onMethodChange={setMethodFilter}
+            methodOptions={[
+              { value: "Manual", label: "Manual" },
+              { value: "QR Code", label: "QR Code" },
+              { value: "NFC", label: "NFC" },
+            ]}
+            dateValue={dateFilter}
+            onDateChange={setDateFilter}
+          />
 
           <DataTable
             data={filteredData}

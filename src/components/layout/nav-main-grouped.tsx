@@ -292,7 +292,7 @@ export function NavMainGrouped({ selectedLocationId }: NavMainGroupedProps) {
             >
               <Link to="/dashboard/locations">
                 <IconMapPin />
-                <span>LOCATIONS</span>
+                <span>Locations</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

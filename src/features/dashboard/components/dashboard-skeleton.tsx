@@ -111,6 +111,34 @@ export function ChartsSkeleton() {
   );
 }
 
+export function InsightsChartsSkeleton() {
+  return (
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <Card className="border border-[#F4F4F4] p-0 shadow-none lg:col-span-2">
+        <div className="flex flex-col">
+          <div className="flex items-center justify-between border-b border-[#F4F4F4] px-6 py-3">
+            <Skeleton className="h-4 w-40" />
+          </div>
+          <div className="flex flex-col gap-4 p-6">
+            <Skeleton className="h-[355px] w-full rounded-lg" />
+          </div>
+        </div>
+      </Card>
+
+      <Card className="border border-[#F4F4F4] p-0 shadow-none lg:col-span-1">
+        <div className="flex flex-col">
+          <div className="border-b border-[#F4F4F4] px-6 py-3">
+            <Skeleton className="h-4 w-36" />
+          </div>
+          <div className="flex flex-col gap-4 p-6">
+            <Skeleton className="h-[355px] w-full rounded-lg" />
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
 export function MembersTableSkeleton() {
   // Dashboard members table has a fixed column set in this app.
   const headerKeys = ["col-0", "col-1", "col-2", "col-3", "col-4", "col-5", "col-6"] as const;

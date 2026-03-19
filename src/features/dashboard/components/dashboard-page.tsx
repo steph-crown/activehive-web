@@ -5,12 +5,15 @@ import { WelcomeMessage } from "./welcome-message";
 import { SectionCards } from "./section-cards";
 import { RevenueChart } from "./revenue-chart";
 import { MembersChart } from "./members-chart";
+import { WeeklyAttendanceChart } from "./weekly-attendance-chart";
+import { MembershipMixChart } from "./membership-mix-chart";
 import { useMembersQuery } from "@/features/members/services";
 import { useLocationStore } from "@/store";
 import { type ColumnDef } from "@tanstack/react-table";
 import type { MemberSubscription } from "@/features/members/types";
 import {
   ChartsSkeleton,
+  InsightsChartsSkeleton,
   MembersTableSkeleton,
   SectionCardsSkeleton,
 } from "./dashboard-skeleton";
@@ -102,6 +105,20 @@ export function DashboardPage() {
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <RevenueChart />
               <MembersChart />
+            </div>
+          )}
+        </div>
+        <div className="px-4 lg:px-6">
+          {isLoading ? (
+            <InsightsChartsSkeleton />
+          ) : (
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+              <div className="lg:col-span-2">
+                <WeeklyAttendanceChart />
+              </div>
+              <div className="lg:col-span-1">
+                <MembershipMixChart />
+              </div>
             </div>
           )}
         </div>

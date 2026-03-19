@@ -5,5 +5,7 @@ export * from "./assign-locations-modal";
 export * from "./view-staff-modal";
 export * from "./roles-tab";
 export * from "./permissions-tab";
+export * from "./roles-page";
+export * from "./permissions-page";
 export * from "./create-role-modal";
 export * from "./create-permission-modal";

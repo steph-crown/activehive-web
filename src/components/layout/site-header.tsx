@@ -5,11 +5,25 @@ import { LocationSelector } from "@/components/location-selector";
 
 const getPageTitle = (pathname: string): string => {
   if (pathname === "/dashboard") return "Dashboard";
+  if (pathname === "/dashboard/check-in") return "Check-In";
   if (pathname === "/dashboard/members") return "Members";
   if (pathname === "/dashboard/membership-plans") return "Membership Plans";
   if (pathname === "/dashboard/locations") return "Locations";
   if (pathname === "/dashboard/staff") return "Staff";
   if (pathname === "/dashboard/subscriptions") return "Subscriptions";
+  if (pathname === "/dashboard/staff/roles") return "Roles";
+  if (pathname === "/dashboard/staff/permissions") return "Permissions";
+  if (pathname === "/dashboard/classes/attendance") return "Attendance";
+  if (pathname.startsWith("/dashboard/payments/")) {
+    return pathname.replace("/dashboard/payments/", "").replace(/-/g, " ");
+  }
+  if (pathname.startsWith("/dashboard/marketing/")) {
+    return pathname.replace("/dashboard/marketing/", "").replace(/-/g, " ");
+  }
+  if (pathname.startsWith("/dashboard/locations/") && pathname.endsWith("/operating-hours")) {
+    return "Operating Hours";
+  }
+  if (/^\/dashboard\/locations\/[^/]+$/.test(pathname)) return "Gym Profile";
   return "Dashboard";
 };
 

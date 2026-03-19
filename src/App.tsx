@@ -36,6 +36,29 @@ const SubscriptionDetails = lazy(
 );
 const Classes = lazy(() => import("@/app/dashboard/classes/page"));
 const ClassDetails = lazy(() => import("@/app/dashboard/classes/[id]/page"));
+const CheckIn = lazy(() => import("@/app/dashboard/check-in/page"));
+const OperatingHours = lazy(
+  () => import("@/app/dashboard/locations/[id]/operating-hours/page")
+);
+const Attendance = lazy(() => import("@/app/dashboard/classes/attendance/page"));
+const Transactions = lazy(
+  () => import("@/app/dashboard/payments/transactions/page")
+);
+const Invoices = lazy(() => import("@/app/dashboard/payments/invoices/page"));
+const Refunds = lazy(() => import("@/app/dashboard/payments/refunds/page"));
+const PromoCodes = lazy(
+  () => import("@/app/dashboard/marketing/promo-codes/page")
+);
+const EmailCampaigns = lazy(
+  () => import("@/app/dashboard/marketing/email-campaigns/page")
+);
+const SmsCampaigns = lazy(
+  () => import("@/app/dashboard/marketing/sms-campaigns/page")
+);
+const StaffRoles = lazy(() => import("@/app/dashboard/staff/roles/page"));
+const StaffPermissions = lazy(
+  () => import("@/app/dashboard/staff/permissions/page")
+);
 const Billing = lazy(() => import("@/app/billing/page"));
 const Profile = lazy(() => import("@/app/profile/page"));
 const Landing = lazy(() => import("@/app/landing/page"));
@@ -75,14 +98,37 @@ function App() {
             path="/dashboard/locations/:id/facilities"
             element={<LocationFacilities />}
           />
+          <Route
+            path="/dashboard/locations/:id/operating-hours"
+            element={<OperatingHours />}
+          />
           <Route path="/dashboard/staff" element={<Staff />} />
+          <Route path="/dashboard/staff/roles" element={<StaffRoles />} />
+          <Route
+            path="/dashboard/staff/permissions"
+            element={<StaffPermissions />}
+          />
           <Route path="/dashboard/subscriptions" element={<Subscriptions />} />
           <Route
             path="/dashboard/subscriptions/:id"
             element={<SubscriptionDetails />}
           />
           <Route path="/dashboard/classes" element={<Classes />} />
+          <Route path="/dashboard/classes/attendance" element={<Attendance />} />
           <Route path="/dashboard/classes/:id" element={<ClassDetails />} />
+          <Route path="/dashboard/check-in" element={<CheckIn />} />
+          <Route path="/dashboard/payments/transactions" element={<Transactions />} />
+          <Route path="/dashboard/payments/invoices" element={<Invoices />} />
+          <Route path="/dashboard/payments/refunds" element={<Refunds />} />
+          <Route path="/dashboard/marketing/promo-codes" element={<PromoCodes />} />
+          <Route
+            path="/dashboard/marketing/email-campaigns"
+            element={<EmailCampaigns />}
+          />
+          <Route
+            path="/dashboard/marketing/sms-campaigns"
+            element={<SmsCampaigns />}
+          />
           <Route path="/billing" element={<Billing />} />
           <Route path="/profile" element={<Profile />} />
         </Routes>

@@ -15,7 +15,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useLocationsQuery } from "@/features/locations/services";
 import { useLocationStore } from "@/store";
@@ -28,8 +27,6 @@ import { CreateStaffModal } from "./create-staff-modal";
 import { AssignPermissionsModal } from "./assign-permissions-modal";
 import { AssignLocationsModal } from "./assign-locations-modal";
 import { ViewStaffModal } from "./view-staff-modal";
-import { RolesTab } from "./roles-tab";
-import { PermissionsTab } from "./permissions-tab";
 
 const staffColumns: ColumnDef<Staff>[] = [
   {
@@ -235,77 +232,59 @@ export function StaffPage() {
           </div>
         </div>
 
-        <div className="px-4 lg:px-6">
-          <Tabs defaultValue="staff" className="w-full">
-            <TabsList>
-              <TabsTrigger value="staff">Staff</TabsTrigger>
-              <TabsTrigger value="roles">Roles</TabsTrigger>
-              <TabsTrigger value="permissions">Permissions</TabsTrigger>
-            </TabsList>
+        <div className="px-4 lg:px-6 mt-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-2xl font-semibold">Staff Members</h2>
+              <p className="text-muted-foreground text-sm mt-1">
+                Manage your gym staff members and their assignments
+              </p>
+            </div>
+            <Button onClick={() => setIsCreateModalOpen(true)}>
+              <IconPlus className="h-4 w-4 " />
+              Add Staff
+            </Button>
+          </div>
 
-            <TabsContent value="staff" className="mt-6">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-2xl font-semibold">Staff Members</h2>
-                  <p className="text-muted-foreground text-sm mt-1">
-                    Manage your gym staff members and their assignments
-                  </p>
-                </div>
-                <Button onClick={() => setIsCreateModalOpen(true)}>
-                  <IconPlus className="h-4 w-4 " />
-                  Add Staff
-                </Button>
+          <div className="mb-4 flex items-center gap-4">
+            {selectedLocationId && selectedLocation ? (
+              <div className="flex items-center gap-1.5 text-sm font-medium">
+                <IconMapPin className="h-4 w-4" />
+                <span>{selectedLocation.locationName}</span>
               </div>
-
-              <div className="mb-4 flex items-center gap-4">
-                {selectedLocationId && selectedLocation ? (
-                  <div className="flex items-center gap-1.5 text-sm font-medium">
-                    <IconMapPin className="h-4 w-4" />
-                    <span>{selectedLocation.locationName}</span>
-                  </div>
-                ) : (
-                  <div className="w-max">
-                    <Select
-                      value={localLocationId || "all"}
-                      onValueChange={(value) =>
-                        setLocalLocationId(value === "all" ? undefined : value)
-                      }
-                      disabled={locationsLoading}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Filter by location" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Locations</SelectItem>
-                        {locations?.map((location) => (
-                          <SelectItem key={location.id} value={location.id}>
-                            {location.locationName}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
+            ) : (
+              <div className="w-max">
+                <Select
+                  value={localLocationId || "all"}
+                  onValueChange={(value) =>
+                    setLocalLocationId(value === "all" ? undefined : value)
+                  }
+                  disabled={locationsLoading}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filter by location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Locations</SelectItem>
+                    {locations?.map((location) => (
+                      <SelectItem key={location.id} value={location.id}>
+                        {location.locationName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+            )}
+          </div>
 
-              <DataTable
-                data={staff || []}
-                columns={columnsWithActions}
-                enableTabs={false}
-                getRowId={(row) => row.id}
-                emptyMessage="No staff members found."
-                isLoading={isLoading}
-              />
-            </TabsContent>
-
-            <TabsContent value="roles" className="mt-6">
-              <RolesTab />
-            </TabsContent>
-
-            <TabsContent value="permissions" className="mt-6">
-              <PermissionsTab />
-            </TabsContent>
-          </Tabs>
+          <DataTable
+            data={staff || []}
+            columns={columnsWithActions}
+            enableTabs={false}
+            getRowId={(row) => row.id}
+            emptyMessage="No staff members found."
+            isLoading={isLoading}
+          />
         </div>
       </div>
 

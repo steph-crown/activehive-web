@@ -1,23 +1,10 @@
-import {
-  IconCalendar,
-  IconCamera,
-  IconCreditCard,
-  IconDashboard,
-  IconDatabase,
-  IconFileAi,
-  IconFileDescription,
-  IconFileWord,
-  IconHelp,
-  IconMapPin,
-  IconReceipt,
-  IconReport,
-  IconUsers
-} from "@tabler/icons-react";
+import { IconHelp } from "@tabler/icons-react";
 import * as React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { Logo } from "@/components/icons/logo";
-import { NavMain, NavSecondary, NavUser } from "@/components/layout";
+import { NavSecondary, NavUser } from "@/components/layout";
+import { NavMainGrouped } from "@/components/layout/nav-main-grouped";
 import {
   Sidebar,
   SidebarContent,
@@ -29,134 +16,16 @@ import {
 } from "@/components/ui/sidebar";
 import { useProfileQuery } from "../services";
 import { useMySubscriptionQuery } from "@/features/billing/services";
-import { useSubscriptionStore } from "@/store";
+import { useLocationStore, useSubscriptionStore } from "@/store";
 import { useToast } from "@/hooks/use-toast";
 import { GetHelpModal } from "./get-help-modal";
 
-const navMain = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: IconDashboard,
-  },
-  {
-    title: "Members",
-    url: "/dashboard/members",
-    icon: IconUsers,
-  },
-  {
-    title: "Subscriptions",
-    url: "/dashboard/subscriptions",
-    icon: IconReceipt,
-  },
-  // {
-  //   title: "Analytics",
-  //   url: "#",
-  //   icon: IconChartBar,
-  // },
-  {
-    title: "Membership Plans",
-    url: "/dashboard/membership-plans",
-    icon: IconCreditCard,
-  },
-  {
-    title: "Locations",
-    url: "/dashboard/locations",
-    icon: IconMapPin,
-  },
-  {
-    title: "Classes",
-    url: "/dashboard/classes",
-    icon: IconCalendar,
-  },
-  {
-    title: "Staff",
-    url: "/dashboard/staff",
-    icon: IconUsers,
-  },
-];
-
 const data = {
-  navClouds: [
-    {
-      title: "Capture",
-      icon: IconCamera,
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Proposal",
-      icon: IconFileDescription,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: IconFileAi,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-  ],
   navSecondary: [
-    // {
-    //   title: "Settings",
-    //   url: "#",
-    //   icon: IconSettings,
-    // },
     {
       title: "Get Help",
       url: "#",
-      icon: IconHelp,
-    },
-    // {
-    //   title: "Search",
-    //   url: "#",
-    //   icon: IconSearch,
-    // },
-  ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: IconDatabase,
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: IconReport,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: IconFileWord,
+      icon: <IconHelp />,
     },
   ],
 };
@@ -165,6 +34,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: profile, isLoading } = useProfileQuery();
   const { isLoading: isSubscriptionLoading, isFetched } = useMySubscriptionQuery();
   const { hasActiveSubscription } = useSubscriptionStore();
+  const { selectedLocationId } = useLocationStore();
   const { showError } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
@@ -242,8 +112,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={navMain} />
-        {/* <NavDocuments items={data.documents} /> */}
+        <NavMainGrouped selectedLocationId={selectedLocationId} />
         <NavSecondary items={navSecondaryWithHandler} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>{!isLoading && <NavUser user={user} />}</SidebarFooter>

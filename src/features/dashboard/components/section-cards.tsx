@@ -1,21 +1,14 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
-import { Card } from "@/components/ui/card";
 import {
-  IconCalendarCheck,
-  IconCreditCard,
-  IconStack2,
-  IconTrendingDown,
-  IconTrendingUp,
-  IconUsers,
+  IconCalendarWeekFilled,
+  IconCreditCardFilled,
 } from "@tabler/icons-react";
+import { Layers3, UsersRound } from "lucide-react";
+import { SummaryMetricCard } from "./summary-metric-card";
 
 type MetricCardTheme = {
-  Icon: React.ComponentType<{
-    className?: string;
-    style?: React.CSSProperties;
-    stroke?: string | number;
-  }>;
+  icon: React.ReactNode;
   iconBgVar: string;
   iconColorVar: string;
   title: string;
@@ -48,7 +41,7 @@ export function SectionCards() {
       percentChange: 2.4,
       isPositive: true,
       comparisonText: "vs last month",
-      Icon: IconCreditCard,
+      icon: <IconCreditCardFilled className="size-6" />,
       iconBgVar: "var(--primary-50)",
       iconColorVar: "var(--primary-500)",
       valueColorVar: "var(--primary-500)",
@@ -66,7 +59,7 @@ export function SectionCards() {
       percentChange: 2.4,
       isPositive: true,
       comparisonText: "vs last month",
-      Icon: IconUsers,
+      icon: <UsersRound className="size-6 fill-current stroke-[1.8]" />,
       iconBgVar: "var(--purple-50)",
       iconColorVar: "var(--purple-500)",
       valueColorVar: "var(--purple-500)",
@@ -85,7 +78,7 @@ export function SectionCards() {
       percentChange: 2.4,
       isPositive: true,
       comparisonText: "vs last month",
-      Icon: IconStack2,
+      icon: <Layers3 className="size-6 fill-current stroke-[1.8]" />,
       iconBgVar: "var(--blue-50)",
       iconColorVar: "var(--blue-500)",
       valueColorVar: "var(--blue-500)",
@@ -103,7 +96,7 @@ export function SectionCards() {
       percentChange: -2.4,
       isPositive: false,
       comparisonText: "vs last month",
-      Icon: IconCalendarCheck,
+      icon: <IconCalendarWeekFilled className="size-6" />,
       iconBgVar: "var(--error-50)",
       iconColorVar: "var(--error-500)",
       valueColorVar: "var(--error-500)",
@@ -120,64 +113,29 @@ export function SectionCards() {
   return (
     <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
       {cardThemes.map((card) => {
-        const TrendIcon = card.isPositive ? IconTrendingUp : IconTrendingDown;
-        const percent = Math.abs(card.percentChange);
-
         return (
           <Link key={card.title} to={card.href} className="block">
-            <Card
-              className={`@container/card p-0 gap-0 bg-white border border-[#f4f4f4] shadow-none transition-shadow ${card.hoverShadowClass} !rounded-md`}
+            <SummaryMetricCard
+              title={card.title}
+              value={card.value}
+              icon={
+                <div
+                  className="flex size-12 items-center justify-center rounded-[6px]"
+                  style={{
+                    backgroundColor: card.iconBgVar,
+                    color: card.iconColorVar,
+                  }}
+                >
+                  {card.icon}
+                </div>
+              }
+              valueColorVar={card.valueColorVar}
+              percentChange={card.percentChange}
+              isPositive={card.isPositive}
+              comparisonText={card.comparisonText}
+              hoverShadowClass={card.hoverShadowClass}
               style={card.cssVars}
-            >
-              <div className="flex flex-col gap-2 p-5">
-                <div className="flex flex-col items-start gap-5">
-                  <div
-                    className="flex size-12 items-center justify-center rounded-md"
-                    style={{ backgroundColor: card.iconBgVar }}
-                  >
-                    <card.Icon
-                      className="size-6"
-                      style={{ color: card.iconColorVar }}
-                      stroke={2}
-                    />
-                  </div>
-                  <span
-                    className="text-xs font-semibold text-gray-500"
-                    // style={{ color: "var(--grey-800)" }}
-                  >
-                    {card.title}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between gap-2">
-                  <div
-                    className="text-3xl leading-none font-bold font-bebas"
-                    // style={{ color: card.valueColorVar }}
-                  >
-                    {card.value}
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="flex items-center gap-1 text-xs font-medium"
-                      style={{
-                        color: card.isPositive
-                          ? "var(--success-500)"
-                          : "var(--error-400)",
-                      }}
-                    >
-                      <TrendIcon className="size-4" stroke={2} />~{percent}%
-                    </div>
-                    <span
-                      className="text-xs font-medium"
-                      style={{ color: "var(--grey-500)" }}
-                    >
-                      {card.comparisonText}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </Card>
+            />
           </Link>
         );
       })}

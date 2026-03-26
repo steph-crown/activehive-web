@@ -210,7 +210,7 @@ export function DashboardPage() {
           {isLoading ? (
             <MembersTableSkeleton />
           ) : (
-            <div className="flex flex-col gap-6 rounded-xl border border-[#F4F4F4] bg-white p-8">
+            <div className="flex flex-col gap-6 !rounded-md border border-[#F4F4F4] bg-white p-8">
               <div className="flex items-center justify-between gap-4">
                 <h2 className="text-grey-900 text-lg font-semibold">Members</h2>
                 <Input

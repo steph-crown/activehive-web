@@ -1,15 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { IconChevronRight, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -134,317 +127,202 @@ export function LocationDetailsPage() {
           </div>
         </div>
 
-        <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 px-4 md:grid-cols-2 xl:grid-cols-4 lg:px-6">
           <Card
-            className="@container/card cursor-pointer hover:bg-accent transition-colors"
+            className="cursor-pointer rounded-md border border-[#F4F4F4] bg-white p-5 shadow-none transition-colors hover:bg-accent/30"
             onClick={() => navigate(`/dashboard/locations/${id}/facilities`)}
           >
-            <CardHeader>
-              <CardDescription>Facilities</CardDescription>
-              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                {facilities?.length || 0}
-              </CardTitle>
-            </CardHeader>
-            <CardFooter className="flex-col items-start gap-1.5 text-sm">
-              <div className="flex items-center gap-2 text-muted-foreground">
+            <CardContent className="space-y-3 p-0">
+              <p className="text-sm text-muted-foreground">Facilities</p>
+              <p className="font-bebas text-4xl leading-none">{facilities?.length || 0}</p>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span>View facilities</span>
                 <IconChevronRight className="h-4 w-4" />
               </div>
-            </CardFooter>
+            </CardContent>
           </Card>
 
-          <Card className="@container/card">
-            <CardHeader>
-              <CardDescription>Total Members</CardDescription>
-              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                {metrics.totalMembers || 0}
-              </CardTitle>
-            </CardHeader>
-            <CardFooter className="flex-col items-start gap-1.5 text-sm">
-              <div className="text-muted-foreground">All members</div>
-            </CardFooter>
+          <Card className="rounded-md border border-[#F4F4F4] bg-white p-5 shadow-none">
+            <CardContent className="space-y-3 p-0">
+              <p className="text-sm text-muted-foreground">Total Members</p>
+              <p className="font-bebas text-4xl leading-none">{metrics.totalMembers || 0}</p>
+              <p className="text-xs text-muted-foreground">All members</p>
+            </CardContent>
           </Card>
 
-          <Card className="@container/card">
-            <CardHeader>
-              <CardDescription>Active Members</CardDescription>
-              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                {metrics.activeMembers || 0}
-              </CardTitle>
-            </CardHeader>
-            <CardFooter className="flex-col items-start gap-1.5 text-sm">
-              <div className="text-muted-foreground">Currently active</div>
-            </CardFooter>
+          <Card className="rounded-md border border-[#F4F4F4] bg-white p-5 shadow-none">
+            <CardContent className="space-y-3 p-0">
+              <p className="text-sm text-muted-foreground">Active Members</p>
+              <p className="font-bebas text-4xl leading-none">{metrics.activeMembers || 0}</p>
+              <p className="text-xs text-muted-foreground">Currently active</p>
+            </CardContent>
           </Card>
 
-          <Card className="@container/card">
-            <CardHeader>
-              <CardDescription>Monthly Revenue</CardDescription>
-              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+          <Card className="rounded-md border border-[#F4F4F4] bg-white p-5 shadow-none">
+            <CardContent className="space-y-3 p-0">
+              <p className="text-sm text-muted-foreground">Monthly Revenue</p>
+              <p className="font-bebas text-4xl leading-none">
                 ${(metrics.monthlyRevenue || 0).toLocaleString()}
-              </CardTitle>
-            </CardHeader>
-            <CardFooter className="flex-col items-start gap-1.5 text-sm">
-              <div className="text-muted-foreground">This month</div>
-            </CardFooter>
+              </p>
+              <p className="text-xs text-muted-foreground">This month</p>
+            </CardContent>
           </Card>
         </div>
 
         <div className="px-4 lg:px-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Location Information</CardTitle>
-              <CardDescription>
-                Complete details for this location
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Location Name
-                  </p>
-                  <p className="text-sm">{locationData.locationName}</p>
+          <Tabs defaultValue="overview" className="w-full">
+            <TabsList>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="contact">Contact</TabsTrigger>
+              <TabsTrigger value="payment">Payment</TabsTrigger>
+              <TabsTrigger value="metrics">Metrics</TabsTrigger>
+              <TabsTrigger value="media">Media</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview" className="mt-5">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="rounded-md border border-[#F4F4F4] bg-white p-4">
+                  <p className="text-xs text-muted-foreground">Location Name</p>
+                  <p className="mt-1 text-sm">{locationData.locationName}</p>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Type
-                  </p>
-                  <Badge
-                    variant={
-                      locationData.isHeadquarters ? "default" : "secondary"
-                    }
-                  >
-                    {locationData.isHeadquarters ? "Headquarters" : "Branch"}
-                  </Badge>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-2">
-                  Address
-                </p>
-                <p className="text-sm">{locationData.fullAddress}</p>
-              </div>
-
-              <Separator />
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Email
-                  </p>
-                  <p className="text-sm">{locationData.email}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Phone
-                  </p>
-                  <p className="text-sm">{locationData.phone}</p>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-2">
-                  Payment Account
-                </p>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Account Name
-                    </p>
-                    <p className="text-sm">
-                      {locationData.paymentAccount.accountName}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Bank Name</p>
-                    <p className="text-sm">
-                      {locationData.paymentAccount.bankName}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Account Type
-                    </p>
-                    <p className="text-sm capitalize">
-                      {locationData.paymentAccount.accountType}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Account Number
-                    </p>
-                    <p className="text-sm">
-                      ****{locationData.paymentAccount.accountNumber.slice(-4)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-2">
-                  Metrics
-                </p>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Total Members
-                    </p>
-                    <p className="text-sm font-semibold">
-                      {metrics.totalMembers || 0}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Active Members
-                    </p>
-                    <p className="text-sm font-semibold">
-                      {metrics.activeMembers || 0}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Total Trainers
-                    </p>
-                    <p className="text-sm font-semibold">
-                      {metrics.totalTrainers || 0}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Active Trainers
-                    </p>
-                    <p className="text-sm font-semibold">
-                      {metrics.activeTrainers || 0}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Total Classes
-                    </p>
-                    <p className="text-sm font-semibold">
-                      {metrics.totalClasses || 0}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Active Classes
-                    </p>
-                    <p className="text-sm font-semibold">
-                      {metrics.activeClasses || 0}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Monthly Revenue
-                    </p>
-                    <p className="text-sm font-semibold">
-                      ${(metrics.monthlyRevenue || 0).toLocaleString()}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Today's Check-ins
-                    </p>
-                    <p className="text-sm font-semibold">
-                      {metrics.todaysCheckIns || 0}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Average Attendance
-                    </p>
-                    <p className="text-sm font-semibold">
-                      {metrics.averageAttendance || 0}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Subscription Plan
-                    </p>
-                    <Badge variant="outline" className="mt-1">
-                      {metrics.subscriptionPlan || "N/A"}
+                <div className="rounded-md border border-[#F4F4F4] bg-white p-4">
+                  <p className="text-xs text-muted-foreground">Type</p>
+                  <div className="mt-1">
+                    <Badge variant={locationData.isHeadquarters ? "default" : "secondary"}>
+                      {locationData.isHeadquarters ? "Headquarters" : "Branch"}
                     </Badge>
                   </div>
                 </div>
-              </div>
-
-              <Separator />
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Status
-                  </p>
-                  <Badge
-                    variant={locationData.isActive ? "default" : "secondary"}
-                  >
-                    {locationData.isActive ? "Active" : "Inactive"}
-                  </Badge>
+                <div className="rounded-md border border-[#F4F4F4] bg-white p-4 md:col-span-2">
+                  <p className="text-xs text-muted-foreground">Address</p>
+                  <p className="mt-1 text-sm">{locationData.fullAddress}</p>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Created At
-                  </p>
-                  <p className="text-sm">
+                <div className="rounded-md border border-[#F4F4F4] bg-white p-4">
+                  <p className="text-xs text-muted-foreground">Status</p>
+                  <div className="mt-1">
+                    <Badge variant={locationData.isActive ? "default" : "secondary"}>
+                      {locationData.isActive ? "Active" : "Inactive"}
+                    </Badge>
+                  </div>
+                </div>
+                <div className="rounded-md border border-[#F4F4F4] bg-white p-4">
+                  <p className="text-xs text-muted-foreground">Subscription Plan</p>
+                  <div className="mt-1">
+                    <Badge variant="outline">{metrics.subscriptionPlan || "N/A"}</Badge>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="contact" className="mt-5">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="rounded-md border border-[#F4F4F4] bg-white p-4">
+                  <p className="text-xs text-muted-foreground">Email</p>
+                  <p className="mt-1 text-sm">{locationData.email}</p>
+                </div>
+                <div className="rounded-md border border-[#F4F4F4] bg-white p-4">
+                  <p className="text-xs text-muted-foreground">Phone</p>
+                  <p className="mt-1 text-sm">{locationData.phone}</p>
+                </div>
+                <div className="rounded-md border border-[#F4F4F4] bg-white p-4">
+                  <p className="text-xs text-muted-foreground">Created At</p>
+                  <p className="mt-1 text-sm">
                     {new Date(locationData.createdAt).toLocaleDateString()}
                   </p>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Updated At
-                  </p>
-                  <p className="text-sm">
+                <div className="rounded-md border border-[#F4F4F4] bg-white p-4">
+                  <p className="text-xs text-muted-foreground">Updated At</p>
+                  <p className="mt-1 text-sm">
                     {new Date(locationData.updatedAt).toLocaleDateString()}
                   </p>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Location ID
-                  </p>
-                  <p className="text-xs font-mono">{locationData.id}</p>
+                <div className="rounded-md border border-[#F4F4F4] bg-white p-4 md:col-span-2">
+                  <p className="text-xs text-muted-foreground">Location ID</p>
+                  <p className="mt-1 break-all font-mono text-xs">{locationData.id}</p>
                 </div>
               </div>
+            </TabsContent>
 
-              <Separator />
-
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Images
+            <TabsContent value="payment" className="mt-5">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="rounded-md border border-[#F4F4F4] bg-white p-4">
+                  <p className="text-xs text-muted-foreground">Account Name</p>
+                  <p className="mt-1 text-sm">{locationData.paymentAccount.accountName}</p>
+                </div>
+                <div className="rounded-md border border-[#F4F4F4] bg-white p-4">
+                  <p className="text-xs text-muted-foreground">Bank Name</p>
+                  <p className="mt-1 text-sm">{locationData.paymentAccount.bankName}</p>
+                </div>
+                <div className="rounded-md border border-[#F4F4F4] bg-white p-4">
+                  <p className="text-xs text-muted-foreground">Account Type</p>
+                  <p className="mt-1 text-sm capitalize">
+                    {locationData.paymentAccount.accountType}
                   </p>
+                </div>
+                <div className="rounded-md border border-[#F4F4F4] bg-white p-4">
+                  <p className="text-xs text-muted-foreground">Account Number</p>
+                  <p className="mt-1 text-sm">
+                    ****{locationData.paymentAccount.accountNumber.slice(-4)}
+                  </p>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="metrics" className="mt-5">
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                {[
+                  { label: "Total Members", value: metrics.totalMembers || 0 },
+                  { label: "Active Members", value: metrics.activeMembers || 0 },
+                  { label: "Total Trainers", value: metrics.totalTrainers || 0 },
+                  { label: "Active Trainers", value: metrics.activeTrainers || 0 },
+                  { label: "Total Classes", value: metrics.totalClasses || 0 },
+                  { label: "Active Classes", value: metrics.activeClasses || 0 },
+                  {
+                    label: "Monthly Revenue",
+                    value: `$${(metrics.monthlyRevenue || 0).toLocaleString()}`,
+                  },
+                  { label: "Today's Check-ins", value: metrics.todaysCheckIns || 0 },
+                  { label: "Average Attendance", value: metrics.averageAttendance || 0 },
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className="rounded-md border border-[#F4F4F4] bg-white p-4"
+                  >
+                    <p className="text-xs text-muted-foreground">{item.label}</p>
+                    <p className="mt-2 font-bebas text-2xl leading-none">{item.value}</p>
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="media" className="mt-5">
+              <div className="space-y-4">
+                <div className="flex items-center justify-end">
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => setIsUploadModalOpen(true)}
                   >
-                    <IconPlus className="h-4 w-4 " />
+                    <IconPlus className="h-4 w-4" />
                     Add Image
                   </Button>
                 </div>
                 {locationData.images && locationData.images.length > 0 ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+                  <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
                     {locationData.images.map((imageUrl, index) => (
                       <div
                         key={index}
-                        className="relative group rounded-lg overflow-hidden border"
+                        className="group relative overflow-hidden rounded-md border border-[#F4F4F4]"
                       >
                         <img
                           src={getImageUrl(imageUrl)}
                           alt={`Location image ${index + 1}`}
-                          className="w-full h-32 object-cover"
+                          className="h-32 w-full object-cover"
                         />
                         <Button
                           variant="destructive"
                           size="icon"
-                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100"
                           onClick={() => handleDeleteImage(index.toString())}
                           disabled={isDeleting}
                         >
@@ -454,13 +332,11 @@ export function LocationDetailsPage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground mt-2">
-                    No images uploaded yet
-                  </p>
+                  <p className="text-sm text-muted-foreground">No images uploaded yet</p>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
 

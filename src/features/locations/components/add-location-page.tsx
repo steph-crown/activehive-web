@@ -208,346 +208,354 @@ export function AddLocationPage() {
         </div>
 
         <div className="px-4 lg:px-6">
-          <div className="mb-4 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
-            {STEPS.map((item, index) => (
-              <div
-                key={item}
-                className={`rounded-md border px-3 py-2 text-center ${
-                  index <= step
-                    ? "border-primary bg-primary/10 text-foreground"
-                    : "border-border text-muted-foreground"
-                }`}
-              >
-                {item}
-              </div>
-            ))}
-          </div>
-
-          {step === 0 && (
-            <div className="grid gap-4 rounded-md border border-[#F4F4F4] bg-white p-6">
-              <h2 className="text-lg font-semibold">Basic Information</h2>
-
-              <div className="grid gap-2">
-                <Label>Location Name *</Label>
-                <Input
-                  value={form.locationName}
-                  onChange={(event) =>
-                    setField("locationName", event.target.value)
-                  }
-                  placeholder="Downtown Branch"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="grid gap-2">
-                  <Label>Address *</Label>
-                  <Input
-                    value={form.address}
-                    onChange={(event) =>
-                      setField("address", event.target.value)
-                    }
-                    placeholder="456 Oak Avenue"
-                  />
+          <div className="w-full max-w-5xl">
+            <div className="mb-4 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+              {STEPS.map((item, index) => (
+                <div
+                  key={item}
+                  className={`rounded-md border px-3 py-2 text-center ${
+                    index <= step
+                      ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border text-muted-foreground"
+                  }`}
+                >
+                  {item}
                 </div>
-                <div className="grid gap-2">
-                  <Label>City *</Label>
-                  <Input
-                    value={form.city}
-                    onChange={(event) => setField("city", event.target.value)}
-                    placeholder="Los Angeles"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div className="grid gap-2">
-                  <Label>State *</Label>
-                  <Input
-                    value={form.state}
-                    onChange={(event) => setField("state", event.target.value)}
-                    placeholder="CA"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label>Zip Code *</Label>
-                  <Input
-                    value={form.zipCode}
-                    onChange={(event) =>
-                      setField("zipCode", event.target.value)
-                    }
-                    placeholder="90001"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label>Country *</Label>
-                  <Input
-                    value={form.country}
-                    onChange={(event) =>
-                      setField("country", event.target.value)
-                    }
-                    placeholder="United States"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="grid gap-2">
-                  <Label>Phone *</Label>
-                  <Input
-                    value={form.phone}
-                    onChange={(event) => setField("phone", event.target.value)}
-                    placeholder="+1 (555) 987-6543"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label>Email *</Label>
-                  <Input
-                    type="email"
-                    value={form.email}
-                    onChange={(event) => setField("email", event.target.value)}
-                    placeholder="downtown@gym.com"
-                  />
-                </div>
-              </div>
-
-              <div className="grid gap-2">
-                <Label>Cover Image</Label>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={(event) =>
-                    setField("coverImage", event.target.files?.[0] || null)
-                  }
-                />
-              </div>
-
-              <div className="flex items-start gap-2">
-                <Checkbox
-                  id="is-headquarters"
-                  checked={form.isHeadquarters}
-                  onCheckedChange={(checked) =>
-                    setField("isHeadquarters", Boolean(checked))
-                  }
-                />
-                <Label htmlFor="is-headquarters" className="leading-6">
-                  Set as Headquarters
-                </Label>
-              </div>
+              ))}
             </div>
-          )}
 
-          {step === 1 && (
-            <div className="grid gap-4 rounded-md border border-[#F4F4F4] bg-white p-6">
-              <h2 className="text-lg font-semibold">Facilities</h2>
-              <p className="text-muted-foreground text-sm">
-                Select all facilities available at your gym.
-              </p>
+            {step === 0 && (
+              <div className="grid gap-4 rounded-md border border-[#F4F4F4] bg-white p-6">
+                <h2 className="text-lg font-semibold">Basic Information</h2>
 
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-                {allFacilities.map((facility) => {
-                  const selected = selectedFacilities.includes(facility);
-                  return (
-                    <button
-                      type="button"
-                      key={facility}
-                      onClick={() =>
-                        setSelectedFacilities((prev) =>
-                          prev.includes(facility)
-                            ? prev.filter((item) => item !== facility)
-                            : [...prev, facility],
+                <div className="grid gap-2">
+                  <Label>Location Name *</Label>
+                  <Input
+                    value={form.locationName}
+                    onChange={(event) =>
+                      setField("locationName", event.target.value)
+                    }
+                    placeholder="Downtown Branch"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="grid gap-2">
+                    <Label>Address *</Label>
+                    <Input
+                      value={form.address}
+                      onChange={(event) =>
+                        setField("address", event.target.value)
+                      }
+                      placeholder="456 Oak Avenue"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>City *</Label>
+                    <Input
+                      value={form.city}
+                      onChange={(event) => setField("city", event.target.value)}
+                      placeholder="Los Angeles"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <div className="grid gap-2">
+                    <Label>State *</Label>
+                    <Input
+                      value={form.state}
+                      onChange={(event) =>
+                        setField("state", event.target.value)
+                      }
+                      placeholder="CA"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>Zip Code *</Label>
+                    <Input
+                      value={form.zipCode}
+                      onChange={(event) =>
+                        setField("zipCode", event.target.value)
+                      }
+                      placeholder="90001"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>Country *</Label>
+                    <Input
+                      value={form.country}
+                      onChange={(event) =>
+                        setField("country", event.target.value)
+                      }
+                      placeholder="United States"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="grid gap-2">
+                    <Label>Phone *</Label>
+                    <Input
+                      value={form.phone}
+                      onChange={(event) =>
+                        setField("phone", event.target.value)
+                      }
+                      placeholder="+1 (555) 987-6543"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>Email *</Label>
+                    <Input
+                      type="email"
+                      value={form.email}
+                      onChange={(event) =>
+                        setField("email", event.target.value)
+                      }
+                      placeholder="downtown@gym.com"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-2">
+                  <Label>Cover Image</Label>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) =>
+                      setField("coverImage", event.target.files?.[0] || null)
+                    }
+                  />
+                </div>
+
+                <div className="flex items-start gap-2">
+                  <Checkbox
+                    id="is-headquarters"
+                    checked={form.isHeadquarters}
+                    onCheckedChange={(checked) =>
+                      setField("isHeadquarters", Boolean(checked))
+                    }
+                  />
+                  <Label htmlFor="is-headquarters" className="leading-6">
+                    Set as Headquarters
+                  </Label>
+                </div>
+              </div>
+            )}
+
+            {step === 1 && (
+              <div className="grid gap-4 rounded-md border border-[#F4F4F4] bg-white p-6">
+                <h2 className="text-lg font-semibold">Facilities</h2>
+                <p className="text-muted-foreground text-sm">
+                  Select all facilities available at your gym.
+                </p>
+
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+                  {allFacilities.map((facility) => {
+                    const selected = selectedFacilities.includes(facility);
+                    return (
+                      <button
+                        type="button"
+                        key={facility}
+                        onClick={() =>
+                          setSelectedFacilities((prev) =>
+                            prev.includes(facility)
+                              ? prev.filter((item) => item !== facility)
+                              : [...prev, facility],
+                          )
+                        }
+                        className={`rounded-md border px-4 py-3 text-left ${
+                          selected
+                            ? "border-primary bg-primary/10"
+                            : "border-[#E6E6E6]"
+                        }`}
+                      >
+                        {facility}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={customFacility}
+                    onChange={(event) => setCustomFacility(event.target.value)}
+                    placeholder="Add custom facility"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={handleAddCustomFacility}
+                  >
+                    <IconPlus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div className="grid gap-4 rounded-md border border-[#F4F4F4] bg-white p-6">
+                <h2 className="text-lg font-semibold">Gallery</h2>
+                <p className="text-muted-foreground text-sm">
+                  Upload location images and videos.
+                </p>
+
+                <div className="grid gap-2">
+                  <Label>Pictures</Label>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(event) =>
+                      setGalleryImages(Array.from(event.target.files || []))
+                    }
+                  />
+                  <p className="text-muted-foreground text-xs">
+                    Selected: {galleryImages.length} image(s).
+                  </p>
+                </div>
+
+                <div className="grid gap-2">
+                  <Label>Videos</Label>
+                  <Input
+                    type="file"
+                    accept="video/*"
+                    multiple
+                    onChange={(event) =>
+                      setGalleryVideos(Array.from(event.target.files || []))
+                    }
+                  />
+                  <p className="text-muted-foreground text-xs">
+                    Selected: {galleryVideos.length} video(s).
+                  </p>
+                </div>
+
+                <p className="text-muted-foreground text-xs">
+                  Gallery uploads are UI-only for now (not sent to create
+                  location API).
+                </p>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div className="grid gap-4 rounded-md border border-[#F4F4F4] bg-white p-6">
+                <h2 className="text-lg font-semibold">Payment Account</h2>
+
+                <div className="grid gap-2">
+                  <Label>Account Name *</Label>
+                  <Input
+                    value={form.paymentAccount.accountName}
+                    onChange={(event) =>
+                      setPaymentField("accountName", event.target.value)
+                    }
+                    placeholder="My Gym Account"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="grid gap-2">
+                    <Label>Account Number *</Label>
+                    <Input
+                      value={form.paymentAccount.accountNumber}
+                      onChange={(event) =>
+                        setPaymentField("accountNumber", event.target.value)
+                      }
+                      placeholder="1234567890"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>Routing Number *</Label>
+                    <Input
+                      value={form.paymentAccount.routingNumber}
+                      onChange={(event) =>
+                        setPaymentField("routingNumber", event.target.value)
+                      }
+                      placeholder="123456789"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="grid gap-2">
+                    <Label>Bank Name *</Label>
+                    <Input
+                      value={form.paymentAccount.bankName}
+                      onChange={(event) =>
+                        setPaymentField("bankName", event.target.value)
+                      }
+                      placeholder="Chase Bank"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>Account Type *</Label>
+                    <Select
+                      value={form.paymentAccount.accountType}
+                      onValueChange={(value) =>
+                        setPaymentField(
+                          "accountType",
+                          value as "checking" | "savings",
                         )
                       }
-                      className={`rounded-md border px-4 py-3 text-left ${
-                        selected
-                          ? "border-primary bg-primary/10"
-                          : "border-[#E6E6E6]"
-                      }`}
                     >
-                      {facility}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Input
-                  value={customFacility}
-                  onChange={(event) => setCustomFacility(event.target.value)}
-                  placeholder="Add custom facility"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={handleAddCustomFacility}
-                >
-                  <IconPlus className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {step === 2 && (
-            <div className="grid gap-4 rounded-md border border-[#F4F4F4] bg-white p-6">
-              <h2 className="text-lg font-semibold">Gallery</h2>
-              <p className="text-muted-foreground text-sm">
-                Upload location images and videos.
-              </p>
-
-              <div className="grid gap-2">
-                <Label>Pictures</Label>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={(event) =>
-                    setGalleryImages(Array.from(event.target.files || []))
-                  }
-                />
-                <p className="text-muted-foreground text-xs">
-                  Selected: {galleryImages.length} image(s).
-                </p>
-              </div>
-
-              <div className="grid gap-2">
-                <Label>Videos</Label>
-                <Input
-                  type="file"
-                  accept="video/*"
-                  multiple
-                  onChange={(event) =>
-                    setGalleryVideos(Array.from(event.target.files || []))
-                  }
-                />
-                <p className="text-muted-foreground text-xs">
-                  Selected: {galleryVideos.length} video(s).
-                </p>
-              </div>
-
-              <p className="text-muted-foreground text-xs">
-                Gallery uploads are UI-only for now (not sent to create location
-                API).
-              </p>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className="grid gap-4 rounded-md border border-[#F4F4F4] bg-white p-6">
-              <h2 className="text-lg font-semibold">Payment Account</h2>
-
-              <div className="grid gap-2">
-                <Label>Account Name *</Label>
-                <Input
-                  value={form.paymentAccount.accountName}
-                  onChange={(event) =>
-                    setPaymentField("accountName", event.target.value)
-                  }
-                  placeholder="My Gym Account"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="grid gap-2">
-                  <Label>Account Number *</Label>
-                  <Input
-                    value={form.paymentAccount.accountNumber}
-                    onChange={(event) =>
-                      setPaymentField("accountNumber", event.target.value)
-                    }
-                    placeholder="1234567890"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label>Routing Number *</Label>
-                  <Input
-                    value={form.paymentAccount.routingNumber}
-                    onChange={(event) =>
-                      setPaymentField("routingNumber", event.target.value)
-                    }
-                    placeholder="123456789"
-                  />
+                      <SelectTrigger className="h-10 w-full">
+                        <SelectValue placeholder="Select account type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="checking">Checking</SelectItem>
+                        <SelectItem value="savings">Savings</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="grid gap-2">
-                  <Label>Bank Name *</Label>
-                  <Input
-                    value={form.paymentAccount.bankName}
-                    onChange={(event) =>
-                      setPaymentField("bankName", event.target.value)
-                    }
-                    placeholder="Chase Bank"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label>Account Type *</Label>
-                  <Select
-                    value={form.paymentAccount.accountType}
-                    onValueChange={(value) =>
-                      setPaymentField(
-                        "accountType",
-                        value as "checking" | "savings",
-                      )
-                    }
-                  >
-                    <SelectTrigger className="h-10 w-full">
-                      <SelectValue placeholder="Select account type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="checking">Checking</SelectItem>
-                      <SelectItem value="savings">Savings</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="mt-6 flex items-center justify-between gap-4">
-            <Button
-              variant="outline"
-              onClick={() => {
-                if (step === 0) {
-                  navigate("/dashboard/locations");
-                  return;
-                }
-                setStep((prev) => prev - 1);
-              }}
-            >
-              <IconChevronLeft className="h-4 w-4" />
-              {step === 0 ? "Cancel" : "Back"}
-            </Button>
-
-            {step < STEPS.length - 1 ? (
-              <Button
-                onClick={() => {
-                  if (!validateStep()) return;
-                  setStep((prev) => Math.min(prev + 1, STEPS.length - 1));
-                }}
-              >
-                Next
-                <IconChevronRight className="h-4 w-4" />
-              </Button>
-            ) : (
-              <Button
-                loading={isPending}
-                onClick={async () => {
-                  if (!validateStep()) return;
-                  try {
-                    await handleCreateLocation();
-                  } catch (error) {
-                    const message =
-                      error instanceof Error
-                        ? error.message
-                        : "Failed to create location.";
-                    showError("Error", message);
-                  }
-                }}
-              >
-                Create Location
-              </Button>
             )}
+
+            <div className="mt-6 flex items-center justify-between gap-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  if (step === 0) {
+                    navigate("/dashboard/locations");
+                    return;
+                  }
+                  setStep((prev) => prev - 1);
+                }}
+              >
+                <IconChevronLeft className="h-4 w-4" />
+                {step === 0 ? "Cancel" : "Back"}
+              </Button>
+
+              {step < STEPS.length - 1 ? (
+                <Button
+                  onClick={() => {
+                    if (!validateStep()) return;
+                    setStep((prev) => Math.min(prev + 1, STEPS.length - 1));
+                  }}
+                >
+                  Next
+                  <IconChevronRight className="h-4 w-4" />
+                </Button>
+              ) : (
+                <Button
+                  loading={isPending}
+                  onClick={async () => {
+                    if (!validateStep()) return;
+                    try {
+                      await handleCreateLocation();
+                    } catch (error) {
+                      const message =
+                        error instanceof Error
+                          ? error.message
+                          : "Failed to create location.";
+                      showError("Error", message);
+                    }
+                  }}
+                >
+                  Create Location
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>

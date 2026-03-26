@@ -151,8 +151,6 @@ export function AddMemberPage() {
     setForm((prev) => ({
       ...prev,
       locationId,
-      membershipPlanId: "",
-      endDate: "",
     }));
   };
 
@@ -317,7 +315,7 @@ export function AddMemberPage() {
                     value={form.gender || undefined}
                     onValueChange={(value) => setField("gender", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="!h-10 w-full shadow-xs">
                       <SelectValue placeholder="Select gender" />
                     </SelectTrigger>
                     <SelectContent>
@@ -356,7 +354,7 @@ export function AddMemberPage() {
                     }
                     disabled={plansLoading}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-10 w-full shadow-xs">
                       <SelectValue placeholder="Select a membership plan" />
                     </SelectTrigger>
                     <SelectContent>
@@ -417,7 +415,7 @@ export function AddMemberPage() {
                     value={form.trainer || undefined}
                     onValueChange={(value) => setField("trainer", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-10 w-full shadow-xs">
                       <SelectValue placeholder="Select trainer" />
                     </SelectTrigger>
                     <SelectContent>
@@ -435,7 +433,7 @@ export function AddMemberPage() {
                     onValueChange={handleLocationChange}
                     disabled={locationsLoading}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-10 w-full shadow-xs">
                       <SelectValue placeholder="Select branch" />
                     </SelectTrigger>
                     <SelectContent>

@@ -23,10 +23,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { DatePicker } from "@/components/ui/date-picker";
 import { useToast } from "@/hooks/use-toast";
-import { useUpload } from "@/hooks/use-upload";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -39,7 +38,11 @@ import {
   useRemovePromoCodeMutation,
   useTogglePromoCodeMutation,
 } from "../services";
-import type { MembershipPlan, MembershipPlanWithPromoCodes } from "../types";
+import type {
+  MembershipPlan,
+  MembershipPlanWithPromoCodes,
+  UpdateMembershipPlanPayload,
+} from "../types";
 import { useLocationsQuery } from "@/features/locations/services";
 
 // Update Plan Modal
@@ -50,7 +53,6 @@ const updatePlanSchema = yup.object({
   duration: yup.string().optional(),
   features: yup.array().of(yup.string()).optional(),
   isActive: yup.boolean().optional(),
-  imageUrl: yup.string().url().optional().nullable(),
   gracePeriodDays: yup.number().optional().min(0),
   hasTrialPeriod: yup.boolean().optional(),
   trialPeriodDays: yup.number().nullable().optional(),
@@ -75,10 +77,9 @@ export function UpdateMembershipPlanModal({
   const { showSuccess, showError } = useToast();
   const { mutateAsync: updatePlan, isPending } =
     useUpdateMembershipPlanMutation();
-  const { upload, isUploading: isUploadingImage } = useUpload();
 
   const form = useForm<UpdatePlanFormValues>({
-    resolver: yupResolver(updatePlanSchema) as any,
+    resolver: yupResolver(updatePlanSchema) as unknown as never,
     defaultValues: {
       name: "",
       description: "",
@@ -86,7 +87,6 @@ export function UpdateMembershipPlanModal({
       duration: "",
       features: [],
       isActive: true,
-      imageUrl: "",
       gracePeriodDays: undefined,
       hasTrialPeriod: false,
       trialPeriodDays: null,
@@ -103,7 +103,6 @@ export function UpdateMembershipPlanModal({
         duration: plan.duration,
         features: plan.features,
         isActive: plan.isActive,
-        imageUrl: plan.imageUrl || "",
         gracePeriodDays: plan.gracePeriodDays,
         hasTrialPeriod: plan.hasTrialPeriod,
         trialPeriodDays: plan.trialPeriodDays,
@@ -116,19 +115,18 @@ export function UpdateMembershipPlanModal({
     if (!plan) return;
 
     try {
-      const payload: any = {
-        ...data,
-        imageUrl: data.imageUrl || undefined,
+      const payload: UpdateMembershipPlanPayload = {
+        name: data.name,
+        description: data.description,
+        price: data.price,
+        duration: data.duration,
+        features: data.features?.filter((f): f is string => f !== undefined),
+        isActive: data.isActive,
+        gracePeriodDays: data.gracePeriodDays,
+        hasTrialPeriod: data.hasTrialPeriod,
         trialPeriodDays: data.trialPeriodDays || undefined,
         classesPerWeek: data.classesPerWeek || undefined,
       };
-
-      // Filter out undefined values from features array
-      if (data.features) {
-        payload.features = data.features.filter(
-          (f): f is string => f !== undefined,
-        );
-      }
 
       await updatePlan({
         id: plan.id,
@@ -217,7 +215,7 @@ export function UpdateMembershipPlanModal({
                     <FormLabel>Duration</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="!h-10 w-full">
                           <SelectValue placeholder="Select duration" />
                         </SelectTrigger>
                       </FormControl>
@@ -233,53 +231,6 @@ export function UpdateMembershipPlanModal({
                 )}
               />
             </div>
-            <FormField
-              control={form.control}
-              name="imageUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Image (Optional)</FormLabel>
-                  <FormControl>
-                    <div className="space-y-2">
-                      {field.value ? (
-                        <img
-                          src={field.value}
-                          alt="Plan preview"
-                          className="h-24 w-24 rounded-md object-cover"
-                        />
-                      ) : null}
-                      <Input
-                        type="file"
-                        accept="image/png,image/jpeg,image/jpg,image/webp"
-                        disabled={isUploadingImage}
-                        onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) {
-                            field.onChange(null);
-                            return;
-                          }
-
-                          try {
-                            const url = await upload(file, "membership-plans");
-                            field.onChange(url);
-                          } catch (err) {
-                            const message =
-                              err instanceof Error
-                                ? err.message
-                                : "Failed to upload image.";
-                            showError("Error", message);
-                          }
-                        }}
-                      />
-                      {/* <p className="text-xs text-muted-foreground">
-                        Uploads to Cloudinary; the resulting URL is saved.
-                      </p> */}
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -336,16 +287,11 @@ export function UpdateMembershipPlanModal({
                 control={form.control}
                 name="hasTrialPeriod"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormItem className="flex items-center justify-between rounded-md border p-3">
+                    <FormLabel>Free trial</FormLabel>
                     <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Has Trial Period</FormLabel>
-                    </div>
                   </FormItem>
                 )}
               />
@@ -353,16 +299,11 @@ export function UpdateMembershipPlanModal({
                 control={form.control}
                 name="isActive"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormItem className="flex items-center justify-between rounded-md border p-3">
+                    <FormLabel>Active</FormLabel>
                     <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Active</FormLabel>
-                    </div>
                   </FormItem>
                 )}
               />
@@ -500,7 +441,7 @@ export function DuplicateMembershipPlanModal({
   const { data: locations } = useLocationsQuery();
 
   const form = useForm<DuplicatePlanFormValues>({
-    resolver: yupResolver(duplicatePlanSchema) as any,
+    resolver: yupResolver(duplicatePlanSchema) as unknown as never,
     defaultValues: {
       locationId: "",
     },
@@ -544,7 +485,7 @@ export function DuplicateMembershipPlanModal({
                   <FormLabel>Location</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="!h-10 w-full">
                         <SelectValue placeholder="Select a location" />
                       </SelectTrigger>
                     </FormControl>
@@ -614,7 +555,7 @@ export function AddPromoCodeModal({
   const { mutateAsync: addPromoCode, isPending } = useAddPromoCodeMutation();
 
   const form = useForm<AddPromoCodeFormValues>({
-    resolver: yupResolver(addPromoCodeSchema) as any,
+    resolver: yupResolver(addPromoCodeSchema) as unknown as never,
     defaultValues: {
       code: "",
       discountType: "percentage",
@@ -685,7 +626,7 @@ export function AddPromoCodeModal({
                     <FormLabel>Discount Type</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="!h-10 w-full">
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
                       </FormControl>
@@ -811,16 +752,11 @@ export function AddPromoCodeModal({
               control={form.control}
               name="isActive"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormItem className="flex items-center justify-between rounded-md border p-3">
+                  <FormLabel>Active</FormLabel>
                   <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Active</FormLabel>
-                  </div>
                 </FormItem>
               )}
             />

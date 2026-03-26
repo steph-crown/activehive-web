@@ -1,7 +1,6 @@
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -27,12 +26,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useCreateMembershipPlanMutation } from "../services";
 import { useLocationsQuery } from "@/features/locations/services";
 import type { CreateMembershipPlanPayload } from "../types";
-import { useUpload } from "@/hooks/use-upload";
 
 const createMembershipPlanSchema = yup.object({
   locationId: yup.string().required("Location is required"),
@@ -53,7 +51,6 @@ const createMembershipPlanSchema = yup.object({
     .min(1, "At least one feature is required")
     .required(),
   isActive: yup.boolean().default(true),
-  imageUrl: yup.string().url("Must be a valid URL").nullable().optional(),
   gracePeriodDays: yup
     .number()
     .typeError("Grace period must be a number")
@@ -96,7 +93,6 @@ export function CreateMembershipPlanModal({
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
   const { mutateAsync: createPlan, isPending } =
     useCreateMembershipPlanMutation();
-  const { upload, isUploading: isUploadingImage } = useUpload();
 
   const form = useForm<CreateMembershipPlanFormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -109,18 +105,11 @@ export function CreateMembershipPlanModal({
       duration: "monthly",
       features: [""],
       isActive: true,
-      imageUrl: null,
       gracePeriodDays: 3,
       hasTrialPeriod: false,
       trialPeriodDays: null,
       classesPerWeek: null,
     },
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    control: form.control as any,
-    name: "features",
   });
 
   const hasTrialPeriod = form.watch("hasTrialPeriod");
@@ -133,17 +122,20 @@ export function CreateMembershipPlanModal({
         description: data.description,
         price: data.price,
         duration: data.duration,
-        features: data.features.filter((f) => f.trim() !== ""),
+        features: data.features
+          .filter((f) => f.trim() !== "")
+          .flatMap((f) =>
+            f
+              .split(",")
+              .map((item) => item.trim())
+              .filter(Boolean),
+          ),
         isActive: data.isActive,
         gracePeriodDays: data.gracePeriodDays,
         hasTrialPeriod: data.hasTrialPeriod,
         trialPeriodDays: data.hasTrialPeriod ? data.trialPeriodDays : null,
         classesPerWeek: data.classesPerWeek || null,
       };
-
-      if (data.imageUrl && data.imageUrl.trim() !== "") {
-        payload.imageUrl = data.imageUrl;
-      }
 
       await createPlan(payload);
       showSuccess("Success", "Membership plan created successfully");
@@ -171,6 +163,20 @@ export function CreateMembershipPlanModal({
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Plan Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Basic Monthly Plan" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="locationId"
               render={({ field }) => (
                 <FormItem>
@@ -181,7 +187,7 @@ export function CreateMembershipPlanModal({
                     disabled={locationsLoading}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="!h-10 w-full">
                         <SelectValue placeholder="Select a location" />
                       </SelectTrigger>
                     </FormControl>
@@ -193,20 +199,6 @@ export function CreateMembershipPlanModal({
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Plan Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Basic Monthly Plan" {...field} />
-                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -270,7 +262,7 @@ export function CreateMembershipPlanModal({
                     <FormLabel>Duration</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="!h-10 w-full">
                           <SelectValue placeholder="Select duration" />
                         </SelectTrigger>
                       </FormControl>
@@ -286,48 +278,25 @@ export function CreateMembershipPlanModal({
               />
             </div>
 
-            <div className="space-y-2">
-              <FormLabel>Features</FormLabel>
-              {fields.map((field, index) => (
-                <div key={field.id} className="flex gap-2">
-                  <FormField
-                    control={form.control}
-                    name={`features.${index}`}
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormControl>
-                          <Input
-                            placeholder="Access to all equipment"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  {fields.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => remove(index)}
-                    >
-                      <IconTrash className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => append("")}
-                className="w-full"
-              >
-                <IconPlus className="h-4 w-4 " />
-                Add Feature
-              </Button>
-            </div>
+            <FormField
+              control={form.control}
+              name="features.0"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Benefits (comma-separated)</FormLabel>
+                  <FormControl>
+                    <textarea
+                      rows={3}
+                      className="border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 w-full rounded-md border bg-transparent px-3 py-2 text-sm outline-none focus-visible:ring-[3px]"
+                      placeholder="Gym Access, Pool, Sauna"
+                      value={field.value || ""}
+                      onChange={(e) => field.onChange(e.target.value)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <div className="grid grid-cols-2 gap-4">
               <FormField
@@ -388,66 +357,13 @@ export function CreateMembershipPlanModal({
 
             <FormField
               control={form.control}
-              name="imageUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Image (Optional)</FormLabel>
-                  <FormControl>
-                    <div className="space-y-2">
-                      {field.value ? (
-                        <img
-                          src={field.value}
-                          alt="Plan preview"
-                          className="h-24 w-24 rounded-md object-cover"
-                        />
-                      ) : null}
-                      <Input
-                        type="file"
-                        accept="image/png,image/jpeg,image/jpg,image/webp"
-                        disabled={isUploadingImage}
-                        onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) {
-                            field.onChange(null);
-                            return;
-                          }
-
-                          try {
-                            const url = await upload(file, "membership-plans");
-                            field.onChange(url);
-                          } catch (err) {
-                            const message =
-                              err instanceof Error
-                                ? err.message
-                                : "Failed to upload image.";
-                            showError("Error", message);
-                          }
-                        }}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Uploads to Cloudinary; the resulting URL is saved.
-                      </p>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
               name="hasTrialPeriod"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormItem className="flex items-center justify-between rounded-md border p-3">
+                  <FormLabel>Free trial</FormLabel>
                   <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Has Trial Period</FormLabel>
-                  </div>
                 </FormItem>
               )}
             />
@@ -482,16 +398,11 @@ export function CreateMembershipPlanModal({
               control={form.control}
               name="isActive"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormItem className="flex items-center justify-between rounded-md border p-3">
+                  <FormLabel>Active</FormLabel>
                   <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Active</FormLabel>
-                  </div>
                 </FormItem>
               )}
             />

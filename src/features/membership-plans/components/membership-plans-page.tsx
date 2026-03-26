@@ -1,7 +1,13 @@
-import { DataTable } from "@/components/molecules/data-table";
 import { TableFilterBar } from "@/components/molecules/table-filter-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,12 +15,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useLocationsQuery } from "@/features/locations/services";
-import { IconDotsVertical, IconPlus } from "@tabler/icons-react";
-import { type ColumnDef } from "@tanstack/react-table";
+import { IconCheck, IconDotsVertical, IconPlus } from "@tabler/icons-react";
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
 import { useMembershipPlansQuery } from "../services";
 import type { MembershipPlan } from "../types";
 import { CreateMembershipPlanModal } from "./create-membership-plan-modal";
@@ -25,77 +30,7 @@ import {
   UpdateMembershipPlanModal,
 } from "./membership-plan-action-modals";
 
-const membershipPlanColumns: ColumnDef<MembershipPlan>[] = [
-  {
-    accessorKey: "name",
-    header: "Plan Name",
-    cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("name")}</div>
-    ),
-  },
-  {
-    accessorKey: "location.locationName",
-    header: "Location",
-    cell: ({ row }) => row.original.location.locationName,
-  },
-  {
-    accessorKey: "description",
-    header: "Description",
-    cell: ({ row }) => (
-      <div className="max-w-md truncate text-sm text-muted-foreground">
-        {row.getValue("description")}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "price",
-    header: () => <div className="text-right">Price</div>,
-    cell: ({ row }) => {
-      const price = parseFloat(row.getValue("price"));
-      return (
-        <div className="text-right font-medium">
-          ₦{price.toFixed(2)} / {row.original.duration}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "features",
-    header: "Features",
-    cell: ({ row }) => {
-      const features = row.getValue("features") as string[];
-      return (
-        <div className="flex flex-wrap gap-1">
-          {features.slice(0, 2).map((feature, idx) => (
-            <Badge key={idx} variant="secondary" className="text-xs">
-              {feature}
-            </Badge>
-          ))}
-          {features.length > 2 && (
-            <Badge variant="outline" className="text-xs">
-              +{features.length - 2} more
-            </Badge>
-          )}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "isActive",
-    header: "Status",
-    cell: ({ row }) => {
-      const isActive = row.getValue("isActive") as boolean;
-      return (
-        <Badge variant={isActive ? "default" : "secondary"}>
-          {isActive ? "Active" : "Inactive"}
-        </Badge>
-      );
-    },
-  },
-];
-
 export function MembershipPlansPage() {
-  const navigate = useNavigate();
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [locationFilter, setLocationFilter] = React.useState("all");
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -107,6 +42,7 @@ export function MembershipPlansPage() {
   const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
   const [isDuplicateOpen, setIsDuplicateOpen] = React.useState(false);
   const [isAddPromoCodeOpen, setIsAddPromoCodeOpen] = React.useState(false);
+  const [isViewOpen, setIsViewOpen] = React.useState(false);
 
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
 
@@ -121,78 +57,9 @@ export function MembershipPlansPage() {
     setIsDeleteOpen(false);
     setIsDuplicateOpen(false);
     setIsAddPromoCodeOpen(false);
+    setIsViewOpen(false);
     setSelectedPlan(null);
   };
-
-  const actionsColumn: ColumnDef<MembershipPlan> = React.useMemo(
-    () => ({
-      id: "actions",
-      header: () => <div className="text-right">Actions</div>,
-      cell: ({ row }) => {
-        const plan = row.original;
-        return (
-          <div className="flex justify-end">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <IconDotsVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem
-                  onClick={() =>
-                    navigate(`/dashboard/membership-plans/${plan.id}`)
-                  }
-                >
-                  View
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setSelectedPlan(plan);
-                    setIsUpdateOpen(true);
-                  }}
-                >
-                  Update
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setSelectedPlan(plan);
-                    setIsDuplicateOpen(true);
-                  }}
-                >
-                  Duplicate
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setSelectedPlan(plan);
-                    setIsAddPromoCodeOpen(true);
-                  }}
-                >
-                  Add Promo Code
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => {
-                    setSelectedPlan(plan);
-                    setIsDeleteOpen(true);
-                  }}
-                  className="text-destructive"
-                >
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        );
-      },
-    }),
-    [navigate],
-  );
-
-  const columnsWithActions = React.useMemo(
-    () => [...membershipPlanColumns, actionsColumn],
-    [actionsColumn],
-  );
 
   const filteredPlans = React.useMemo(() => {
     const rows = plans || [];
@@ -247,14 +114,158 @@ export function MembershipPlansPage() {
             onDateChange={setDateFilter}
           />
 
-          <DataTable
-            data={filteredPlans}
-            columns={columnsWithActions}
-            getRowId={(row) => row.id}
-            enableTabs={false}
-            emptyMessage="No membership plans found."
-            isLoading={isLoading}
-          />
+          {isLoading ? (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, idx) => (
+                <div
+                  key={`plan-skeleton-${idx}`}
+                  className="rounded-md border border-[#F4F4F4] bg-white p-5 shadow-none"
+                >
+                  <div className="mb-3 space-y-2">
+                    <div className="flex items-start justify-between gap-3">
+                      <Skeleton className="h-5 w-36" />
+                      <Skeleton className="h-6 w-16 rounded-full" />
+                    </div>
+                    <Skeleton className="h-3 w-24" />
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-4/5" />
+                  </div>
+
+                  <div className="mb-4 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-3.5 w-3.5 rounded-full" />
+                      <Skeleton className="h-3 w-32" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-3.5 w-3.5 rounded-full" />
+                      <Skeleton className="h-3 w-28" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-3.5 w-3.5 rounded-full" />
+                      <Skeleton className="h-3 w-24" />
+                    </div>
+                  </div>
+
+                  <div className="flex items-end justify-between">
+                    <div className="space-y-1">
+                      <Skeleton className="h-6 w-28" />
+                      <Skeleton className="h-3 w-16" />
+                    </div>
+                    <Skeleton className="h-8 w-8" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredPlans.length === 0 ? (
+            <div className="text-sm text-muted-foreground">
+              No membership plans found.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {filteredPlans.map((plan) => {
+                const price = Number(plan.price);
+                return (
+                  <div
+                    key={plan.id}
+                    className="rounded-md border border-[#F4F4F4] bg-white p-5 shadow-none flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="mb-3">
+                        <div className="mb-1 flex items-start justify-between gap-3">
+                          <h3 className="text-lg font-semibold">{plan.name}</h3>
+                          <Badge
+                            variant={plan.isActive ? "default" : "secondary"}
+                          >
+                            {plan.isActive ? "Active" : "Inactive"}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {plan.location.locationName}
+                        </p>
+                        <p className="mt-2 text-sm text-muted-foreground">
+                          {plan.description}
+                        </p>
+                      </div>
+
+                      <div className="mb-4 space-y-2">
+                        {plan.features.map((feature, idx) => (
+                          <div
+                            key={`${plan.id}-feature-${idx}`}
+                            className="flex items-center gap-2 text-sm text-muted-foreground"
+                          >
+                            <IconCheck className="h-3.5 w-3.5" />
+                            <span>{feature}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex items-end justify-between">
+                      <div className="flex flex-col">
+                        <span className="text-xl font-semibold">
+                          ₦{Number.isNaN(price) ? "0.00" : price.toFixed(2)}
+                        </span>
+                        <span className="text-xs text-black/60 capitalize">
+                          {plan.duration}
+                        </span>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <IconDotsVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setSelectedPlan(plan);
+                              setIsViewOpen(true);
+                            }}
+                          >
+                            View
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setSelectedPlan(plan);
+                              setIsUpdateOpen(true);
+                            }}
+                          >
+                            Update
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setSelectedPlan(plan);
+                              setIsDuplicateOpen(true);
+                            }}
+                          >
+                            Duplicate
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setSelectedPlan(plan);
+                              setIsAddPromoCodeOpen(true);
+                            }}
+                          >
+                            Add Promo Code
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setSelectedPlan(plan);
+                              setIsDeleteOpen(true);
+                            }}
+                            className="text-destructive"
+                          >
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
@@ -290,6 +301,56 @@ export function MembershipPlansPage() {
         plan={selectedPlan}
         onSuccess={handleActionSuccess}
       />
+
+      <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selectedPlan?.name || "Plan Details"}</DialogTitle>
+            <DialogDescription>
+              Membership plan overview and benefits.
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedPlan ? (
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Location</p>
+                <p className="text-sm">{selectedPlan.location.locationName}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Description</p>
+                <p className="text-sm">{selectedPlan.description}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Price</p>
+                  <p className="text-sm">
+                    ₦{Number(selectedPlan.price).toFixed(2)}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Duration</p>
+                  <p className="text-sm capitalize">{selectedPlan.duration}</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">Benefits</p>
+                <ul className="space-y-1.5">
+                  {selectedPlan.features.map((feature, idx) => (
+                    <li
+                      key={`${selectedPlan.id}-benefit-${idx}`}
+                      className="flex items-center gap-2 text-sm"
+                    >
+                      <IconCheck className="h-3.5 w-3.5" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }

@@ -50,7 +50,10 @@ function Button({
     asChild?: boolean;
     loading?: boolean;
   }) {
-  const Comp = asChild ? Slot : "button";
+  const isSingleChild = React.Children.count(children) === 1;
+  const isValidChildElement = React.isValidElement(children);
+  const shouldUseSlot = asChild && isSingleChild && isValidChildElement;
+  const Comp = shouldUseSlot ? Slot : "button";
 
   return (
     <Comp
@@ -60,7 +63,7 @@ function Button({
       aria-busy={loading || undefined}
       {...props}
     >
-      {loading ? <Loader2 className="size-4 animate-spin" /> : null}
+      {!shouldUseSlot && loading ? <Loader2 className="size-4 animate-spin" /> : null}
       {children}
     </Comp>
   );

@@ -3,9 +3,9 @@ import { useEffect, useState } from "react";
 
 export function BlockLoader() {
   const loadingTexts = [
-    "Preparing your dashboard",
-    "Syncing your gym data",
-    "Almost ready",
+    "Loading ActiveHive",
+    "Getting things ready",
+    "Almost there",
   ];
   const [textIndex, setTextIndex] = useState(0);
 
@@ -32,7 +32,7 @@ export function BlockLoader() {
           </span>
         </p>
         <p className="text-muted-foreground text-xs">
-          Loading your workspace experience
+          Please wait a moment
         </p>
       </div>
     </div>

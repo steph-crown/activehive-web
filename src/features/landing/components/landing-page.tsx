@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -171,6 +171,8 @@ const faqs = [
 ];
 
 export function LandingPage() {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
@@ -179,11 +181,11 @@ export function LandingPage() {
           <div className="flex items-center justify-between">
             <Logo path="/" />
             <div className="flex items-center gap-4">
-              <Button variant="ghost" asChild>
-                <Link to="/login">Login</Link>
+              <Button variant="ghost" onClick={() => navigate("/login")}>
+                Login
               </Button>
-              <Button asChild>
-                <Link to="/signup">Get Started</Link>
+              <Button onClick={() => navigate("/signup")}>
+                Get Started
               </Button>
             </div>
           </div>
@@ -219,19 +221,21 @@ export function LandingPage() {
                 grow your fitness business.
               </p>
               <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-                <Button size="lg" className="w-full sm:w-auto" asChild>
-                  <Link to="/signup">
-                    Start Free Trial
-                    <IconChevronRight className="ml-2 h-4 w-4" />
-                  </Link>
+                <Button
+                  size="lg"
+                  className="w-full sm:w-auto"
+                  onClick={() => navigate("/signup")}
+                >
+                  Start Free Trial
+                  <IconChevronRight className="ml-2 h-4 w-4" />
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
                   className="w-full bg-white/10 text-white backdrop-blur hover:bg-white/20 sm:w-auto"
-                  asChild
+                  onClick={() => navigate("/login")}
                 >
-                  <Link to="/login">Login to Dashboard</Link>
+                  Login to Dashboard
                 </Button>
               </div>
             </motion.div>
@@ -361,11 +365,9 @@ export function LandingPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Button size="lg" className="w-full" asChild>
-                    <Link to="/signup">
-                      Create Free Account
-                      <IconChevronRight className="ml-2 h-4 w-4" />
-                    </Link>
+                  <Button size="lg" className="w-full" onClick={() => navigate("/signup")}>
+                    Create Free Account
+                    <IconChevronRight className="ml-2 h-4 w-4" />
                   </Button>
                   <p className="text-center text-sm text-muted-foreground">
                     No credit card required. Start your 14-day free trial.
@@ -448,12 +450,10 @@ export function LandingPage() {
                       className="mt-6 w-full"
                       variant={plan.popular ? "default" : "outline"}
                       size="lg"
-                      asChild
+                      onClick={() => navigate("/signup")}
                     >
-                      <Link to="/signup">
-                        Get Started
-                        <IconChevronRight className="ml-2 h-4 w-4" />
-                      </Link>
+                      Get Started
+                      <IconChevronRight className="ml-2 h-4 w-4" />
                     </Button>
                   </CardContent>
                 </Card>
@@ -522,12 +522,10 @@ export function LandingPage() {
                 size="lg"
                 variant="secondary"
                 className="w-full sm:w-auto"
-                asChild
+                onClick={() => navigate("/signup")}
               >
-                <Link to="/signup">
-                  Get Started Free
-                  <IconChevronRight className="ml-2 h-4 w-4" />
-                </Link>
+                Get Started Free
+                <IconChevronRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
           </motion.div>

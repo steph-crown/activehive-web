@@ -14,11 +14,9 @@ import {
 import {
   IconDotsVertical,
   IconCircleCheckFilled,
-  IconCreditCardFilled,
-  IconPigMoneyFilled,
   IconFilter,
 } from "@tabler/icons-react";
-import { BarChart3, UsersRound } from "lucide-react";
+import { BarChart3, CircleDollarSign, UsersRound } from "lucide-react";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useLocationsQuery } from "@/features/locations/services";
 import { useMembershipPlansQuery } from "@/features/membership-plans/services";
@@ -345,7 +343,7 @@ export function SubscriptionsPage() {
                 style: "currency",
                 currency: "NGN",
               }).format(statistics.totalRevenue)}
-              icon={<IconPigMoneyFilled className="size-6" />}
+              icon={<CircleDollarSign className="size-6 fill-current stroke-[1.8]" />}
               iconBgVar="#FFEFE6"
               iconColorVar="#FF5B04"
               valueColorVar="#FF5B04"

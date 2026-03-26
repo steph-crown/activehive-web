@@ -340,8 +340,8 @@ export function UpdateMembershipPlanModal({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Updating..." : "Update Plan"}
+              <Button type="submit" loading={isPending}>
+                Update Plan
               </Button>
             </DialogFooter>
           </form>
@@ -401,13 +401,8 @@ export function DeleteMembershipPlanModal({
           >
             Cancel
           </Button>
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={onSubmit}
-            disabled={isPending}
-          >
-            {isPending ? "Deleting..." : "Delete Plan"}
+          <Button type="button" variant="destructive" onClick={onSubmit} loading={isPending}>
+            Delete Plan
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -511,8 +506,8 @@ export function DuplicateMembershipPlanModal({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Duplicating..." : "Duplicate Plan"}
+              <Button type="submit" loading={isPending}>
+                Duplicate Plan
               </Button>
             </DialogFooter>
           </form>
@@ -768,8 +763,8 @@ export function AddPromoCodeModal({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Adding..." : "Add Promo Code"}
+              <Button type="submit" loading={isPending}>
+                Add Promo Code
               </Button>
             </DialogFooter>
           </form>
@@ -831,13 +826,8 @@ export function RemovePromoCodeModal({
           >
             Cancel
           </Button>
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={onSubmit}
-            disabled={isPending}
-          >
-            {isPending ? "Removing..." : "Remove Promo Code"}
+          <Button type="button" variant="destructive" onClick={onSubmit} loading={isPending}>
+            Remove Promo Code
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -912,17 +902,8 @@ export function TogglePromoCodeModal({
           >
             Cancel
           </Button>
-          <Button
-            type="button"
-            onClick={onSubmit}
-            disabled={isPending}
-            variant={currentStatus ? "destructive" : "default"}
-          >
-            {isPending
-              ? "Updating..."
-              : currentStatus
-                ? "Deactivate"
-                : "Activate"}
+          <Button type="button" onClick={onSubmit} loading={isPending} variant={currentStatus ? "destructive" : "default"}>
+            {currentStatus ? "Deactivate" : "Activate"}
           </Button>
         </DialogFooter>
       </DialogContent>

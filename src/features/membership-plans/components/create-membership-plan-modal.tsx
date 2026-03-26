@@ -416,8 +416,8 @@ export function CreateMembershipPlanModal({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Creating..." : "Create Plan"}
+              <Button type="submit" loading={isPending}>
+                Create Plan
               </Button>
             </DialogFooter>
           </form>

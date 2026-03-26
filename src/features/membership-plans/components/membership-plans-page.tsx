@@ -188,7 +188,7 @@ export function MembershipPlansPage() {
                       </div>
 
                       <div className="mb-4 space-y-2">
-                        {plan.features.map((feature, idx) => (
+                        {plan.features.slice(0, 3).map((feature, idx) => (
                           <div
                             key={`${plan.id}-feature-${idx}`}
                             className="flex items-center gap-2 text-sm text-muted-foreground"
@@ -197,6 +197,18 @@ export function MembershipPlansPage() {
                             <span>{feature}</span>
                           </div>
                         ))}
+                        {plan.features.length > 3 ? (
+                          <button
+                            type="button"
+                            className="ml-5 text-xs font-medium text-primary hover:underline"
+                            onClick={() => {
+                              setSelectedPlan(plan);
+                              setIsViewOpen(true);
+                            }}
+                          >
+                            +{plan.features.length - 3}
+                          </button>
+                        ) : null}
                       </div>
                     </div>
 

@@ -540,9 +540,9 @@ export function AddMemberPage({
                     email.
                   </p>
                   <div className="mt-4">
-                    <Button onClick={submitMember} disabled={isPending}>
+                    <Button onClick={submitMember} loading={isPending}>
                       <IconMail className="h-4 w-4" />
-                      {isPending ? "Sending..." : "Send Invite Link"}
+                      Send Invite Link
                     </Button>
                     <Button
                       variant="ghost"

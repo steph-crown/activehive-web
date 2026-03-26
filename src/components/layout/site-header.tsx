@@ -18,7 +18,6 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === "/dashboard/staff") return "Staff";
   if (pathname === "/dashboard/subscriptions") return "Subscriptions";
   if (pathname === "/dashboard/staff/roles") return "Roles";
-  if (pathname === "/dashboard/staff/permissions") return "Permissions";
   if (pathname === "/dashboard/classes/attendance") return "Attendance";
   if (pathname.startsWith("/dashboard/payments/")) {
     return pathname.replace("/dashboard/payments/", "").replace(/-/g, " ");

@@ -64,9 +64,6 @@ const SmsCampaigns = lazy(
   () => import("@/app/dashboard/marketing/sms-campaigns/page")
 );
 const StaffRoles = lazy(() => import("@/app/dashboard/staff/roles/page"));
-const StaffPermissions = lazy(
-  () => import("@/app/dashboard/staff/permissions/page")
-);
 const Billing = lazy(() => import("@/app/billing/page"));
 const Profile = lazy(() => import("@/app/profile/page"));
 const Landing = lazy(() => import("@/app/landing/page"));
@@ -121,10 +118,6 @@ function App() {
           />
           <Route path="/dashboard/staff" element={<Staff />} />
           <Route path="/dashboard/staff/roles" element={<StaffRoles />} />
-          <Route
-            path="/dashboard/staff/permissions"
-            element={<StaffPermissions />}
-          />
           <Route path="/dashboard/subscriptions" element={<Subscriptions />} />
           <Route
             path="/dashboard/subscriptions/:id"

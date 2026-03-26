@@ -80,7 +80,6 @@ export function NavMainGrouped({ selectedLocationId }: NavMainGroupedProps) {
 
   const isStaffUsersActive = pathname === "/dashboard/staff";
   const isStaffRolesActive = pathname === "/dashboard/staff/roles";
-  const isStaffPermissionsActive = pathname === "/dashboard/staff/permissions";
 
   const isAllLocationsActive = pathname === "/dashboard/locations";
   const isMembersListActive = pathname === "/dashboard/members";
@@ -233,8 +232,7 @@ export function NavMainGrouped({ selectedLocationId }: NavMainGroupedProps) {
     {
       title: "Staff Management",
       icon: IconUserShield,
-      isActive:
-        isStaffUsersActive || isStaffRolesActive || isStaffPermissionsActive,
+      isActive: isStaffUsersActive || isStaffRolesActive,
       items: [
         {
           title: "Staff Users",
@@ -245,11 +243,6 @@ export function NavMainGrouped({ selectedLocationId }: NavMainGroupedProps) {
           title: "Roles",
           href: "/dashboard/staff/roles",
           isActive: isStaffRolesActive,
-        },
-        {
-          title: "Permissions",
-          href: "/dashboard/staff/permissions",
-          isActive: isStaffPermissionsActive,
         },
       ],
     },

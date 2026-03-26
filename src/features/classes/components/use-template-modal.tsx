@@ -346,8 +346,8 @@ export function UseTemplateModal({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Creating..." : "Create Class"}
+              <Button type="submit" loading={isPending}>
+                Create Class
               </Button>
             </DialogFooter>
           </form>

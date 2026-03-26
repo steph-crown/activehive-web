@@ -262,8 +262,8 @@ export function AssignPermissionsModal({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Assigning..." : "Assign Permissions"}
+              <Button type="submit" loading={isPending}>
+                Assign Permissions
               </Button>
             </DialogFooter>
           </form>

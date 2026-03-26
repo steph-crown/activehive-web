@@ -23,7 +23,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Toggle } from "@/components/ui/toggle";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useLocationsQuery } from "@/features/locations/services";
 import { useToast } from "@/hooks/use-toast";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -219,7 +224,7 @@ export function CreateStaffModal({
                       disabled={rolesLoading}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="!h-10 w-full">
                           <SelectValue placeholder="Select a role" />
                         </SelectTrigger>
                       </FormControl>
@@ -264,41 +269,42 @@ export function CreateStaffModal({
                 <FormItem>
                   <FormLabel>Locations</FormLabel>
                   <FormControl>
-                    <div className="border rounded-md p-4 max-h-48 overflow-y-auto">
-                      {locationsLoading ? (
-                        <div className="text-sm text-muted-foreground">
-                          Loading locations...
-                        </div>
-                      ) : locations && locations.length > 0 ? (
-                        <div className="space-y-2">
-                          {locations.map((location) => (
-                            <div
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="!h-10 w-full justify-between font-normal"
+                        >
+                          <span className="truncate">
+                            {selectedLocationIds.length > 0
+                              ? `${selectedLocationIds.length} location(s) selected`
+                              : "Select locations"}
+                          </span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)]">
+                        {locationsLoading ? (
+                          <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                            Loading locations...
+                          </div>
+                        ) : locations && locations.length > 0 ? (
+                          locations.map((location) => (
+                            <DropdownMenuCheckboxItem
                               key={location.id}
-                              className="flex items-center justify-between gap-4"
+                              checked={selectedLocationIds.includes(location.id)}
+                              onCheckedChange={() => handleLocationToggle(location.id)}
                             >
-                              <span className="text-sm font-medium">
-                                {location.locationName}
-                              </span>
-                              <Toggle
-                                aria-label={`Toggle ${location.locationName}`}
-                                pressed={selectedLocationIds.includes(
-                                  location.id
-                                )}
-                                onPressedChange={() =>
-                                  handleLocationToggle(location.id)
-                                }
-                                size="sm"
-                                variant="outline"
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-sm text-muted-foreground">
-                          No locations available
-                        </div>
-                      )}
-                    </div>
+                              {location.locationName}
+                            </DropdownMenuCheckboxItem>
+                          ))
+                        ) : (
+                          <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                            No locations available
+                          </div>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -328,7 +334,7 @@ export function CreateStaffModal({
                     <FormLabel>Status</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="!h-10 w-full">
                           <SelectValue placeholder="Select status" />
                         </SelectTrigger>
                       </FormControl>
@@ -351,8 +357,8 @@ export function CreateStaffModal({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Creating..." : "Create Staff"}
+              <Button type="submit" loading={isPending}>
+                Create Staff
               </Button>
             </DialogFooter>
           </form>

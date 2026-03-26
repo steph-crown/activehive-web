@@ -134,8 +134,8 @@ export function UpdateCoverImageModal({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Saving..." : "Save cover image"}
+              <Button type="submit" loading={isPending}>
+                Save cover image
               </Button>
             </DialogFooter>
           </form>

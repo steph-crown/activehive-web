@@ -74,7 +74,7 @@ export function CreateClassModal({
   const { data: staff } = useStaffQuery();
 
   const form = useForm<CreateClassFormValues>({
-    resolver: yupResolver(createClassSchema) as any,
+    resolver: yupResolver(createClassSchema) as never,
     defaultValues: {
       name: "",
       description: "",
@@ -403,7 +403,10 @@ export function CreateClassModal({
                 </Button>
               </div>
               {fields.map((field, index) => (
-                <div key={field.id} className="mb-2 flex w-full items-end gap-2">
+                <div
+                  key={field.id}
+                  className="mb-2 flex w-full items-end gap-2"
+                >
                   <FormField
                     control={form.control}
                     name={`schedules.${index}.date`}

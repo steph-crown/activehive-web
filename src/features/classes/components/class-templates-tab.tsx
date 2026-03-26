@@ -1,7 +1,6 @@
 import { DataTable } from "@/components/molecules/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { IconPlus } from "@tabler/icons-react";
 import { type ColumnDef } from "@tanstack/react-table";
 import * as React from "react";
 import { useTemplatesQuery } from "../services";
@@ -53,8 +52,15 @@ const templateColumns: ColumnDef<ClassTemplate>[] = [
   },
 ];
 
-export function ClassTemplatesTab() {
-  const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
+type ClassTemplatesTabProps = {
+  isCreateModalOpen: boolean;
+  onCreateModalOpenChange: (open: boolean) => void;
+};
+
+export function ClassTemplatesTab({
+  isCreateModalOpen,
+  onCreateModalOpenChange,
+}: Readonly<ClassTemplatesTabProps>) {
   const [isUseModalOpen, setIsUseModalOpen] = React.useState(false);
   const [selectedTemplate, setSelectedTemplate] =
     React.useState<ClassTemplate | null>(null);
@@ -62,24 +68,17 @@ export function ClassTemplatesTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div />
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => {
-              setSelectedTemplate(null);
-              setIsUseModalOpen(true);
-            }}
-            disabled={!templates || templates.length === 0}
-          >
-            Use Template
-          </Button>
-          <Button onClick={() => setIsCreateModalOpen(true)}>
-            <IconPlus className="h-4 w-4 " />
-            Create Template
-          </Button>
-        </div>
+      <div className="flex justify-end">
+        <Button
+          variant="outline"
+          onClick={() => {
+            setSelectedTemplate(null);
+            setIsUseModalOpen(true);
+          }}
+          disabled={!templates || templates.length === 0}
+        >
+          Use Template
+        </Button>
       </div>
 
       <DataTable
@@ -93,10 +92,10 @@ export function ClassTemplatesTab() {
 
       <CreateTemplateModal
         open={isCreateModalOpen}
-        onOpenChange={setIsCreateModalOpen}
+        onOpenChange={onCreateModalOpenChange}
         onSuccess={() => {
           refetch();
-          setIsCreateModalOpen(false);
+          onCreateModalOpenChange(false);
         }}
       />
 

@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { IconPlus, IconDotsVertical } from "@tabler/icons-react";
+import { IconDotsVertical } from "@tabler/icons-react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { useNavigate } from "react-router-dom";
 import * as React from "react";
@@ -140,10 +140,17 @@ const createClassesColumns = (
   },
 ];
 
-export function ClassesTab() {
+type ClassesTabProps = {
+  isCreateModalOpen: boolean;
+  onCreateModalOpenChange: (open: boolean) => void;
+};
+
+export function ClassesTab({
+  isCreateModalOpen,
+  onCreateModalOpenChange,
+}: Readonly<ClassesTabProps>) {
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
-  const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [locationFilter, setLocationFilter] = React.useState("all");
   const [searchQuery, setSearchQuery] = React.useState("");
   const [dateFilter, setDateFilter] = React.useState("");
@@ -218,14 +225,6 @@ export function ClassesTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div />
-        <Button onClick={() => setIsCreateModalOpen(true)}>
-          <IconPlus className="h-4 w-4 " />
-          Create Class
-        </Button>
-      </div>
-
       <TableFilterBar
         searchValue={searchQuery}
         onSearchChange={setSearchQuery}
@@ -252,10 +251,10 @@ export function ClassesTab() {
 
       <CreateClassModal
         open={isCreateModalOpen}
-        onOpenChange={setIsCreateModalOpen}
+        onOpenChange={onCreateModalOpenChange}
         onSuccess={() => {
           refetch();
-          setIsCreateModalOpen(false);
+          onCreateModalOpenChange(false);
         }}
       />
 

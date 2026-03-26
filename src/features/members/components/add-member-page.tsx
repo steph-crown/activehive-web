@@ -1,0 +1,661 @@
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  IconChevronLeft,
+  IconChevronRight,
+  IconMail,
+  IconUserPlus,
+} from "@tabler/icons-react";
+
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
+import { useLocationsQuery } from "@/features/locations/services";
+import { useMembershipPlansQuery } from "@/features/membership-plans/services";
+import { useToast } from "@/hooks/use-toast";
+import { useCreateMemberMutation } from "../services";
+
+const STEPS = [
+  "Basic Info",
+  "Membership",
+  "Gym Assignment",
+  "Profile & Compliance",
+] as const;
+
+const FITNESS_GOALS = [
+  "Weight Loss",
+  "Muscle Gain",
+  "General Fitness",
+  "Flexibility",
+  "Endurance",
+  "Strength Training",
+] as const;
+
+type ProfileOption = "fill" | "invite" | null;
+
+type FormState = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  dateOfBirth: string;
+  gender: string;
+  address: string;
+  membershipPlanId: string;
+  startDate: string;
+  endDate: string;
+  promoCode: string;
+  trainer: string;
+  locationId: string;
+  emergencyContactName: string;
+  emergencyContactRelationship: string;
+  emergencyContactPhone: string;
+  medicalConditions: string;
+  injuries: string;
+  allergies: string;
+};
+
+const initialFormState: FormState = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  phoneNumber: "",
+  dateOfBirth: "",
+  gender: "",
+  address: "",
+  membershipPlanId: "",
+  startDate: new Date().toISOString().split("T")[0],
+  endDate: "",
+  promoCode: "",
+  trainer: "",
+  locationId: "",
+  emergencyContactName: "",
+  emergencyContactRelationship: "",
+  emergencyContactPhone: "",
+  medicalConditions: "",
+  injuries: "",
+  allergies: "",
+};
+
+function addDurationToDate(startDate: string, duration: string) {
+  if (!startDate || !duration) return "";
+
+  const date = new Date(`${startDate}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return "";
+
+  const normalized = duration.toLowerCase();
+  const quantityMatch = normalized.match(/(\d+)/);
+  const quantity = quantityMatch ? Number(quantityMatch[1]) : 1;
+
+  if (normalized.includes("quarter")) {
+    date.setMonth(date.getMonth() + quantity * 3);
+  } else if (normalized.includes("month")) {
+    date.setMonth(date.getMonth() + quantity);
+  } else if (normalized.includes("year")) {
+    date.setFullYear(date.getFullYear() + quantity);
+  } else if (normalized.includes("week")) {
+    date.setDate(date.getDate() + quantity * 7);
+  } else if (normalized.includes("day")) {
+    date.setDate(date.getDate() + quantity);
+  } else {
+    return "";
+  }
+
+  return date.toISOString().split("T")[0];
+}
+
+export function AddMemberPage() {
+  const navigate = useNavigate();
+  const { showError, showSuccess } = useToast();
+  const [step, setStep] = useState(0);
+  const [profileOption, setProfileOption] = useState<ProfileOption>(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
+  const [form, setForm] = useState<FormState>(initialFormState);
+
+  const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
+  const { data: membershipPlans, isLoading: plansLoading } =
+    useMembershipPlansQuery(form.locationId || undefined);
+  const { mutateAsync: createMember, isPending } = useCreateMemberMutation();
+
+  const selectedPlan = useMemo(
+    () => membershipPlans?.find((plan) => plan.id === form.membershipPlanId),
+    [membershipPlans, form.membershipPlanId],
+  );
+
+  useEffect(() => {
+    if (!selectedPlan || !form.startDate) {
+      setForm((prev) => ({ ...prev, endDate: "" }));
+      return;
+    }
+    setForm((prev) => ({
+      ...prev,
+      endDate: addDurationToDate(prev.startDate, selectedPlan.duration),
+    }));
+  }, [form.startDate, selectedPlan]);
+
+  const setField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleLocationChange = (locationId: string) => {
+    setForm((prev) => ({
+      ...prev,
+      locationId,
+      membershipPlanId: "",
+      endDate: "",
+    }));
+  };
+
+  const toggleGoal = (goal: string) => {
+    setSelectedGoals((prev) =>
+      prev.includes(goal)
+        ? prev.filter((item) => item !== goal)
+        : [...prev, goal],
+    );
+  };
+
+  const validateStep = () => {
+    if (step === 0) {
+      if (!form.firstName.trim()) {
+        showError("Missing field", "First name is required.");
+        return false;
+      }
+      if (!form.lastName.trim()) {
+        showError("Missing field", "Last name is required.");
+        return false;
+      }
+      if (!form.email.trim()) {
+        showError("Missing field", "Email is required.");
+        return false;
+      }
+      const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim());
+      if (!isEmailValid) {
+        showError("Invalid field", "Enter a valid email address.");
+        return false;
+      }
+    }
+
+    if (step === 1) {
+      if (!form.membershipPlanId) {
+        showError("Missing field", "Membership plan is required.");
+        return false;
+      }
+      if (!form.startDate) {
+        showError("Missing field", "Start date is required.");
+        return false;
+      }
+    }
+
+    if (step === 2 && !form.locationId) {
+      showError("Missing field", "Assigned branch is required.");
+      return false;
+    }
+
+    return true;
+  };
+
+  const submitMember = async () => {
+    try {
+      await createMember({
+        email: form.email.trim(),
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        membershipPlanId: form.membershipPlanId,
+        ...(form.phoneNumber.trim() && {
+          phoneNumber: form.phoneNumber.trim(),
+        }),
+        ...(form.dateOfBirth.trim() && {
+          dateOfBirth: form.dateOfBirth.trim(),
+        }),
+        ...(form.locationId.trim() && { locationId: form.locationId.trim() }),
+        ...(form.startDate.trim() && { startDate: form.startDate.trim() }),
+        ...(form.promoCode.trim() && { promoCode: form.promoCode.trim() }),
+      });
+
+      showSuccess("Success", "Member created successfully.");
+      navigate("/dashboard/members");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to create member.";
+      showError("Error", message);
+    }
+  };
+
+  const handleNext = () => {
+    if (!validateStep()) return;
+    setStep((prev) => Math.min(prev + 1, STEPS.length - 1));
+  };
+
+  return (
+    <DashboardLayout>
+      <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+        <div className="px-4 lg:px-6">
+          <h1 className="text-3xl font-medium">Add Member</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Step {step + 1} of {STEPS.length} - {STEPS[step]}
+          </p>
+        </div>
+
+        <div className="px-4 lg:px-6">
+          <div className="mb-4 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+            {STEPS.map((item, index) => (
+              <div
+                key={item}
+                className={`rounded-md border px-3 py-2 text-center ${
+                  index <= step
+                    ? "border-primary bg-primary/10 text-foreground"
+                    : "border-border text-muted-foreground"
+                }`}
+              >
+                {item}
+              </div>
+            ))}
+          </div>
+
+          {step === 0 && (
+            <div className="grid gap-4 rounded-md border border-[#F4F4F4] bg-white p-6">
+              <h2 className="text-lg font-semibold">Personal Details</h2>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="grid gap-2">
+                  <Label>First Name *</Label>
+                  <Input
+                    value={form.firstName}
+                    onChange={(event) =>
+                      setField("firstName", event.target.value)
+                    }
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label>Last Name *</Label>
+                  <Input
+                    value={form.lastName}
+                    onChange={(event) =>
+                      setField("lastName", event.target.value)
+                    }
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label>Email *</Label>
+                  <Input
+                    type="email"
+                    value={form.email}
+                    onChange={(event) => setField("email", event.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label>Phone Number</Label>
+                  <Input
+                    value={form.phoneNumber}
+                    onChange={(event) =>
+                      setField("phoneNumber", event.target.value)
+                    }
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label>Date of Birth</Label>
+                  <Input
+                    type="date"
+                    value={form.dateOfBirth}
+                    onChange={(event) =>
+                      setField("dateOfBirth", event.target.value)
+                    }
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label>Gender</Label>
+                  <Select
+                    value={form.gender || undefined}
+                    onValueChange={(value) => setField("gender", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="prefer-not">
+                        Prefer not to say
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <Label>Address</Label>
+                <textarea
+                  rows={3}
+                  value={form.address}
+                  onChange={(event) => setField("address", event.target.value)}
+                  className="border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 w-full rounded-md border bg-transparent px-3 py-2 text-sm outline-none focus-visible:ring-[3px]"
+                />
+              </div>
+            </div>
+          )}
+
+          {step === 1 && (
+            <div className="grid gap-4 rounded-md border border-[#F4F4F4] bg-white p-6">
+              <h2 className="text-lg font-semibold">Membership Assignment</h2>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="grid gap-2">
+                  <Label>Membership Plan *</Label>
+                  <Select
+                    value={form.membershipPlanId || undefined}
+                    onValueChange={(value) =>
+                      setField("membershipPlanId", value)
+                    }
+                    disabled={plansLoading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a membership plan" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {membershipPlans && membershipPlans.length > 0 ? (
+                        membershipPlans.map((plan) => (
+                          <SelectItem key={plan.id} value={plan.id}>
+                            {plan.name} - ₦{plan.price}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="no-plans" disabled>
+                          {form.locationId
+                            ? "No plans available for this location"
+                            : "No membership plans available"}
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid gap-2">
+                  <Label>Promo Code</Label>
+                  <Input
+                    value={form.promoCode}
+                    onChange={(event) =>
+                      setField("promoCode", event.target.value)
+                    }
+                    placeholder="SUMMER2024"
+                  />
+                </div>
+
+                <div className="grid gap-2">
+                  <Label>Start Date *</Label>
+                  <Input
+                    type="date"
+                    value={form.startDate}
+                    onChange={(event) =>
+                      setField("startDate", event.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="grid gap-2">
+                  <Label>End Date</Label>
+                  <Input type="date" value={form.endDate} disabled />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="grid gap-4 rounded-md border border-[#F4F4F4] bg-white p-6">
+              <h2 className="text-lg font-semibold">Gym Assignment</h2>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="grid gap-2">
+                  <Label>Assigned Trainer</Label>
+                  <Select
+                    value={form.trainer || undefined}
+                    onValueChange={(value) => setField("trainer", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select trainer" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No Trainer</SelectItem>
+                      <SelectItem value="trainer-a">Trainer A</SelectItem>
+                      <SelectItem value="trainer-b">Trainer B</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid gap-2">
+                  <Label>Assigned Branch *</Label>
+                  <Select
+                    value={form.locationId || undefined}
+                    onValueChange={handleLocationChange}
+                    disabled={locationsLoading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select branch" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {locations?.map((location) => (
+                        <SelectItem key={location.id} value={location.id}>
+                          {location.locationName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="grid gap-4">
+              {!profileOption && (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={() => setProfileOption("fill")}
+                    className="rounded-md border border-[#F4F4F4] bg-white p-6 text-left transition hover:border-primary"
+                  >
+                    <h3 className="text-lg font-semibold">Fill Profile Now</h3>
+                    <p className="text-muted-foreground mt-2 text-sm">
+                      Complete emergency contact, health and agreements before
+                      creating.
+                    </p>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setProfileOption("invite")}
+                    className="rounded-md border border-[#F4F4F4] bg-white p-6 text-left transition hover:border-primary"
+                  >
+                    <h3 className="text-lg font-semibold">Send Invite Link</h3>
+                    <p className="text-muted-foreground mt-2 text-sm">
+                      Create account now and let member complete profile from
+                      invite.
+                    </p>
+                  </button>
+                </div>
+              )}
+
+              {profileOption === "invite" && (
+                <div className="rounded-md border border-[#F4F4F4] bg-white p-6">
+                  <h3 className="text-lg font-semibold">Send Member Invite</h3>
+                  <p className="text-muted-foreground mt-2 text-sm">
+                    This will create the member and send onboarding invite
+                    email.
+                  </p>
+                  <div className="mt-4">
+                    <Button onClick={submitMember} disabled={isPending}>
+                      <IconMail className="h-4 w-4" />
+                      {isPending ? "Sending..." : "Send Invite Link"}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="ml-2"
+                      onClick={() => setProfileOption(null)}
+                    >
+                      Choose another option
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {profileOption === "fill" && (
+                <>
+                  <div className="grid gap-4 rounded-md border border-[#F4F4F4] bg-white p-6">
+                    <h2 className="text-lg font-semibold">Emergency Contact</h2>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                      <div className="grid gap-2">
+                        <Label>Contact Name *</Label>
+                        <Input
+                          value={form.emergencyContactName}
+                          onChange={(event) =>
+                            setField("emergencyContactName", event.target.value)
+                          }
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label>Relationship *</Label>
+                        <Input
+                          value={form.emergencyContactRelationship}
+                          onChange={(event) =>
+                            setField(
+                              "emergencyContactRelationship",
+                              event.target.value,
+                            )
+                          }
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label>Phone *</Label>
+                        <Input
+                          value={form.emergencyContactPhone}
+                          onChange={(event) =>
+                            setField(
+                              "emergencyContactPhone",
+                              event.target.value,
+                            )
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 rounded-md border border-[#F4F4F4] bg-white p-6">
+                    <h2 className="text-lg font-semibold">Health & Fitness</h2>
+                    <div className="grid gap-2">
+                      <Label>Fitness Goals</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {FITNESS_GOALS.map((goal) => (
+                          <button
+                            key={goal}
+                            type="button"
+                            onClick={() => toggleGoal(goal)}
+                            className={`rounded-md border px-3 py-1.5 text-sm ${
+                              selectedGoals.includes(goal)
+                                ? "border-primary bg-primary/10"
+                                : "border-border"
+                            }`}
+                          >
+                            {goal}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label>Medical Conditions</Label>
+                      <textarea
+                        rows={2}
+                        value={form.medicalConditions}
+                        onChange={(event) =>
+                          setField("medicalConditions", event.target.value)
+                        }
+                        className="border-input w-full rounded-md border px-3 py-2 text-sm"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label>Injuries</Label>
+                      <textarea
+                        rows={2}
+                        value={form.injuries}
+                        onChange={(event) =>
+                          setField("injuries", event.target.value)
+                        }
+                        className="border-input w-full rounded-md border px-3 py-2 text-sm"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label>Allergies</Label>
+                      <textarea
+                        rows={2}
+                        value={form.allergies}
+                        onChange={(event) =>
+                          setField("allergies", event.target.value)
+                        }
+                        className="border-input w-full rounded-md border px-3 py-2 text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 rounded-md border border-[#F4F4F4] bg-white p-6">
+                    <h2 className="text-lg font-semibold">Agreements</h2>
+                    <div className="flex items-start gap-2">
+                      <Checkbox
+                        id="member-terms"
+                        checked={termsAccepted}
+                        onCheckedChange={(value) =>
+                          setTermsAccepted(Boolean(value))
+                        }
+                      />
+                      <Label
+                        htmlFor="member-terms"
+                        className="text-sm leading-5"
+                      >
+                        I confirm the member has accepted the gym terms and
+                        privacy policy.
+                      </Label>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          <div className="mt-6 flex items-center gap-4 justify-between">
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (step === 0) {
+                  navigate("/dashboard/members");
+                  return;
+                }
+                setStep((prev) => prev - 1);
+              }}
+            >
+              <IconChevronLeft className="h-4 w-4" />
+              {step === 0 ? "Cancel" : "Back"}
+            </Button>
+
+            {step < STEPS.length - 1 ? (
+              <Button onClick={handleNext}>
+                Next
+                <IconChevronRight className="h-4 w-4" />
+              </Button>
+            ) : profileOption === "fill" ? (
+              <Button
+                onClick={submitMember}
+                disabled={!termsAccepted || isPending}
+              >
+                <IconUserPlus className="h-4 w-4" />
+                {isPending ? "Creating..." : "Create Member"}
+              </Button>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </DashboardLayout>
+  );
+}

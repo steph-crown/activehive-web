@@ -1,2 +1,2 @@
 export * from "./members-page";
-export * from "./create-member-modal";
+export * from "./add-member-page";

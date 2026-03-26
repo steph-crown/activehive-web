@@ -7,9 +7,9 @@ import { useLocationsQuery } from "@/features/locations/services";
 import { IconPlus } from "@tabler/icons-react";
 import { type ColumnDef } from "@tanstack/react-table";
 import * as React from "react";
+import { useNavigate } from "react-router-dom";
 import { useMembersQuery } from "../services";
 import type { MemberSubscription } from "../types";
-import { CreateMemberModal } from "./create-member-modal";
 
 const membersColumns: ColumnDef<MemberSubscription>[] = [
   {
@@ -82,25 +82,16 @@ const membersColumns: ColumnDef<MemberSubscription>[] = [
 ];
 
 export function MembersPage() {
-  const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [locationFilter, setLocationFilter] = React.useState("all");
   const [searchQuery, setSearchQuery] = React.useState("");
   const [dateFilter, setDateFilter] = React.useState("");
+  const navigate = useNavigate();
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
 
   const effectiveLocationId =
     locationFilter === "all" ? undefined : locationFilter;
 
-  const {
-    data: members,
-    isLoading,
-    refetch,
-  } = useMembersQuery(effectiveLocationId);
-
-  const handleModalSuccess = () => {
-    refetch();
-    setIsCreateModalOpen(false);
-  };
+  const { data: members, isLoading } = useMembersQuery(effectiveLocationId);
 
   const filteredMembers = React.useMemo(() => {
     const rows = members || [];
@@ -129,7 +120,7 @@ export function MembersPage() {
               Manage your gym members and their information.
             </p>
           </div>
-          <Button onClick={() => setIsCreateModalOpen(true)}>
+          <Button onClick={() => navigate("/dashboard/members/new")}>
             <IconPlus className="h-4 w-4 " />
             Add Member
           </Button>
@@ -162,11 +153,6 @@ export function MembersPage() {
         </div>
       </div>
 
-      <CreateMemberModal
-        open={isCreateModalOpen}
-        onOpenChange={setIsCreateModalOpen}
-        onSuccess={handleModalSuccess}
-      />
     </DashboardLayout>
   );
 }

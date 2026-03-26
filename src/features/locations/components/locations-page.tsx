@@ -13,7 +13,6 @@ import { useNavigate } from "react-router-dom";
 import * as React from "react";
 import { useLocationsQuery } from "../services";
 import type { GymLocation } from "../types";
-import { CreateLocationModal } from "./create-location-modal";
 import { UpdateCoverImageModal } from "./update-cover-image-modal";
 
 const getImageUrl = (imagePath: string): string => {
@@ -25,17 +24,11 @@ const getImageUrl = (imagePath: string): string => {
 
 export function LocationsPage() {
   const navigate = useNavigate();
-  const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [isCoverModalOpen, setIsCoverModalOpen] = React.useState(false);
   const [selectedLocationId, setSelectedLocationId] = React.useState<
     string | null
   >(null);
   const { data: locations, isLoading, refetch } = useLocationsQuery();
-
-  const handleModalSuccess = () => {
-    refetch();
-    setIsCreateModalOpen(false);
-  };
 
   const handleCoverSuccess = () => {
     refetch();
@@ -57,7 +50,7 @@ export function LocationsPage() {
               Manage your gym locations and their information.
             </p>
           </div>
-          <Button onClick={() => setIsCreateModalOpen(true)}>
+          <Button onClick={() => navigate("/dashboard/locations/new")}>
             <IconPlus className="h-4 w-4 " />
             Add Location
           </Button>
@@ -65,9 +58,13 @@ export function LocationsPage() {
 
         <div className="px-4 lg:px-6">
           {isLoading ? (
-            <div className="text-sm text-muted-foreground">Loading locations...</div>
+            <div className="text-sm text-muted-foreground">
+              Loading locations...
+            </div>
           ) : !locations || locations.length === 0 ? (
-            <div className="text-sm text-muted-foreground">No locations found.</div>
+            <div className="text-sm text-muted-foreground">
+              No locations found.
+            </div>
           ) : (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               {locations.map((location) => {
@@ -92,7 +89,9 @@ export function LocationsPage() {
                     <div className="space-y-4 p-5">
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <h3 className="text-base font-semibold">{location.locationName}</h3>
+                          <h3 className="text-base font-semibold">
+                            {location.locationName}
+                          </h3>
                           <p className="text-muted-foreground text-xs">
                             {location.address.street}
                           </p>
@@ -103,17 +102,25 @@ export function LocationsPage() {
                         </div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="size-8">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8"
+                            >
                               <IconDotsVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-40">
                             <DropdownMenuItem
-                              onClick={() => navigate(`/dashboard/locations/${location.id}`)}
+                              onClick={() =>
+                                navigate(`/dashboard/locations/${location.id}`)
+                              }
                             >
                               View
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleOpenCoverModal(location)}>
+                            <DropdownMenuItem
+                              onClick={() => handleOpenCoverModal(location)}
+                            >
                               Update cover image
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -121,23 +128,33 @@ export function LocationsPage() {
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2">
-                        <Badge variant={location.isHeadquarters ? "default" : "secondary"}>
+                        <Badge
+                          variant={
+                            location.isHeadquarters ? "default" : "secondary"
+                          }
+                        >
                           {location.isHeadquarters ? "Headquarters" : "Branch"}
                         </Badge>
-                        <Badge variant={location.isActive ? "default" : "secondary"}>
+                        <Badge
+                          variant={location.isActive ? "default" : "secondary"}
+                        >
                           {location.isActive ? "Active" : "Inactive"}
                         </Badge>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3 rounded-md bg-[#FAFAFA] p-3">
                         <div>
-                          <p className="text-muted-foreground text-xs">Active Members</p>
+                          <p className="text-muted-foreground text-xs">
+                            Active Members
+                          </p>
                           <p className="font-bebas text-2xl leading-none">
                             {location.metrics.activeMembers}
                           </p>
                         </div>
                         <div>
-                          <p className="text-muted-foreground text-xs">Monthly Revenue</p>
+                          <p className="text-muted-foreground text-xs">
+                            Monthly Revenue
+                          </p>
                           <p className="font-bebas text-2xl leading-none">
                             ${location.metrics.monthlyRevenue.toLocaleString()}
                           </p>
@@ -152,11 +169,6 @@ export function LocationsPage() {
         </div>
       </div>
 
-      <CreateLocationModal
-        open={isCreateModalOpen}
-        onOpenChange={setIsCreateModalOpen}
-        onSuccess={handleModalSuccess}
-      />
       {selectedLocationId && (
         <UpdateCoverImageModal
           open={isCoverModalOpen}

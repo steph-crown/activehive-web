@@ -82,6 +82,8 @@ export function NavMainGrouped({ selectedLocationId }: NavMainGroupedProps) {
   const isStaffRolesActive = pathname === "/dashboard/staff/roles";
 
   const isAllLocationsActive = pathname === "/dashboard/locations";
+  const isAddLocationActive =
+    pathname === "/dashboard/lcations/new" || pathname === "/dashboard/locations/new";
   const isMembersListActive = pathname === "/dashboard/members";
   const isAddMemberActive = pathname === "/dashboard/members/new";
   const isMemberDetailOrEditActive =
@@ -246,6 +248,23 @@ export function NavMainGrouped({ selectedLocationId }: NavMainGroupedProps) {
         },
       ],
     },
+    {
+      title: "Locations",
+      icon: IconMapPin,
+      isActive: isAllLocationsActive || isAddLocationActive,
+      items: [
+        {
+          title: "All Locations",
+          href: "/dashboard/locations",
+          isActive: isAllLocationsActive,
+        },
+        {
+          title: "Add Location",
+          href: "/dashboard/lcations/new",
+          isActive: isAddLocationActive,
+        },
+      ],
+    },
   ];
 
   return (
@@ -311,18 +330,6 @@ export function NavMainGrouped({ selectedLocationId }: NavMainGroupedProps) {
             </Collapsible>
           ))}
 
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              tooltip="Locations"
-              isActive={isAllLocationsActive}
-            >
-              <Link to="/dashboard/locations">
-                <IconMapPin />
-                <span>Locations</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

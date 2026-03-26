@@ -27,6 +27,8 @@ const TrainerAssignments = lazy(
   () => import("@/app/dashboard/trainers/assignments/page")
 );
 const Locations = lazy(() => import("@/app/dashboard/locations/page"));
+const AddLocation = lazy(() => import("@/app/dashboard/locations/new/page"));
+const AddLocationTypoPath = lazy(() => import("@/app/dashboard/lcations/new/page"));
 const GymProfile = lazy(() => import("@/app/dashboard/gym-profile/page"));
 const LocationDetails = lazy(
   () => import("@/app/dashboard/locations/[id]/page")
@@ -99,6 +101,8 @@ function App() {
             element={<TrainerAssignments />}
           />
           <Route path="/dashboard/locations" element={<Locations />} />
+          <Route path="/dashboard/locations/new" element={<AddLocation />} />
+          <Route path="/dashboard/lcations/new" element={<AddLocationTypoPath />} />
           <Route path="/dashboard/gym-profile" element={<GymProfile />} />
           <Route
             path="/dashboard/locations/:id"

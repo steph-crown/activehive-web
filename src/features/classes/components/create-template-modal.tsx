@@ -40,7 +40,6 @@ const createTemplateSchema = yup.object({
       yup.object({
         date: yup.string().required("Date is required"),
         startTime: yup.string().required("Start time is required"),
-        endTime: yup.string().required("End time is required"),
         notes: yup.string().optional(),
       }),
     )
@@ -79,7 +78,6 @@ export function CreateTemplateModal({
         {
           date: "",
           startTime: "",
-          endTime: "",
           notes: "",
         },
       ],
@@ -95,6 +93,23 @@ export function CreateTemplateModal({
     name: "schedules",
   });
 
+  const addMinutesToTime = (time: string, minutesToAdd: number) => {
+    const [hoursRaw, minutesRaw] = time.split(":");
+    const hours = Number(hoursRaw);
+    const minutes = Number(minutesRaw);
+    if (
+      Number.isNaN(hours) ||
+      Number.isNaN(minutes) ||
+      !Number.isFinite(minutesToAdd)
+    ) {
+      return time;
+    }
+    const totalMinutes = hours * 60 + minutes + minutesToAdd;
+    const endHours = Math.floor(totalMinutes / 60) % 24;
+    const endMinutes = totalMinutes % 60;
+    return `${String(endHours).padStart(2, "0")}:${String(endMinutes).padStart(2, "0")}`;
+  };
+
   const onSubmit = async (data: CreateTemplateFormValues) => {
     try {
       const payload = {
@@ -102,7 +117,7 @@ export function CreateTemplateModal({
         schedules: data.schedules.map((s) => ({
           date: s.date,
           startTime: s.startTime,
-          endTime: s.endTime,
+          endTime: addMinutesToTime(s.startTime, data.duration),
           notes: s.notes || undefined,
         })),
         description: data.description || undefined,
@@ -118,7 +133,6 @@ export function CreateTemplateModal({
           {
             date: "",
             startTime: "",
-            endTime: "",
             notes: "",
           },
         ],
@@ -196,7 +210,7 @@ export function CreateTemplateModal({
               )}
             />
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="capacity"
@@ -243,7 +257,7 @@ export function CreateTemplateModal({
                     <FormLabel>Category</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="!h-10 w-full">
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                       </FormControl>
@@ -261,30 +275,32 @@ export function CreateTemplateModal({
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="difficulty"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Difficulty</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select difficulty" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {difficulties.map((diff) => (
-                        <SelectItem key={diff} value={diff}>
-                          {diff}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="difficulty"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Difficulty</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="!h-10 w-full">
+                          <SelectValue placeholder="Select difficulty" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {difficulties.map((diff) => (
+                          <SelectItem key={diff} value={diff}>
+                            {diff}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -297,7 +313,6 @@ export function CreateTemplateModal({
                     append({
                       date: "",
                       startTime: "",
-                      endTime: "",
                       notes: "",
                     })
                   }
@@ -307,15 +322,12 @@ export function CreateTemplateModal({
                 </Button>
               </div>
               {fields.map((field, index) => (
-                <div
-                  key={field.id}
-                  className="grid grid-cols-4 gap-2 mb-2 items-end"
-                >
+                <div key={field.id} className="mb-2 flex w-full items-end gap-2">
                   <FormField
                     control={form.control}
                     name={`schedules.${index}.date`}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex-1">
                         <FormLabel className="text-xs">Date</FormLabel>
                         <FormControl>
                           <Input type="date" {...field} />
@@ -328,21 +340,8 @@ export function CreateTemplateModal({
                     control={form.control}
                     name={`schedules.${index}.startTime`}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex-1">
                         <FormLabel className="text-xs">Start Time</FormLabel>
-                        <FormControl>
-                          <Input type="time" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`schedules.${index}.endTime`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">End Time</FormLabel>
                         <FormControl>
                           <Input type="time" {...field} />
                         </FormControl>
@@ -352,7 +351,7 @@ export function CreateTemplateModal({
                   />
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="destructive"
                     size="icon"
                     onClick={() => remove(index)}
                     disabled={fields.length === 1}
@@ -377,7 +376,6 @@ export function CreateTemplateModal({
                       {
                         date: "",
                         startTime: "",
-                        endTime: "",
                         notes: "",
                       },
                     ],
@@ -390,8 +388,8 @@ export function CreateTemplateModal({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Creating..." : "Create Template"}
+              <Button type="submit" loading={isPending}>
+                Create Template
               </Button>
             </DialogFooter>
           </form>

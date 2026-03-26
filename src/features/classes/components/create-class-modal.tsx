@@ -227,7 +227,7 @@ export function CreateClassModal({
               )}
             />
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="capacity"
@@ -274,7 +274,7 @@ export function CreateClassModal({
                     <FormLabel>Category</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="!h-10 w-full">
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                       </FormControl>
@@ -301,7 +301,7 @@ export function CreateClassModal({
                     <FormLabel>Difficulty</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="!h-10 w-full">
                           <SelectValue placeholder="Select difficulty" />
                         </SelectTrigger>
                       </FormControl>
@@ -331,7 +331,7 @@ export function CreateClassModal({
                       value={field.value || "none"}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="!h-10 w-full">
                           <SelectValue placeholder="All locations" />
                         </SelectTrigger>
                       </FormControl>
@@ -350,36 +350,38 @@ export function CreateClassModal({
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="trainerId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Trainer (Optional)</FormLabel>
-                  <Select
-                    onValueChange={(value) =>
-                      field.onChange(value === "none" ? undefined : value)
-                    }
-                    value={field.value || "none"}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="No trainer assigned" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="none">No Trainer</SelectItem>
-                      {staff?.map((member) => (
-                        <SelectItem key={member.id} value={member.id}>
-                          {member.firstName} {member.lastName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="trainerId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Trainer (Optional)</FormLabel>
+                    <Select
+                      onValueChange={(value) =>
+                        field.onChange(value === "none" ? undefined : value)
+                      }
+                      value={field.value || "none"}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="!h-10 w-full">
+                          <SelectValue placeholder="No trainer assigned" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="none">No Trainer</SelectItem>
+                        {staff?.map((member) => (
+                          <SelectItem key={member.id} value={member.id}>
+                            {member.firstName} {member.lastName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -401,15 +403,12 @@ export function CreateClassModal({
                 </Button>
               </div>
               {fields.map((field, index) => (
-                <div
-                  key={field.id}
-                  className="grid grid-cols-3 gap-2 mb-2 items-end"
-                >
+                <div key={field.id} className="mb-2 flex w-full items-end gap-2">
                   <FormField
                     control={form.control}
                     name={`schedules.${index}.date`}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex-1">
                         <FormLabel className="text-xs">Date</FormLabel>
                         <FormControl>
                           <Input type="date" {...field} />
@@ -422,7 +421,7 @@ export function CreateClassModal({
                     control={form.control}
                     name={`schedules.${index}.startTime`}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex-1">
                         <FormLabel className="text-xs">Start Time</FormLabel>
                         <FormControl>
                           <Input type="time" {...field} />
@@ -433,7 +432,7 @@ export function CreateClassModal({
                   />
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="destructive"
                     size="icon"
                     onClick={() => remove(index)}
                     disabled={fields.length === 1}
@@ -472,8 +471,8 @@ export function CreateClassModal({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Creating..." : "Create Class"}
+              <Button type="submit" loading={isPending}>
+                Create Class
               </Button>
             </DialogFooter>
           </form>

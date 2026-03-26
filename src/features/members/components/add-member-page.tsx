@@ -22,7 +22,7 @@ import { DashboardLayout } from "@/features/dashboard/components/dashboard-layou
 import { useLocationsQuery } from "@/features/locations/services";
 import { useMembershipPlansQuery } from "@/features/membership-plans/services";
 import { useToast } from "@/hooks/use-toast";
-import { useCreateMemberMutation } from "../services";
+import { useCreateMemberMutation, useMembersQuery } from "../services";
 
 const STEPS = [
   "Basic Info",
@@ -113,7 +113,15 @@ function addDurationToDate(startDate: string, duration: string) {
   return date.toISOString().split("T")[0];
 }
 
-export function AddMemberPage() {
+type AddMemberPageProps = {
+  mode?: "create" | "edit";
+  memberId?: string;
+};
+
+export function AddMemberPage({
+  mode = "create",
+  memberId,
+}: Readonly<AddMemberPageProps>) {
   const navigate = useNavigate();
   const { showError, showSuccess } = useToast();
   const [step, setStep] = useState(0);
@@ -123,9 +131,18 @@ export function AddMemberPage() {
   const [form, setForm] = useState<FormState>(initialFormState);
 
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
+  const { data: members } = useMembersQuery();
   const { data: membershipPlans, isLoading: plansLoading } =
     useMembershipPlansQuery(form.locationId || undefined);
   const { mutateAsync: createMember, isPending } = useCreateMemberMutation();
+
+  const selectedMember = useMemo(
+    () =>
+      mode === "edit"
+        ? members?.find((item) => item.id === memberId || item.memberId === memberId)
+        : undefined,
+    [memberId, members, mode],
+  );
 
   const selectedPlan = useMemo(
     () => membershipPlans?.find((plan) => plan.id === form.membershipPlanId),
@@ -142,6 +159,34 @@ export function AddMemberPage() {
       endDate: addDurationToDate(prev.startDate, selectedPlan.duration),
     }));
   }, [form.startDate, selectedPlan]);
+
+  useEffect(() => {
+    if (mode !== "edit" || !selectedMember) return;
+    setForm((prev) => ({
+      ...prev,
+      firstName: selectedMember.member.firstName,
+      lastName: selectedMember.member.lastName,
+      email: selectedMember.member.email,
+      phoneNumber: selectedMember.member.phoneNumber || "",
+      membershipPlanId: selectedMember.membershipPlanId,
+      startDate: selectedMember.startDate.slice(0, 10),
+      endDate: selectedMember.endDate.slice(0, 10),
+      locationId: selectedMember.location.id,
+      promoCode: "SUMMER2024",
+      gender: "prefer-not",
+      address: "No 10, ActiveHive street",
+      trainer: "none",
+      emergencyContactName: "Jane Doe",
+      emergencyContactRelationship: "Sibling",
+      emergencyContactPhone: "+2348000000000",
+      medicalConditions: "None reported",
+      injuries: "None reported",
+      allergies: "None reported",
+    }));
+    setProfileOption("fill");
+    setTermsAccepted(true);
+    setSelectedGoals(["General Fitness"]);
+  }, [mode, selectedMember]);
 
   const setField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -204,6 +249,12 @@ export function AddMemberPage() {
 
   const submitMember = async () => {
     try {
+      if (mode === "edit") {
+        showSuccess("Saved", "Member profile update is currently UI-only.");
+        navigate(memberId ? `/dashboard/members/${memberId}` : "/dashboard/members");
+        return;
+      }
+
       await createMember({
         email: form.email.trim(),
         firstName: form.firstName.trim(),
@@ -238,7 +289,9 @@ export function AddMemberPage() {
     <DashboardLayout>
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
         <div className="px-4 lg:px-6">
-          <h1 className="text-3xl font-medium">Add Member</h1>
+          <h1 className="text-3xl font-medium">
+            {mode === "edit" ? "Edit Member" : "Add Member"}
+          </h1>
           <p className="text-muted-foreground mt-1 text-sm">
             Step {step + 1} of {STEPS.length} - {STEPS[step]}
           </p>
@@ -352,7 +405,7 @@ export function AddMemberPage() {
                     onValueChange={(value) =>
                       setField("membershipPlanId", value)
                     }
-                    disabled={plansLoading}
+                    disabled={plansLoading || mode === "edit"}
                   >
                     <SelectTrigger className="h-10 w-full shadow-xs">
                       <SelectValue placeholder="Select a membership plan" />
@@ -383,6 +436,7 @@ export function AddMemberPage() {
                       setField("promoCode", event.target.value)
                     }
                     placeholder="SUMMER2024"
+                    disabled={mode === "edit"}
                   />
                 </div>
 
@@ -451,7 +505,7 @@ export function AddMemberPage() {
 
           {step === 3 && (
             <div className="grid gap-4">
-              {!profileOption && (
+              {mode === "create" && !profileOption && (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <button
                     type="button"
@@ -648,7 +702,11 @@ export function AddMemberPage() {
                 disabled={!termsAccepted || isPending}
               >
                 <IconUserPlus className="h-4 w-4" />
-                {isPending ? "Creating..." : "Create Member"}
+                {isPending
+                  ? "Saving..."
+                  : mode === "edit"
+                    ? "Save Changes"
+                    : "Create Member"}
               </Button>
             ) : null}
           </div>

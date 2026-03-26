@@ -83,6 +83,9 @@ export function NavMainGrouped({ selectedLocationId }: NavMainGroupedProps) {
   const isAllLocationsActive = pathname === "/dashboard/locations";
   const isMembersListActive = pathname === "/dashboard/members";
   const isAddMemberActive = pathname === "/dashboard/members/new";
+  const isMemberDetailOrEditActive =
+    /^\/dashboard\/members\/[^/]+$/.test(pathname) ||
+    /^\/dashboard\/members\/[^/]+\/edit$/.test(pathname);
 
   const groups: NavGroupItem[] = [
     {
@@ -105,7 +108,8 @@ export function NavMainGrouped({ selectedLocationId }: NavMainGroupedProps) {
     {
       title: "Members",
       icon: IconUsers,
-      isActive: isMembersListActive || isAddMemberActive,
+      isActive:
+        isMembersListActive || isAddMemberActive || isMemberDetailOrEditActive,
       items: [
         {
           title: "All Members",

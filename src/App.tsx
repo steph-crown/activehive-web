@@ -17,6 +17,8 @@ const PendingApproval = lazy(
 const Dashboard = lazy(() => import("@/app/dashboard/page"));
 const Members = lazy(() => import("@/app/dashboard/members/page"));
 const AddMember = lazy(() => import("@/app/dashboard/members/new/page"));
+const MemberDetails = lazy(() => import("@/app/dashboard/members/[id]/page"));
+const EditMember = lazy(() => import("@/app/dashboard/members/[id]/edit/page"));
 const MembershipPlans = lazy(
   () => import("@/app/dashboard/membership-plans/page")
 );
@@ -87,6 +89,8 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/members" element={<Members />} />
           <Route path="/dashboard/members/new" element={<AddMember />} />
+          <Route path="/dashboard/members/:id" element={<MemberDetails />} />
+          <Route path="/dashboard/members/:id/edit" element={<EditMember />} />
           <Route
             path="/dashboard/membership-plans"
             element={<MembershipPlans />}

@@ -126,7 +126,7 @@ export function UpdateMembershipPlanModal({
       // Filter out undefined values from features array
       if (data.features) {
         payload.features = data.features.filter(
-          (f): f is string => f !== undefined
+          (f): f is string => f !== undefined,
         );
       }
 
@@ -215,10 +215,7 @@ export function UpdateMembershipPlanModal({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Duration</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select duration" />
@@ -263,10 +260,7 @@ export function UpdateMembershipPlanModal({
                           }
 
                           try {
-                            const url = await upload(
-                              file,
-                              "membership-plans",
-                            );
+                            const url = await upload(file, "membership-plans");
                             field.onChange(url);
                           } catch (err) {
                             const message =
@@ -277,9 +271,9 @@ export function UpdateMembershipPlanModal({
                           }
                         }}
                       />
-                      <p className="text-xs text-muted-foreground">
+                      {/* <p className="text-xs text-muted-foreground">
                         Uploads to Cloudinary; the resulting URL is saved.
-                      </p>
+                      </p> */}
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -327,7 +321,7 @@ export function UpdateMembershipPlanModal({
                         value={field.value || ""}
                         onChange={(e) =>
                           field.onChange(
-                            e.target.value ? parseInt(e.target.value) : null
+                            e.target.value ? parseInt(e.target.value) : null,
                           )
                         }
                       />
@@ -387,7 +381,7 @@ export function UpdateMembershipPlanModal({
                         value={field.value || ""}
                         onChange={(e) =>
                           field.onChange(
-                            e.target.value ? parseInt(e.target.value) : null
+                            e.target.value ? parseInt(e.target.value) : null,
                           )
                         }
                       />
@@ -742,7 +736,9 @@ export function AddPromoCodeModal({
                     <FormLabel>Valid From</FormLabel>
                     <FormControl>
                       <DatePicker
-                        value={field.value ? field.value.split("T")[0] : undefined}
+                        value={
+                          field.value ? field.value.split("T")[0] : undefined
+                        }
                         onChange={(date) => {
                           if (date) {
                             // Set to start of day in ISO format
@@ -768,7 +764,9 @@ export function AddPromoCodeModal({
                     <FormLabel>Valid Until</FormLabel>
                     <FormControl>
                       <DatePicker
-                        value={field.value ? field.value.split("T")[0] : undefined}
+                        value={
+                          field.value ? field.value.split("T")[0] : undefined
+                        }
                         onChange={(date) => {
                           if (date) {
                             // Set to end of day in ISO format
@@ -800,7 +798,7 @@ export function AddPromoCodeModal({
                       value={field.value || ""}
                       onChange={(e) =>
                         field.onChange(
-                          e.target.value ? parseInt(e.target.value) : undefined
+                          e.target.value ? parseInt(e.target.value) : undefined,
                         )
                       }
                     />
@@ -946,7 +944,7 @@ export function TogglePromoCodeModal({
       });
       showSuccess(
         "Success",
-        `Promo code ${!currentStatus ? "activated" : "deactivated"} successfully!`
+        `Promo code ${!currentStatus ? "activated" : "deactivated"} successfully!`,
       );
       onSuccess();
     } catch (error) {
@@ -987,8 +985,8 @@ export function TogglePromoCodeModal({
             {isPending
               ? "Updating..."
               : currentStatus
-              ? "Deactivate"
-              : "Activate"}
+                ? "Deactivate"
+                : "Activate"}
           </Button>
         </DialogFooter>
       </DialogContent>

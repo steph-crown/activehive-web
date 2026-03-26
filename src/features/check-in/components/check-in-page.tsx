@@ -2,11 +2,14 @@ import { useMemo, useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   IconAlertTriangle,
-  IconClockHour3,
-  IconTrendingUp,
   IconBolt,
-  IconUsers,
 } from "@tabler/icons-react";
+import {
+  Clock3,
+  TriangleAlert,
+  TrendingUp,
+  UsersRound,
+} from "lucide-react";
 
 import { DataTable } from "@/components/molecules/data-table";
 import { TableFilterBar } from "@/components/molecules/table-filter-bar";
@@ -241,45 +244,49 @@ export function CheckInPage() {
           <SummaryMetricCard
             title="Today's Attendance"
             value="47"
-            helperText="+12% from last week"
-            helperTextClass="text-[#16A34A]"
-            icon={<IconUsers className="size-6" stroke={1.8} />}
-            valueColorClass="text-[#7E52FF]"
-            iconBgClass="bg-[#F2EEFF]"
-            iconColorClass="text-[#7E52FF]"
+            icon={<UsersRound className="size-6 fill-current stroke-[1.8]" />}
+            iconBgVar="#F2EEFF"
+            iconColorVar="#7E52FF"
+            valueColorVar="#7E52FF"
+            percentChange={12}
+            isPositive={true}
+            comparisonText="vs last week"
             hoverShadowClass="hover:shadow-[0_14px_30px_-20px_rgba(126,82,255,0.26)]"
           />
           <SummaryMetricCard
             title="Peak Hour"
             value="7-8 AM"
-            helperText="Typical rush period"
-            helperTextClass="text-[#959595]"
-            icon={<IconClockHour3 className="size-6" stroke={1.8} />}
-            valueColorClass="text-[#4342FF]"
-            iconBgClass="bg-[#ECECFF]"
-            iconColorClass="text-[#4342FF]"
+            icon={<Clock3 className="size-6 fill-current stroke-[1.8]" />}
+            iconBgVar="#ECECFF"
+            iconColorVar="#4342FF"
+            valueColorVar="#4342FF"
+            percentChange={0}
+            isPositive={true}
+            comparisonText="Typical rush period"
             hoverShadowClass="hover:shadow-[0_14px_30px_-20px_rgba(67,66,255,0.26)]"
           />
           <SummaryMetricCard
             title="Weekly Average"
             value="42"
-            helperText="+5% from last month"
-            helperTextClass="text-[#16A34A]"
-            icon={<IconTrendingUp className="size-6" stroke={1.8} />}
-            valueColorClass="text-[#FF5B04]"
-            iconBgClass="bg-[#FFEFE6]"
-            iconColorClass="text-[#FF5B04]"
+            icon={<TrendingUp className="size-6 fill-current stroke-[1.8]" />}
+            iconBgVar="#FFEFE6"
+            iconColorVar="#FF5B04"
+            valueColorVar="#FF5B04"
+            percentChange={5}
+            isPositive={true}
+            comparisonText="vs last month"
             hoverShadowClass="hover:shadow-[0_14px_30px_-20px_rgba(255,91,4,0.28)]"
           />
           <SummaryMetricCard
             title="Incomplete Check-ins"
             value="2"
-            helperText="Missing required info"
-            helperTextClass="text-[#DC5959]"
-            icon={<IconAlertTriangle className="size-6" stroke={1.8} />}
-            valueColorClass="text-[#D32F2F]"
-            iconBgClass="bg-[#FBEAEA]"
-            iconColorClass="text-[#D32F2F]"
+            icon={<TriangleAlert className="size-6 fill-current stroke-[1.8]" />}
+            iconBgVar="#FBEAEA"
+            iconColorVar="#D32F2F"
+            valueColorVar="#D32F2F"
+            percentChange={2}
+            isPositive={false}
+            comparisonText="needs attention"
             hoverShadowClass="hover:shadow-[0_14px_30px_-20px_rgba(211,47,47,0.22)]"
           />
         </div>

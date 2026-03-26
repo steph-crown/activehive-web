@@ -6,6 +6,8 @@ type SummaryMetricCardProps = {
   title: string;
   value: string;
   icon: ReactNode;
+  iconBgVar: string;
+  iconColorVar: string;
   valueColorVar: string;
   percentChange: number;
   isPositive: boolean;
@@ -18,6 +20,8 @@ export function SummaryMetricCard({
   title,
   value,
   icon,
+  iconBgVar,
+  iconColorVar,
   percentChange,
   isPositive,
   comparisonText,
@@ -34,14 +38,19 @@ export function SummaryMetricCard({
     >
       <div className="flex flex-col gap-2 p-5">
         <div className="flex flex-col items-start gap-5">
-          {icon}
-          <span className="text-xs font-semibold text-[#3C3C3C]">{title}</span>
+          <div
+            className="flex size-12 items-center justify-center rounded-md"
+            style={{
+              backgroundColor: iconBgVar,
+              color: iconColorVar,
+            }}
+          >
+            {icon}
+          </div>
+          <span className="text-xs font-medium text-gray-400">{title}</span>
         </div>
         <div className="flex items-center justify-between gap-2">
-          <div
-            className="text-3xl leading-none font-bold font-bebas text-black"
-            // style={{ color: valueColorVar }}
-          >
+          <div className="text-3xl leading-none font-medium font-bebas text-black">
             {value}
           </div>
 

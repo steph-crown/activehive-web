@@ -118,17 +118,9 @@ export function SectionCards() {
             <SummaryMetricCard
               title={card.title}
               value={card.value}
-              icon={
-                <div
-                  className="flex size-12 items-center justify-center rounded-[6px]"
-                  style={{
-                    backgroundColor: card.iconBgVar,
-                    color: card.iconColorVar,
-                  }}
-                >
-                  {card.icon}
-                </div>
-              }
+              icon={card.icon}
+              iconBgVar={card.iconBgVar}
+              iconColorVar={card.iconColorVar}
               valueColorVar={card.valueColorVar}
               percentChange={card.percentChange}
               isPositive={card.isPositive}

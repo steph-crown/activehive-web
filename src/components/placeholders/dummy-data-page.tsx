@@ -17,8 +17,10 @@ export function DummyDataPage({
         <div className="px-4 lg:px-6">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-semibold">{title}</h1>
-              <p className="text-muted-foreground mt-2 text-sm">{description}</p>
+              <h1 className="text-3xl font-medium">{title}</h1>
+              <p className="text-muted-foreground mt-2 text-sm">
+                {description}
+              </p>
             </div>
             <Badge variant="outline">Dummy data</Badge>
           </div>
@@ -38,4 +40,3 @@ export function DummyDataPage({
     </DashboardLayout>
   );
 }
-

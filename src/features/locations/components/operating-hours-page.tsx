@@ -128,7 +128,7 @@ export function OperatingHoursPage() {
     <DashboardLayout>
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
         <div className="px-4 lg:px-6">
-          <h1 className="text-2xl font-semibold">Operating Hours</h1>
+          <h1 className="text-3xl font-medium">Operating Hours</h1>
           <p className="text-muted-foreground mt-1 text-sm">
             Set opening days and hours for this location.
           </p>
@@ -151,7 +151,9 @@ export function OperatingHoursPage() {
                 >
                   <AccordionTrigger className="hover:no-underline">
                     <div className="flex w-full items-center justify-between pr-4">
-                      <span className="text-sm font-semibold">{item.label}</span>
+                      <span className="text-sm font-semibold">
+                        {item.label}
+                      </span>
                       <span className="text-muted-foreground text-sm">
                         {formatSummary(item)}
                       </span>
@@ -168,7 +170,9 @@ export function OperatingHoursPage() {
                           aria-label={`${item.label} open status`}
                         />
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">Open on this day</span>
+                          <span className="text-sm font-medium">
+                            Open on this day
+                          </span>
                           <span className="text-muted-foreground text-xs">
                             {item.isOpen ? "Open" : "Closed"}
                           </span>
@@ -190,7 +194,10 @@ export function OperatingHoursPage() {
                               </SelectTrigger>
                               <SelectContent>
                                 {timeOptions.map((time) => (
-                                  <SelectItem key={`${item.day}-open-${time}`} value={time}>
+                                  <SelectItem
+                                    key={`${item.day}-open-${time}`}
+                                    value={time}
+                                  >
                                     {time}
                                   </SelectItem>
                                 ))}
@@ -244,4 +251,3 @@ export function OperatingHoursPage() {
     </DashboardLayout>
   );
 }
-

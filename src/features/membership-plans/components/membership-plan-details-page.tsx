@@ -148,7 +148,7 @@ export function MembershipPlanDetailsPage() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          <h1 className="text-2xl font-semibold">{plan.name}</h1>
+          <h1 className="text-3xl font-medium">{plan.name}</h1>
           <p className="text-muted-foreground mt-1 text-sm">
             View detailed information about this membership plan
           </p>

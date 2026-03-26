@@ -107,7 +107,7 @@ export function ClassDetailsPage() {
           </Button>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-semibold">{classItem.name}</h1>
+              <h1 className="text-3xl font-medium">{classItem.name}</h1>
               <p className="text-muted-foreground mt-1 text-sm">
                 Class Details
               </p>

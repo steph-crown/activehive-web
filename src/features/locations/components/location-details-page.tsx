@@ -117,7 +117,7 @@ export function LocationDetailsPage() {
 
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-semibold">
+              <h1 className="text-3xl font-medium">
                 {locationData.locationName}
               </h1>
               <p className="text-muted-foreground mt-1 text-sm">

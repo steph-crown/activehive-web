@@ -3,9 +3,12 @@ import LogoIcon from "@/assets/logo.svg?react";
 
 export function Logo({ path = "/" }: { path?: string }) {
   return (
-    <Link to={path} className="flex items-center gap-2 font-medium">
+    <Link
+      to={path}
+      className="flex items-center gap-2 font-medium text-white font-bebas tracking-wider text-lg"
+    >
       <LogoIcon />
-      <p>ActiveHive</p>
+      <p>ACTIVEHIVE</p>
     </Link>
   );
 }

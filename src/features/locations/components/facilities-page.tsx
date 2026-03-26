@@ -266,7 +266,7 @@ export function FacilitiesPage() {
             >
               ← Back to Location
             </Button>
-            <h1 className="text-2xl font-semibold">Facilities</h1>
+            <h1 className="text-3xl font-medium">Facilities</h1>
             <p className="text-muted-foreground mt-1 text-sm">
               Manage facilities for{" "}
               <span className="font-semibold text-foreground">

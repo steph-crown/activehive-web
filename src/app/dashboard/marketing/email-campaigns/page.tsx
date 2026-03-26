@@ -50,7 +50,7 @@ export default function Page() {
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
         <div className="flex items-center justify-between px-4 lg:px-6">
           <div>
-            <h1 className="text-2xl font-semibold">Email Campaigns</h1>
+            <h1 className="text-3xl font-medium">Email Campaigns</h1>
             <p className="text-muted-foreground mt-1 text-sm">
               Send email campaigns to members
             </p>
@@ -74,13 +74,19 @@ export default function Page() {
                       <IconMail className="size-4" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold uppercase">{campaign.title}</p>
+                      <p className="text-sm font-semibold uppercase">
+                        {campaign.title}
+                      </p>
                       <p className="text-muted-foreground text-xs">
                         {campaign.date || "—"}
                       </p>
                     </div>
                   </div>
-                  <Badge variant={campaign.status === "Sent" ? "default" : "secondary"}>
+                  <Badge
+                    variant={
+                      campaign.status === "Sent" ? "default" : "secondary"
+                    }
+                  >
                     {campaign.status}
                   </Badge>
                 </div>
@@ -107,4 +113,3 @@ export default function Page() {
     </DashboardLayout>
   );
 }
-

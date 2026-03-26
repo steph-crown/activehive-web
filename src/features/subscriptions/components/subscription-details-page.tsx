@@ -243,7 +243,7 @@ export function SubscriptionDetailsPage() {
           >
             ← Back to Subscriptions
           </Button>
-          <h1 className="text-2xl font-semibold">Subscription Details</h1>
+          <h1 className="text-3xl font-medium">Subscription Details</h1>
           <p className="text-muted-foreground mt-1 text-sm">
             View detailed information about this subscription
           </p>

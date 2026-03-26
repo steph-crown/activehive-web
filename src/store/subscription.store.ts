@@ -12,9 +12,13 @@ type SubscriptionStore = {
 
 export const useSubscriptionStore = create<SubscriptionStore>((set) => ({
   subscription: null,
-  hasActiveSubscription: false,
+  hasActiveSubscription: true,
   lastRedirectPath: null,
   setSubscription: (subscription) => {
+    console.log({
+      subscription,
+      kaii: !!(subscription?.isActive || subscription?.isTrial),
+    });
     return set({
       subscription,
       // Consider both paid subscriptions and active trials as granting access

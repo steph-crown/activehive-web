@@ -208,7 +208,8 @@ export function SubscriptionsPage() {
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
   const { data: membershipPlans } = useMembershipPlansQuery();
 
-  const effectiveLocationId = locationFilter === "all" ? undefined : locationFilter;
+  const effectiveLocationId =
+    locationFilter === "all" ? undefined : locationFilter;
 
   // Build filters with location
   const queryFilters: SubscriptionsFilters = React.useMemo(() => {
@@ -271,7 +272,8 @@ export function SubscriptionsPage() {
 
       const formattedDate = new Date(dateFilter).toLocaleDateString();
       const matchesDate =
-        new Date(subscription.startDate).toLocaleDateString() === formattedDate ||
+        new Date(subscription.startDate).toLocaleDateString() ===
+          formattedDate ||
         new Date(subscription.endDate).toLocaleDateString() === formattedDate;
 
       return matchesSearch && matchesDate;
@@ -283,7 +285,7 @@ export function SubscriptionsPage() {
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
         <div className="flex items-center justify-between px-4 lg:px-6">
           <div>
-            <h1 className="text-2xl font-semibold">Subscriptions</h1>
+            <h1 className="text-3xl font-medium">Subscriptions</h1>
             <p className="text-muted-foreground mt-1 text-sm">
               Manage your gym subscriptions and billing.
             </p>

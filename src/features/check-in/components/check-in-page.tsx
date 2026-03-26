@@ -23,7 +23,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { SummaryMetricCard } from "@/features/dashboard/components/summary-metric-card";
 
 type CheckInMethod = "QR Code" | "Manual" | "NFC";
@@ -220,7 +226,7 @@ export function CheckInPage() {
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
         <div className="flex items-center justify-between px-4 lg:px-6">
           <div>
-            <h1 className="text-2xl font-semibold">Check-In</h1>
+            <h1 className="text-3xl font-medium">Check-In</h1>
             <p className="text-muted-foreground mt-1 text-sm">
               Track daily gym attendance
             </p>
@@ -370,7 +376,10 @@ export function CheckInPage() {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setQuickCheckInOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setQuickCheckInOpen(false)}
+            >
               Cancel
             </Button>
             <Button>Check In</Button>

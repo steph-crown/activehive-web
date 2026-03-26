@@ -88,7 +88,8 @@ export function MembersPage() {
   const [dateFilter, setDateFilter] = React.useState("");
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
 
-  const effectiveLocationId = locationFilter === "all" ? undefined : locationFilter;
+  const effectiveLocationId =
+    locationFilter === "all" ? undefined : locationFilter;
 
   const {
     data: members,
@@ -123,7 +124,7 @@ export function MembersPage() {
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
         <div className="flex items-center justify-between px-4 lg:px-6">
           <div>
-            <h1 className="text-2xl font-semibold">Members</h1>
+            <h1 className="text-3xl font-medium">Members</h1>
             <p className="text-muted-foreground mt-1 text-sm">
               Manage your gym members and their information.
             </p>

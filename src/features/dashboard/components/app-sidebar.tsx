@@ -32,7 +32,8 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: profile, isLoading } = useProfileQuery();
-  const { isLoading: isSubscriptionLoading, isFetched } = useMySubscriptionQuery();
+  const { isLoading: isSubscriptionLoading, isFetched } =
+    useMySubscriptionQuery();
   const { hasActiveSubscription } = useSubscriptionStore();
   const { selectedLocationId } = useLocationStore();
   const { showError } = useToast();
@@ -40,6 +41,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const navigate = useNavigate();
   const [isGetHelpOpen, setIsGetHelpOpen] = React.useState(false);
   const hasRedirectedRef = React.useRef(false);
+
+  console.log({ hasActiveSubscription });
 
   React.useEffect(() => {
     if (isSubscriptionLoading || !isFetched) return;
@@ -52,7 +55,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       hasRedirectedRef.current = true;
       showError(
         "Subscription required",
-        "You need an active subscription to access this page. Redirecting to billing."
+        "You need an active subscription to access this page. Redirecting to billing.",
       );
       navigate("/billing");
     }
@@ -88,14 +91,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       data.navSecondary.map((item) =>
         item.title === "Get Help"
           ? { ...item, onClick: () => setIsGetHelpOpen(true) }
-          : item
+          : item,
       ),
-    []
+    [],
   );
 
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
-      <SidebarHeader>
+    <Sidebar collapsible="offcanvas" className="border-r-0" {...props}>
+      <SidebarHeader className="px-4 py-5">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
@@ -111,11 +114,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="px-2">
         <NavMainGrouped selectedLocationId={selectedLocationId} />
         <NavSecondary items={navSecondaryWithHandler} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter>{!isLoading && <NavUser user={user} />}</SidebarFooter>
+      <SidebarFooter className="border-t border-sidebar-border px-4 py-3">
+        {!isLoading && <NavUser user={user} />}
+      </SidebarFooter>
       <GetHelpModal open={isGetHelpOpen} onOpenChange={setIsGetHelpOpen} />
     </Sidebar>
   );

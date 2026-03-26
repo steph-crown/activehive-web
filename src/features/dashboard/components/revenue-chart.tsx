@@ -26,10 +26,12 @@ const chartData = [
 
 export function RevenueChart() {
   return (
-    <Card className="border border-[#F4F4F4] p-0 shadow-none">
+    <Card className="border border-[#F4F4F4] p-0 shadow-none !rounded-md">
       <div className="flex flex-col">
         <div className="flex items-center justify-between border-b border-[#F4F4F4] px-6 py-3">
-          <h3 className="text-sm font-semibold text-[#3c3c3c]">Member Growth</h3>
+          <h3 className="text-lg font-semibold text-[#3c3c3c]">
+            Member Growth
+          </h3>
         </div>
 
         <div className="flex flex-col gap-4 p-6">
@@ -37,7 +39,13 @@ export function RevenueChart() {
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData}>
                 <defs>
-                  <linearGradient id="memberGrowthFill" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient
+                    id="memberGrowthFill"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
                     <stop offset="5%" stopColor="#FABE12" stopOpacity={0.2} />
                     <stop offset="95%" stopColor="#FABE12" stopOpacity={0} />
                   </linearGradient>
@@ -86,4 +94,3 @@ export function RevenueChart() {
     </Card>
   );
 }
-

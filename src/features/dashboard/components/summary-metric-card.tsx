@@ -30,6 +30,12 @@ export function SummaryMetricCard({
 }: Readonly<SummaryMetricCardProps>) {
   const TrendIcon = isPositive ? IconTrendingUp : IconTrendingDown;
   const percent = Math.abs(percentChange);
+  const varianceColor =
+    percent === 0
+      ? "#959595"
+      : isPositive
+        ? "var(--success-500)"
+        : "var(--error-400)";
 
   return (
     <Card
@@ -57,9 +63,7 @@ export function SummaryMetricCard({
           <div className="flex items-center gap-2">
             <div
               className="flex items-center gap-1 text-xs font-medium"
-              style={{
-                color: isPositive ? "var(--success-500)" : "var(--error-400)",
-              }}
+              style={{ color: varianceColor }}
             >
               <TrendIcon className="size-4" stroke={2} />~{percent}%
             </div>

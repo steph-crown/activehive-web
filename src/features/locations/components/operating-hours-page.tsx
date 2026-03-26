@@ -180,7 +180,7 @@ export function OperatingHoursPage() {
                       </div>
 
                       {item.isOpen ? (
-                        <div className="grid gap-4 md:grid-cols-2">
+                        <div className="flex flex-wrap gap-4">
                           <div className="grid gap-2">
                             <span className="text-sm font-medium">From</span>
                             <Select
@@ -189,7 +189,7 @@ export function OperatingHoursPage() {
                                 updateDay(item.day, { openingTime: value })
                               }
                             >
-                              <SelectTrigger className="w-full">
+                              <SelectTrigger className="w-[220px]">
                                 <SelectValue placeholder="Select opening time" />
                               </SelectTrigger>
                               <SelectContent>
@@ -212,7 +212,7 @@ export function OperatingHoursPage() {
                                 updateDay(item.day, { closingTime: value })
                               }
                             >
-                              <SelectTrigger className="w-full">
+                              <SelectTrigger className="w-[220px]">
                                 <SelectValue placeholder="Select closing time" />
                               </SelectTrigger>
                               <SelectContent>

@@ -11,6 +11,8 @@ const getPageTitle = (pathname: string): string => {
   if (/^\/dashboard\/members\/[^/]+\/edit$/.test(pathname)) return "Edit Member";
   if (/^\/dashboard\/members\/[^/]+$/.test(pathname)) return "Member Profile";
   if (pathname === "/dashboard/membership-plans") return "Membership Plans";
+  if (pathname === "/dashboard/trainers") return "All Trainers";
+  if (pathname === "/dashboard/trainers/assignments") return "Trainer Assignments";
   if (pathname === "/dashboard/locations") return "Locations";
   if (pathname === "/dashboard/gym-profile") return "Gym Profile";
   if (pathname === "/dashboard/staff") return "Staff";

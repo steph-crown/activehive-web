@@ -67,6 +67,8 @@ export function NavMainGrouped({ selectedLocationId }: NavMainGroupedProps) {
   const isPlansActive =
     pathname === "/dashboard/membership-plans" ||
     pathname.startsWith("/dashboard/membership-plans/");
+  const isAllTrainersActive = pathname === "/dashboard/trainers";
+  const isTrainerAssignmentsActive = pathname === "/dashboard/trainers/assignments";
   const isSubscriptionsActive =
     pathname === "/dashboard/subscriptions" ||
     pathname.startsWith("/dashboard/subscriptions/");
@@ -126,7 +128,11 @@ export function NavMainGrouped({ selectedLocationId }: NavMainGroupedProps) {
     {
       title: "Membership Plans",
       icon: IconCreditCard,
-      isActive: isPlansActive || isSubscriptionsActive,
+      isActive:
+        isPlansActive ||
+        isSubscriptionsActive ||
+        isAllTrainersActive ||
+        isTrainerAssignmentsActive,
       items: [
         {
           title: "Plans",
@@ -137,6 +143,23 @@ export function NavMainGrouped({ selectedLocationId }: NavMainGroupedProps) {
           title: "Subscriptions",
           href: "/dashboard/subscriptions",
           isActive: isSubscriptionsActive,
+        },
+      ],
+    },
+    {
+      title: "Trainers",
+      icon: IconUsers,
+      isActive: isAllTrainersActive || isTrainerAssignmentsActive,
+      items: [
+        {
+          title: "All Trainers",
+          href: "/dashboard/trainers",
+          isActive: isAllTrainersActive,
+        },
+        {
+          title: "Trainer Assignments",
+          href: "/dashboard/trainers/assignments",
+          isActive: isTrainerAssignmentsActive,
         },
       ],
     },

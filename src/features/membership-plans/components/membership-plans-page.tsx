@@ -195,20 +195,20 @@ export function MembershipPlansPage() {
                           >
                             <IconCheck className="h-3.5 w-3.5" />
                             <span>{feature}</span>
+                            {idx === 2 && plan.features.length > 3 ? (
+                              <button
+                                type="button"
+                                className="text-xs font-medium text-primary hover:underline"
+                                onClick={() => {
+                                  setSelectedPlan(plan);
+                                  setIsViewOpen(true);
+                                }}
+                              >
+                                +{plan.features.length - 3}
+                              </button>
+                            ) : null}
                           </div>
                         ))}
-                        {plan.features.length > 3 ? (
-                          <button
-                            type="button"
-                            className="ml-5 text-xs font-medium text-primary hover:underline"
-                            onClick={() => {
-                              setSelectedPlan(plan);
-                              setIsViewOpen(true);
-                            }}
-                          >
-                            +{plan.features.length - 3}
-                          </button>
-                        ) : null}
                       </div>
                     </div>
 

@@ -52,7 +52,7 @@ export function LocationsStepForm({
   const { upload, isUploading } = useUpload();
 
   const form = useForm<LocationsFormValues>({
-    resolver: yupResolver(locationsSchema) as any,
+    resolver: yupResolver(locationsSchema) as never,
     defaultValues: {
       locations: [
         {

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   IconCircleCheckFilled,
@@ -7,13 +8,19 @@ import {
   IconQrcode,
   IconUpload,
 } from "@tabler/icons-react";
+import { type ColumnDef } from "@tanstack/react-table";
 
+import { DataTable } from "@/components/molecules/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TabsContent } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import type { GymMemberDetail } from "../types";
+import type {
+  GymMemberDetail,
+  MemberAttendanceEntry,
+  MemberPaymentEntry,
+} from "../types";
 
 function dash(v: string | null | undefined): string {
   if (v == null) return "—";
@@ -158,6 +165,101 @@ export function MemberDetailTabPanels({ detail }: PanelsProps) {
   const memberSince = detail.memberSince
     ? formatDisplayDate(detail.memberSince)
     : formatDisplayDate(detail.startDate);
+
+  const attendanceColumns = useMemo<ColumnDef<MemberAttendanceEntry>[]>(
+    () => [
+      {
+        accessorKey: "date",
+        header: "Date",
+        cell: ({ row }) => formatDisplayDate(row.original.date),
+      },
+      {
+        accessorKey: "checkIn",
+        header: "Check-in",
+        cell: ({ row }) => (
+          <span className="inline-flex items-center gap-1.5">
+            <IconClock className="size-4 text-muted-foreground" />
+            {row.original.checkIn}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "checkOut",
+        header: "Check-out",
+        cell: ({ row }) => row.original.checkOut,
+      },
+      {
+        accessorKey: "processedBy",
+        header: "Processed by",
+        cell: ({ row }) => row.original.processedBy,
+      },
+      {
+        accessorKey: "branch",
+        header: "Branch",
+        cell: ({ row }) => row.original.branch,
+      },
+    ],
+    [],
+  );
+
+  const paymentColumns = useMemo<ColumnDef<MemberPaymentEntry>[]>(
+    () => [
+      {
+        accessorKey: "date",
+        header: "Date",
+        cell: ({ row }) => formatDisplayDate(row.original.date),
+      },
+      {
+        accessorKey: "amount",
+        header: "Amount",
+        cell: ({ row }) => (
+          <span className="font-bold">{row.original.amount}</span>
+        ),
+      },
+      {
+        accessorKey: "method",
+        header: "Method",
+        cell: ({ row }) => row.original.method,
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => {
+          const paid =
+            row.original.status.toLowerCase() === "paid" ||
+            row.original.status.toLowerCase() === "completed";
+          return (
+            <Badge
+              className={cn(
+                paid &&
+                  "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-50",
+              )}
+              variant="outline"
+            >
+              {row.original.status}
+            </Badge>
+          );
+        },
+      },
+      {
+        accessorKey: "invoiceRef",
+        header: "Invoice",
+        cell: ({ row }) =>
+          row.original.invoiceRef ? (
+            <a
+              href="#"
+              className="text-primary font-medium underline-offset-4 hover:underline"
+              onClick={(e) => e.preventDefault()}
+            >
+              {row.original.invoiceRef}
+            </a>
+          ) : (
+            "—"
+          ),
+      },
+    ],
+    [],
+  );
 
   return (
     <>
@@ -384,41 +486,18 @@ export function MemberDetailTabPanels({ detail }: PanelsProps) {
               No check-ins recorded yet.
             </p>
           ) : (
-            <div className="mt-6 overflow-x-auto">
-              <table className="w-full min-w-[640px] text-sm">
-                <thead>
-                  <tr className="border-b border-[#F4F4F4] text-left text-muted-foreground">
-                    <th className="pb-3 pr-4 font-medium">Date</th>
-                    <th className="pb-3 pr-4 font-medium">Check-in</th>
-                    <th className="pb-3 pr-4 font-medium">Check-out</th>
-                    <th className="pb-3 pr-4 font-medium">Processed by</th>
-                    <th className="pb-3 font-medium">Branch</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {attendance.map((row) => (
-                    <tr
-                      key={row.id}
-                      className="border-b border-[#F4F4F4] last:border-0"
-                    >
-                      <td className="py-4 pr-4 align-middle">
-                        {formatDisplayDate(row.date)}
-                      </td>
-                      <td className="py-4 pr-4 align-middle">
-                        <span className="inline-flex items-center gap-1.5">
-                          <IconClock className="size-4 text-muted-foreground" />
-                          {row.checkIn}
-                        </span>
-                      </td>
-                      <td className="py-4 pr-4 align-middle">{row.checkOut}</td>
-                      <td className="py-4 pr-4 align-middle">
-                        {row.processedBy}
-                      </td>
-                      <td className="py-4 align-middle">{row.branch}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="mt-6">
+              <DataTable
+                data={attendance}
+                columns={attendanceColumns}
+                enableDragAndDrop={false}
+                enableRowSelection={false}
+                enableColumnVisibility={false}
+                enableTabs={false}
+                defaultPageSize={50}
+                getRowId={(row) => row.id}
+                emptyMessage="No check-ins recorded yet."
+              />
             </div>
           )}
         </Card>
@@ -432,63 +511,18 @@ export function MemberDetailTabPanels({ detail }: PanelsProps) {
               No payments recorded yet.
             </p>
           ) : (
-            <div className="mt-6 overflow-x-auto">
-              <table className="w-full min-w-[560px] text-sm">
-                <thead>
-                  <tr className="border-b border-[#F4F4F4] text-left text-muted-foreground">
-                    <th className="pb-3 pr-4 font-medium">Date</th>
-                    <th className="pb-3 pr-4 font-medium">Amount</th>
-                    <th className="pb-3 pr-4 font-medium">Method</th>
-                    <th className="pb-3 pr-4 font-medium">Status</th>
-                    <th className="pb-3 font-medium">Invoice</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {payments.map((row) => {
-                    const paid =
-                      row.status.toLowerCase() === "paid" ||
-                      row.status.toLowerCase() === "completed";
-                    return (
-                      <tr
-                        key={row.id}
-                        className="border-b border-[#F4F4F4] last:border-0"
-                      >
-                        <td className="py-4 pr-4 align-middle">
-                          {formatDisplayDate(row.date)}
-                        </td>
-                        <td className="py-4 pr-4 align-middle font-bold">
-                          {row.amount}
-                        </td>
-                        <td className="py-4 pr-4 align-middle">{row.method}</td>
-                        <td className="py-4 pr-4 align-middle">
-                          <Badge
-                            className={cn(
-                              paid &&
-                                "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-50",
-                            )}
-                            variant="outline"
-                          >
-                            {row.status}
-                          </Badge>
-                        </td>
-                        <td className="py-4 align-middle">
-                          {row.invoiceRef ? (
-                            <a
-                              href="#"
-                              className="text-primary font-medium underline-offset-4 hover:underline"
-                              onClick={(e) => e.preventDefault()}
-                            >
-                              {row.invoiceRef}
-                            </a>
-                          ) : (
-                            "—"
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div className="mt-6">
+              <DataTable
+                data={payments}
+                columns={paymentColumns}
+                enableDragAndDrop={false}
+                enableRowSelection={false}
+                enableColumnVisibility={false}
+                enableTabs={false}
+                defaultPageSize={50}
+                getRowId={(row) => row.id}
+                emptyMessage="No payments recorded yet."
+              />
             </div>
           )}
         </Card>

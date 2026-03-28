@@ -9,6 +9,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useMemberByIdQuery } from "../services";
 import type { GymMemberDetail } from "../types";
+import { withMemberDetailDemoData } from "../lib/member-detail-demo-data";
 import { MemberDetailTabPanels } from "./member-detail-tab-panels";
 
 function dash(v: string | null | undefined): string {
@@ -228,7 +229,9 @@ export function MemberDetailsPage() {
                     </TabsTrigger>
                   ))}
                 </TabsList>
-                <MemberDetailTabPanels detail={detail} />
+                <MemberDetailTabPanels
+                  detail={withMemberDetailDemoData(detail)}
+                />
               </Tabs>
             </div>
           </>

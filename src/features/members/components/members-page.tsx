@@ -37,9 +37,8 @@ export function MembersPage() {
   const [locationFilter, setLocationFilter] = React.useState("all");
   const [searchQuery, setSearchQuery] = React.useState("");
   const [dateFilter, setDateFilter] = React.useState("");
-  const [suspendTarget, setSuspendTarget] = React.useState<MemberSubscription | null>(
-    null,
-  );
+  const [suspendTarget, setSuspendTarget] =
+    React.useState<MemberSubscription | null>(null);
   const navigate = useNavigate();
   const { showSuccess } = useToast();
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
@@ -131,7 +130,9 @@ export function MembersPage() {
                 variant="ghost"
                 size="icon"
                 className="size-8"
-                onClick={() => showSuccess("Check-in", `${fullName} has been checked in`)}
+                onClick={() =>
+                  showSuccess("Check-in", `${fullName} has been checked in`)
+                }
               >
                 <IconQrcode className="size-4" />
               </Button>
@@ -144,13 +145,19 @@ export function MembersPage() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem
-                    onClick={() => navigate(`/dashboard/members/${row.original.id}`)}
+                    onClick={() =>
+                      navigate(`/dashboard/members/${row.original.memberId}`)
+                    }
                   >
                     <IconEye className="mr-2 size-4" />
                     View profile
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => navigate(`/dashboard/members/${row.original.id}/edit`)}
+                    onClick={() =>
+                      navigate(
+                        `/dashboard/members/${row.original.memberId}/edit`,
+                      )
+                    }
                   >
                     <IconEdit className="mr-2 size-4" />
                     Edit member
@@ -231,7 +238,10 @@ export function MembersPage() {
           />
         </div>
       </div>
-      <Dialog open={!!suspendTarget} onOpenChange={() => setSuspendTarget(null)}>
+      <Dialog
+        open={!!suspendTarget}
+        onOpenChange={() => setSuspendTarget(null)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Suspend member?</DialogTitle>

@@ -1,7 +1,10 @@
 import { apiClient } from "@/lib/api-client";
+import { normalizeGymMemberDetail } from "../lib/normalize-member-detail";
 import type {
   CreateMemberPayload,
   CreateMemberResponse,
+  GymMemberDetail,
+  GymMemberDetailApiResponse,
   MemberSubscription,
 } from "../types";
 
@@ -14,6 +17,14 @@ export const membersApi = {
     return apiClient.get<MemberSubscription[]>(subscriptionsMembersPath, {
       params,
     });
+  },
+  getMemberById: async (
+    routeId: string,
+  ): Promise<GymMemberDetail> => {
+    const raw = await apiClient.get<GymMemberDetailApiResponse>(
+      `/api/gym-owner/members/${routeId}`,
+    );
+    return normalizeGymMemberDetail(raw, routeId);
   },
   createMember: (
     payload: CreateMemberPayload

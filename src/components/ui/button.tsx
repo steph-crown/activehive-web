@@ -50,9 +50,16 @@ function Button({
     asChild?: boolean;
     loading?: boolean;
   }) {
-  const isSingleChild = React.Children.count(children) === 1;
-  const isValidChildElement = React.isValidElement(children);
-  const shouldUseSlot = asChild && isSingleChild && isValidChildElement;
+  // Ignore whitespace-only text nodes so `asChild` + Slot sees exactly one element (Radix requirement).
+  const childList = React.Children.toArray(children).filter((node) => {
+    if (node == null) return false;
+    if (typeof node === "boolean") return false;
+    if (typeof node === "string") return node.trim().length > 0;
+    return true;
+  });
+  const soleChild = childList.length === 1 ? childList[0] : null;
+  const shouldUseSlot =
+    asChild && soleChild != null && React.isValidElement(soleChild);
   const Comp = shouldUseSlot ? Slot : "button";
 
   return (
@@ -63,8 +70,10 @@ function Button({
       aria-busy={loading || undefined}
       {...props}
     >
-      {!shouldUseSlot && loading ? <Loader2 className="size-4 animate-spin" /> : null}
-      {children}
+      {!shouldUseSlot && loading ? (
+        <Loader2 className="size-4 animate-spin" />
+      ) : null}
+      {shouldUseSlot ? soleChild : children}
     </Comp>
   );
 }

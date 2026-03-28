@@ -9,7 +9,7 @@ import {
 } from "@tabler/icons-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TabsContent } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
@@ -366,12 +366,18 @@ export function MemberDetailTabPanels({ detail }: PanelsProps) {
         <Card className="rounded-md border-[#F4F4F4] bg-white p-6 shadow-none">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <SectionHeading>Check-in history</SectionHeading>
-            <Button asChild className="shrink-0 gap-2 bg-[#FFC107] text-black hover:bg-[#e6ae06]">
-              <Link to="/dashboard/check-in">
-                <IconQrcode className="size-4" />
-                Manual check-in
-              </Link>
-            </Button>
+            <Link
+              to="/dashboard/check-in"
+              className={cn(
+                buttonVariants({
+                  className:
+                    "shrink-0 gap-2 bg-[#FFC107] text-black hover:bg-[#e6ae06]",
+                }),
+              )}
+            >
+              <IconQrcode className="size-4" />
+              Manual check-in
+            </Link>
           </div>
           {attendance.length === 0 ? (
             <p className="text-muted-foreground mt-6 text-sm">

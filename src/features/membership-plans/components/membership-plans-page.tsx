@@ -40,6 +40,15 @@ function isSafeDashboardReturnPath(path: string): boolean {
   return path.startsWith("/dashboard/");
 }
 
+function formatPlanPriceNgn(amount: string | number): string {
+  const n = typeof amount === "string" ? Number.parseFloat(amount) : amount;
+  if (Number.isNaN(n)) return "0.00";
+  return n.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
 export function MembershipPlansPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -199,7 +208,6 @@ export function MembershipPlansPage() {
           ) : (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               {filteredPlans.map((plan) => {
-                const price = Number(plan.price);
                 return (
                   <div
                     key={plan.id}
@@ -251,7 +259,7 @@ export function MembershipPlansPage() {
                     <div className="flex items-end justify-between">
                       <div className="flex flex-col">
                         <span className="text-xl font-semibold">
-                          ₦{Number.isNaN(price) ? "0.00" : price.toFixed(2)}
+                          ₦{formatPlanPriceNgn(plan.price)}
                         </span>
                         <span className="text-xs text-black/60 capitalize">
                           {plan.duration}
@@ -378,7 +386,7 @@ export function MembershipPlansPage() {
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground">Price</p>
                   <p className="text-sm">
-                    ₦{Number(selectedPlan.price).toFixed(2)}
+                    ₦{formatPlanPriceNgn(selectedPlan.price)}
                   </p>
                 </div>
                 <div className="space-y-1">

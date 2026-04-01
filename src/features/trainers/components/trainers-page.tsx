@@ -12,21 +12,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { MultiSelect } from "@/components/ui/multi-select";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useLocationsQuery } from "@/features/locations/services";
 import { useCreateTrainerMutation } from "../services";
 import { useToast } from "@/hooks/use-toast";
 import { useUpload } from "@/hooks/use-upload";
 import { getApiErrorMessage } from "@/lib/get-api-error-message";
-import { cn } from "@/lib/utils";
 import { IconPlus } from "@tabler/icons-react";
-import { ChevronDown } from "lucide-react";
 import * as React from "react";
 
 const PROFILE_IMAGE_MAX_BYTES = 3 * 1024 * 1024;
@@ -171,28 +164,6 @@ export function TrainersPage() {
       return matchesSearch && matchesLocation && matchesDate;
     });
   }, [dateFilter, locationFilter, searchQuery]);
-
-  const toggleAddFormLocation = (locationId: string) => {
-    setAddForm((prev) => ({
-      ...prev,
-      locationIds: prev.locationIds.includes(locationId)
-        ? prev.locationIds.filter((id) => id !== locationId)
-        : [...prev.locationIds, locationId],
-    }));
-  };
-
-  const locationTriggerLabel = React.useMemo(() => {
-    if (locationsLoading) return "Loading…";
-    const list = locations ?? [];
-    if (list.length === 0) return "No locations";
-    if (addForm.locationIds.length === 0) return "Select locations";
-    if (addForm.locationIds.length === 1) {
-      const name = list.find((l) => l.id === addForm.locationIds[0])
-        ?.locationName;
-      return name ?? "1 selected";
-    }
-    return `${addForm.locationIds.length} locations selected`;
-  }, [locationsLoading, locations, addForm.locationIds]);
 
   const handleProfilePhotoChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -415,40 +386,21 @@ export function TrainersPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="trainer-locations-trigger">Locations</Label>
-              <DropdownMenu modal={false}>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    id="trainer-locations-trigger"
-                    type="button"
-                    disabled={
-                      locationsLoading || (locations ?? []).length === 0
-                    }
-                    className={cn(
-                      "border-input bg-background flex h-10 w-full min-w-0 items-center justify-between gap-2 rounded-md border px-3 py-2 text-left text-sm shadow-xs outline-none transition-[color,box-shadow]",
-                      "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-                      "disabled:cursor-not-allowed disabled:opacity-50",
-                    )}
-                  >
-                    <span className="truncate">{locationTriggerLabel}</span>
-                    <ChevronDown className="size-4 shrink-0 opacity-50" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="max-h-64 min-w-[var(--radix-dropdown-menu-trigger-width)] w-[var(--radix-dropdown-menu-trigger-width)]"
-                  align="start"
-                >
-                  {(locations ?? []).map((loc) => (
-                    <DropdownMenuCheckboxItem
-                      key={loc.id}
-                      checked={addForm.locationIds.includes(loc.id)}
-                      onCheckedChange={() => toggleAddFormLocation(loc.id)}
-                      onSelect={(e) => e.preventDefault()}
-                    >
-                      {loc.locationName}
-                    </DropdownMenuCheckboxItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <MultiSelect
+                id="trainer-locations-trigger"
+                options={(locations ?? []).map((loc) => ({
+                  value: loc.id,
+                  label: loc.locationName,
+                }))}
+                value={addForm.locationIds}
+                onValueChange={(locationIds) =>
+                  setAddForm((p) => ({ ...p, locationIds }))
+                }
+                placeholder="Select locations"
+                emptyMessage="No locations"
+                loading={locationsLoading}
+                multipleSelectedText="locations selected"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="trainer-bio">Bio</Label>

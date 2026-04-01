@@ -154,7 +154,8 @@ const FreeTrialPlanRow: FC<FreeTrialPlanRowProps> = ({
 type PaidPlanRowProps = {
   readonly plan: GymOwnerSubscriptionPlan;
   readonly isCurrent: boolean;
-  readonly isPending: boolean;
+  readonly isSelectingThisPlan: boolean;
+  readonly isSwitchInFlight: boolean;
   readonly expanded: boolean;
   readonly onExpandedChange: (open: boolean) => void;
   readonly onSelect: () => void;
@@ -163,7 +164,8 @@ type PaidPlanRowProps = {
 const PaidPlanRow: FC<PaidPlanRowProps> = ({
   plan,
   isCurrent,
-  isPending,
+  isSelectingThisPlan,
+  isSwitchInFlight,
   expanded,
   onExpandedChange,
   onSelect,
@@ -227,7 +229,8 @@ const PaidPlanRow: FC<PaidPlanRowProps> = ({
             size="sm"
             className="mt-0.5 shrink-0"
             variant={isCurrent ? "outline" : "default"}
-            disabled={isCurrent || isPending}
+            disabled={isCurrent || isSwitchInFlight}
+            loading={isSelectingThisPlan}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -282,9 +285,13 @@ export const SubscriptionPlanModal: FC<
   const { showError, showSuccess } = useToast();
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [selectingPlanId, setSelectingPlanId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!open) setExpandedId(null);
+    if (!open) {
+      setExpandedId(null);
+      setSelectingPlanId(null);
+    }
   }, [open]);
 
   const plans = useMemo(() => getPlansFromResponse(data), [data]);
@@ -305,6 +312,7 @@ export const SubscriptionPlanModal: FC<
       return;
     }
 
+    setSelectingPlanId(plan.id);
     try {
       await switchPlan({
         subscriptionId: subscription.subscription.id,
@@ -318,8 +326,12 @@ export const SubscriptionPlanModal: FC<
           ? err.message
           : "Failed to update subscription plan.";
       showError("Error", message);
+    } finally {
+      setSelectingPlanId(null);
     }
   };
+
+  const isSwitchInFlight = isPending || selectingPlanId !== null;
 
   const currentPlanLabel = subscription?.subscription.plan ?? "Free Trial";
 
@@ -394,7 +406,8 @@ export const SubscriptionPlanModal: FC<
                     key={plan.id}
                     plan={plan}
                     isCurrent={isCurrent}
-                    isPending={isPending}
+                    isSelectingThisPlan={selectingPlanId === plan.id}
+                    isSwitchInFlight={isSwitchInFlight}
                     expanded={expandedId === plan.id}
                     onExpandedChange={(next) => setPlanExpanded(plan.id, next)}
                     onSelect={() => void handleChoosePlan(plan)}

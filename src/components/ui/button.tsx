@@ -60,21 +60,40 @@ function Button({
   const soleChild = childList.length === 1 ? childList[0] : null;
   const shouldUseSlot =
     asChild && soleChild != null && React.isValidElement(soleChild);
-  const Comp = shouldUseSlot ? Slot : "button";
+
+  const mergedDisabled = disabled || loading;
+  const mergedClassName = cn(
+    buttonVariants({ variant, size, className }),
+    // Slot merges onto arbitrary elements (e.g. `<a>`); `disabled` is not valid on HTMLElement in types or for links.
+    shouldUseSlot && mergedDisabled && "pointer-events-none opacity-50",
+  );
+
+  // Radix Slot requires exactly ONE React element child. Never pass `null` + child.
+  if (shouldUseSlot) {
+    return (
+      <Slot
+        data-slot="button"
+        className={mergedClassName}
+        aria-disabled={mergedDisabled || undefined}
+        aria-busy={loading || undefined}
+        {...props}
+      >
+        {soleChild}
+      </Slot>
+    );
+  }
 
   return (
-    <Comp
+    <button
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
-      disabled={disabled || loading}
+      className={mergedClassName}
+      disabled={mergedDisabled}
       aria-busy={loading || undefined}
       {...props}
     >
-      {!shouldUseSlot && loading ? (
-        <Loader2 className="size-4 animate-spin" />
-      ) : null}
-      {shouldUseSlot ? soleChild : children}
-    </Comp>
+      {loading ? <Loader2 className="size-4 animate-spin" /> : null}
+      {children}
+    </button>
   );
 }
 

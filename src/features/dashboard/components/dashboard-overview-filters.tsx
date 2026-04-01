@@ -76,9 +76,9 @@ export function DashboardOverviewFilters({
   onClearRange,
 }: Readonly<DashboardOverviewFiltersProps>) {
   return (
-    <div className="flex w-full min-w-0 flex-col items-stretch sm:max-w-max sm:items-end">
-      {/* Keep From, To, and Reset on one row so Reset stays beside the fields (scroll on very narrow viewports). */}
-      <div className="-mx-1 flex max-w-full flex-nowrap items-center justify-end gap-2 overflow-x-auto px-1 sm:gap-3">
+    <div className="flex w-full min-w-0 flex-col items-stretch lg:max-w-max lg:items-end lg:self-end">
+      {/* From / To / Reset stay on one row; start-aligned when stacked below title (sm/md), end-aligned beside title (lg+). */}
+      <div className="-mx-1 flex max-w-full flex-nowrap items-center justify-start gap-2 overflow-x-auto px-1 sm:gap-3 lg:justify-end">
         <InlineLabeledDateField
           id="dashboard-range-start"
           label="From"

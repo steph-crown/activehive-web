@@ -17,7 +17,7 @@ export function WelcomeMessage({ endAdornment }: Readonly<WelcomeMessageProps>) 
   const greeting = getGreeting();
 
   return (
-    <div className="flex w-full flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div className="flex w-full flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
       <div className="min-w-0 flex-1">
         <h2 className="text-2xl font-semibold">
           {greeting}, {firstName}! 👋

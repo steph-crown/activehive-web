@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+import { useEffect } from "react";
 import { IconCalendar, IconDownload, IconFilter, IconSearch } from "@tabler/icons-react";
+import { useLocationStore } from "@/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -52,6 +54,18 @@ export function TableFilterBar({
   onActionClick,
   actionNode,
 }: Readonly<TableFilterBarProps>) {
+  const { selectedLocationId } = useLocationStore();
+  const showLocationDropdown = selectedLocationId === null;
+
+  useEffect(() => {
+    if (
+      selectedLocationId != null &&
+      locationValue !== selectedLocationId
+    ) {
+      onLocationChange(selectedLocationId);
+    }
+  }, [selectedLocationId, locationValue, onLocationChange]);
+
   return (
     <div className="mb-4 flex flex-wrap items-center gap-2.5">
       <div className="relative min-w-[260px] flex-1">
@@ -64,22 +78,28 @@ export function TableFilterBar({
         />
       </div>
 
-      <Select value={locationValue} onValueChange={onLocationChange} disabled={locationDisabled}>
-        <SelectTrigger className="h-10 w-[180px] border-[#F4F4F4] bg-white">
-          <div className="flex items-center gap-2">
-            <IconFilter className="size-4" />
-            <SelectValue placeholder="All Locations" />
-          </div>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Locations</SelectItem>
-          {locations.map((location) => (
-            <SelectItem key={location.value} value={location.value}>
-              {location.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {showLocationDropdown ? (
+        <Select
+          value={locationValue}
+          onValueChange={onLocationChange}
+          disabled={locationDisabled}
+        >
+          <SelectTrigger className="h-10 w-[180px] border-[#F4F4F4] bg-white">
+            <div className="flex items-center gap-2">
+              <IconFilter className="size-4" />
+              <SelectValue placeholder="All Locations" />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Locations</SelectItem>
+            {locations.map((location) => (
+              <SelectItem key={location.value} value={location.value}>
+                {location.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      ) : null}
 
       {showMethodFilter ? (
         <Select value={methodValue} onValueChange={onMethodChange}>

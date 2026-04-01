@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IconAlertTriangle } from "@tabler/icons-react";
 
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -18,6 +17,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useLocationsQuery } from "@/features/locations/services";
+import { useMembersQuery } from "@/features/members/services";
+import { useToast } from "@/hooks/use-toast";
+import { useLocationStore } from "@/store";
+import { useCreateCheckInMutation } from "../services";
 
 type QuickCheckInDialogProps = {
   open: boolean;
@@ -28,8 +33,50 @@ export function QuickCheckInDialog({
   open,
   onOpenChange,
 }: Readonly<QuickCheckInDialogProps>) {
-  const [quickMethod, setQuickMethod] = useState("Manual");
-  const [quickLocation, setQuickLocation] = useState("Downtown");
+  const { showSuccess, showError } = useToast();
+  const { selectedLocationId } = useLocationStore();
+  const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
+  const { data: members, isLoading: membersLoading } = useMembersQuery();
+  const { mutateAsync: createCheckIn, isPending } = useCreateCheckInMutation();
+
+  const [memberId, setMemberId] = useState("");
+  const [locationId, setLocationId] = useState("");
+  const [notes, setNotes] = useState("");
+
+  useEffect(() => {
+    if (!open) return;
+    setMemberId("");
+    setNotes("");
+    const nextLocation =
+      selectedLocationId ??
+      locations?.[0]?.id ??
+      "";
+    setLocationId(nextLocation);
+  }, [open, selectedLocationId, locations]);
+
+  const handleSubmit = async () => {
+    if (!memberId.trim()) {
+      showError("Missing member", "Select a member to check in.");
+      return;
+    }
+    if (!locationId.trim()) {
+      showError("Missing location", "Select a location.");
+      return;
+    }
+    try {
+      await createCheckIn({
+        memberId: memberId.trim(),
+        locationId: locationId.trim(),
+        ...(notes.trim() && { notes: notes.trim() }),
+      });
+      showSuccess("Check-in recorded", "The member has been checked in.");
+      onOpenChange(false);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to create check-in.";
+      showError("Check-in failed", message);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -46,36 +93,74 @@ export function QuickCheckInDialog({
 
         <div className="grid gap-5 py-2">
           <div className="grid gap-2">
-            <label className="text-sm font-medium">Member Name or ID *</label>
-            <Input placeholder="Search member..." />
-          </div>
-
-          <div className="grid gap-2">
-            <label className="text-sm font-medium">Check-In Method</label>
-            <Select value={quickMethod} onValueChange={setQuickMethod}>
-              <SelectTrigger className="w-full">
-                <SelectValue />
+            <label className="text-sm font-medium" htmlFor="quick-checkin-member">
+              Member *
+            </label>
+            <Select
+              value={memberId || undefined}
+              onValueChange={setMemberId}
+              disabled={membersLoading}
+            >
+              <SelectTrigger id="quick-checkin-member" className="w-full">
+                <SelectValue placeholder="Select member" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Manual">Manual</SelectItem>
-                <SelectItem value="QR Code">QR Code</SelectItem>
-                <SelectItem value="NFC">NFC</SelectItem>
+                {(members ?? []).map((sub) => (
+                  <SelectItem key={sub.memberId} value={sub.memberId}>
+                    {sub.member.firstName} {sub.member.lastName} ·{" "}
+                    {sub.member.email}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
           <div className="grid gap-2">
-            <label className="text-sm font-medium">Location</label>
-            <Select value={quickLocation} onValueChange={setQuickLocation}>
-              <SelectTrigger className="w-full">
-                <SelectValue />
+            <span className="text-sm font-medium">Check-in method</span>
+            <Select value="manual" disabled>
+              <SelectTrigger className="w-full" disabled aria-readonly>
+                <SelectValue>Manual</SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Downtown">Downtown</SelectItem>
-                <SelectItem value="Westside">Westside</SelectItem>
-                <SelectItem value="Eastside">Eastside</SelectItem>
+                <SelectItem value="manual">Manual</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="grid gap-2">
+            <label className="text-sm font-medium" htmlFor="quick-checkin-location">
+              Location *
+            </label>
+            <Select
+              value={locationId || undefined}
+              onValueChange={setLocationId}
+              disabled={locationsLoading}
+            >
+              <SelectTrigger id="quick-checkin-location" className="w-full">
+                <SelectValue placeholder="Select location" />
+              </SelectTrigger>
+              <SelectContent>
+                {(locations ?? []).map((loc) => (
+                  <SelectItem key={loc.id} value={loc.id}>
+                    {loc.locationName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid gap-2">
+            <label className="text-sm font-medium" htmlFor="quick-checkin-notes">
+              Notes (optional)
+            </label>
+            <Textarea
+              id="quick-checkin-notes"
+              rows={2}
+              placeholder="e.g. Member arrived early for class"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="resize-none"
+            />
           </div>
 
           <div className="flex items-start gap-2 rounded-md bg-muted/50 px-3 py-3 text-sm text-muted-foreground">
@@ -88,10 +173,16 @@ export function QuickCheckInDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isPending}
+          >
             Cancel
           </Button>
-          <Button>Check In</Button>
+          <Button onClick={handleSubmit} loading={isPending}>
+            Check In
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

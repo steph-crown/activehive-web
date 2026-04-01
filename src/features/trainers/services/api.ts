@@ -1,5 +1,6 @@
 import { apiClient } from "@/lib/api-client";
 import type {
+  AssignTrainerToMemberPayload,
   CreateTrainerPayload,
   TrainerListItem,
   TrainersListParams,
@@ -28,5 +29,16 @@ export const trainersApi = {
       body.profileImage = payload.profileImage.trim();
     }
     return apiClient.post<unknown>(trainersPath, body);
+  },
+
+  assignTrainer: (payload: AssignTrainerToMemberPayload): Promise<unknown> => {
+    const body: Record<string, string> = {
+      trainerId: payload.trainerId,
+      memberId: payload.memberId,
+      locationId: payload.locationId,
+    };
+    const notes = payload.notes?.trim();
+    if (notes) body.notes = notes;
+    return apiClient.post<unknown>(`${trainersPath}/assignments`, body);
   },
 };

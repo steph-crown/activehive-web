@@ -14,10 +14,14 @@ export const membersQueryKeys = {
     [...membersQueryKeys.all, "detail", memberId] as const,
 };
 
-export const useMembersQuery = (locationId?: string) =>
+export const useMembersQuery = (
+  locationId?: string,
+  options?: { enabled?: boolean },
+) =>
   useQuery<MemberSubscription[]>({
     queryKey: membersQueryKeys.list(locationId),
     queryFn: () => membersApi.getMembers(locationId),
+    enabled: options?.enabled ?? true,
   });
 
 export const useMemberByIdQuery = (memberId: string | undefined) =>

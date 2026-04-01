@@ -8,9 +8,13 @@ export const trainersQueryKeys = {
     [...trainersQueryKeys.all, "list", params.locationId ?? "all"] as const,
 };
 
-export function useTrainersQuery(params: TrainersListParams = {}) {
+export function useTrainersQuery(
+  params: TrainersListParams = {},
+  options?: { enabled?: boolean },
+) {
   return useQuery<TrainerListItem[]>({
     queryKey: trainersQueryKeys.list(params),
     queryFn: () => trainersApi.list(params),
+    enabled: options?.enabled ?? true,
   });
 }

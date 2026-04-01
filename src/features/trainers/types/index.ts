@@ -34,3 +34,11 @@ export type CreateTrainerPayload = {
   locationIds: string[];
   profileImage?: string;
 };
+
+/** POST /api/trainers/assignments */
+export type AssignTrainerToMemberPayload = {
+  trainerId: string;
+  memberId: string;
+  locationId: string;
+  notes?: string;
+};

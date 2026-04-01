@@ -109,7 +109,7 @@ export function SectionCards({ overview }: SectionCardsProps) {
       href: "/dashboard/members",
     },
     {
-      title: "Active plans",
+      title: "Active subscriptions",
       value: formatInt(activeSubscriptions),
       percentChange: NO_COMPARISON_PERCENT,
       isPositive: true,

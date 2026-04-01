@@ -70,8 +70,8 @@ export function SummaryMetricCard({
         </div>
         <div
           className={cn(
-            "flex justify-between gap-2",
-            showCaptionTrailing ? "items-center" : "items-start",
+            "flex justify-between gap-2 items-center",
+            // showCaptionTrailing ? "items-center" : "items-start",
           )}
         >
           <div className="min-w-0 flex-1">

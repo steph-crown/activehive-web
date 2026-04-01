@@ -113,6 +113,12 @@ function addDurationToDate(startDate: string, duration: string) {
   return date.toISOString().split("T")[0];
 }
 
+function formatAmountWithCommas(value: string | number): string {
+  const n = typeof value === "string" ? Number.parseFloat(value) : value;
+  if (Number.isNaN(n)) return String(value);
+  return n.toLocaleString("en-US");
+}
+
 type AddMemberPageProps = {
   mode?: "create" | "edit";
   memberId?: string;
@@ -418,7 +424,8 @@ export function AddMemberPage({
                       ) : membershipPlans && membershipPlans.length > 0 ? (
                         membershipPlans.map((plan) => (
                           <SelectItem key={plan.id} value={plan.id}>
-                            {plan.name} - ₦{plan.price}
+                            {plan.name} - ₦
+                            {formatAmountWithCommas(plan.price)}
                           </SelectItem>
                         ))
                       ) : (

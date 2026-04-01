@@ -56,7 +56,7 @@ const FreeTrialCard: FC<{ readonly daysRemaining: number }> = ({
   ];
 
   return (
-    <Card className="relative flex h-full flex-col justify-between border border-primary ring-2 ring-primary/30">
+    <Card className="relative flex w-full flex-col justify-between border border-primary shadow-none ring-2 ring-primary/30">
       <CardHeader>
         <div className="mb-2 flex items-center justify-between gap-2">
           <CardTitle className="text-xl font-semibold">Free Trial</CardTitle>
@@ -135,24 +135,27 @@ export const SubscriptionPlanModal: FC<
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-semibold">
+      <DialogContent className="flex max-h-[min(90vh,720px)] !max-w-lg flex-col gap-0 p-0 sm:!max-w-xl">
+        <DialogHeader className="shrink-0 space-y-1 border-b border-[#F4F4F4] px-6 py-4 text-left">
+          <DialogTitle className="font-heading text-2xl font-semibold tracking-wide uppercase">
             Adjust your plan
           </DialogTitle>
-          <DialogDescription className="mt-1">
+          <DialogDescription className="text-left">
             Current plan:{" "}
-            <span className="font-medium">{currentPlanLabel}</span>
+            <span className="font-medium text-foreground">
+              {currentPlanLabel}
+            </span>
           </DialogDescription>
         </DialogHeader>
 
+        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
         {isLoading && (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, idx) => (
-              <Card key={`plans-skeleton-${idx}`}>
+          <div className="flex flex-col gap-4">
+            {Array.from({ length: 3 }).map((_, idx) => (
+              <Card key={`plans-skeleton-${idx}`} className="shadow-none">
                 <CardHeader>
                   <Skeleton className="h-6 w-40" />
-                  <Skeleton className="h-4 w-24 mt-3" />
+                  <Skeleton className="mt-3 h-4 w-24" />
                 </CardHeader>
                 <CardContent>
                   <Skeleton className="h-10 w-full" />
@@ -172,7 +175,7 @@ export const SubscriptionPlanModal: FC<
           </p>
         )}
         {!isLoading && !error && plans.length > 0 && (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="flex flex-col gap-4">
             {showFreeTrialCard && (
               <FreeTrialCard daysRemaining={subscription?.daysRemaining ?? 0} />
             )}
@@ -187,7 +190,7 @@ export const SubscriptionPlanModal: FC<
               return (
                 <Card
                   key={plan.id}
-                  className={`relative flex h-full flex-col justify-between border ${
+                  className={`relative flex w-full flex-col justify-between border shadow-none ${
                     isCurrent ? "border-primary ring-2 ring-primary/30" : ""
                   }`}
                 >
@@ -253,6 +256,7 @@ export const SubscriptionPlanModal: FC<
             })}
           </div>
         )}
+        </div>
       </DialogContent>
     </Dialog>
   );

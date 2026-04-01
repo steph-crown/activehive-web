@@ -362,35 +362,6 @@ export function BillingPage() {
                     </div>
                   </CardContent>
                 </Card>
-
-                {/* Timestamps */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Timestamps</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        Created At
-                      </p>
-                      <p className="font-medium">
-                        {formatDateTime(
-                          subscriptionData.subscription.createdAt,
-                        )}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        Updated At
-                      </p>
-                      <p className="font-medium">
-                        {formatDateTime(
-                          subscriptionData.subscription.updatedAt,
-                        )}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
               </div>
             );
           })()}

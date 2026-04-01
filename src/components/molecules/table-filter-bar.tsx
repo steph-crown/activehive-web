@@ -4,6 +4,7 @@ import { IconCalendar, IconDownload, IconFilter, IconSearch } from "@tabler/icon
 import { useLocationStore } from "@/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -31,6 +32,9 @@ type TableFilterBarProps = {
   methodOptions?: Option[];
   dateValue?: string;
   onDateChange?: (value: string) => void;
+  /** When set with `onDateToChange`, shows a second date field for the end of the range. */
+  dateToValue?: string;
+  onDateToChange?: (value: string) => void;
   actionLabel?: string;
   onActionClick?: () => void;
   actionNode?: ReactNode;
@@ -50,6 +54,8 @@ export function TableFilterBar({
   methodOptions = [],
   dateValue,
   onDateChange,
+  dateToValue,
+  onDateToChange,
   actionLabel = "Export",
   onActionClick,
   actionNode,
@@ -120,15 +126,50 @@ export function TableFilterBar({
         </Select>
       ) : null}
 
-      <div className="relative">
-        <Input
-          type="date"
-          value={dateValue}
-          onChange={(event) => onDateChange?.(event.target.value)}
-          className="h-10 w-[145px] border-[#F4F4F4] bg-white pr-9"
-        />
-        <IconCalendar className="text-muted-foreground pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2" />
-      </div>
+      {onDateToChange != null ? (
+        <>
+          <div className="relative">
+            <Label htmlFor="filter-date-from" className="sr-only">
+              From date
+            </Label>
+            <Input
+              id="filter-date-from"
+              type="date"
+              value={dateValue ?? ""}
+              onChange={(event) => onDateChange?.(event.target.value)}
+              className="h-10 w-[145px] border-[#F4F4F4] bg-white pr-9"
+            />
+            <IconCalendar className="text-muted-foreground pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2" />
+          </div>
+          <div className="relative">
+            <Label htmlFor="filter-date-to" className="sr-only">
+              To date
+            </Label>
+            <Input
+              id="filter-date-to"
+              type="date"
+              value={dateToValue ?? ""}
+              onChange={(event) => onDateToChange(event.target.value)}
+              className="h-10 w-[145px] border-[#F4F4F4] bg-white pr-9"
+            />
+            <IconCalendar className="text-muted-foreground pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2" />
+          </div>
+        </>
+      ) : onDateChange != null ? (
+        <div className="relative">
+          <Label htmlFor="filter-date" className="sr-only">
+            Date
+          </Label>
+          <Input
+            id="filter-date"
+            type="date"
+            value={dateValue ?? ""}
+            onChange={(event) => onDateChange(event.target.value)}
+            className="h-10 w-[145px] border-[#F4F4F4] bg-white pr-9"
+          />
+          <IconCalendar className="text-muted-foreground pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2" />
+        </div>
+      ) : null}
 
       {actionNode ?? (
         <Button

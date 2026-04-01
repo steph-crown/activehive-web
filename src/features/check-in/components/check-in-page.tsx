@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { IconAlertTriangle, IconBolt } from "@tabler/icons-react";
 import { Clock3, TriangleAlert, TrendingUp, UsersRound } from "lucide-react";
@@ -9,194 +9,175 @@ import { DashboardLayout } from "@/features/dashboard/components/dashboard-layou
 import { useLocationsQuery } from "@/features/locations/services";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { SummaryMetricCard } from "@/features/dashboard/components/summary-metric-card";
+import type { CheckInListItem } from "../types";
+import { useCheckInsQuery } from "../services";
 import { QuickCheckInDialog } from "./quick-check-in-dialog";
 
-type CheckInMethod = "QR Code" | "Manual" | "NFC";
+function formatCheckInDate(iso: string) {
+  return new Date(iso).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
 
-type CheckInRecord = {
-  id: string;
-  member: string;
-  date: string;
-  checkIn: string;
-  checkOut: string;
-  method: CheckInMethod;
-  staff: string;
-  location: string;
-  hasIncompleteProfile: boolean;
-};
+function formatCheckInTime(iso: string) {
+  return new Date(iso).toLocaleTimeString(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
 
-const checkInData: CheckInRecord[] = [
-  {
-    id: "1",
-    member: "Sarah Johnson",
-    date: "Mar 15, 2026",
-    checkIn: "07:30 AM",
-    checkOut: "09:00 AM",
-    method: "QR Code",
-    staff: "—",
-    location: "Downtown",
-    hasIncompleteProfile: false,
-  },
-  {
-    id: "2",
-    member: "Mike Chen",
-    date: "Mar 15, 2026",
-    checkIn: "08:15 AM",
-    checkOut: "10:30 AM",
-    method: "Manual",
-    staff: "Anna M.",
-    location: "Westside",
-    hasIncompleteProfile: false,
-  },
-  {
-    id: "3",
-    member: "Emma Wilson",
-    date: "Mar 15, 2026",
-    checkIn: "09:00 AM",
-    checkOut: "10:45 AM",
-    method: "NFC",
-    staff: "—",
-    location: "Downtown",
-    hasIncompleteProfile: true,
-  },
-  {
-    id: "4",
-    member: "James Brown",
-    date: "Mar 15, 2026",
-    checkIn: "10:30 AM",
-    checkOut: "—",
-    method: "Manual",
-    staff: "Tom H.",
-    location: "Eastside",
-    hasIncompleteProfile: false,
-  },
-  {
-    id: "5",
-    member: "David Kim",
-    date: "Mar 15, 2026",
-    checkIn: "06:45 AM",
-    checkOut: "08:15 AM",
-    method: "QR Code",
-    staff: "—",
-    location: "Downtown",
-    hasIncompleteProfile: false,
-  },
-  {
-    id: "6",
-    member: "Anna Martinez",
-    date: "Mar 15, 2026",
-    checkIn: "11:00 AM",
-    checkOut: "12:30 PM",
-    method: "Manual",
-    staff: "Anna M.",
-    location: "Eastside",
-    hasIncompleteProfile: true,
-  },
-  {
-    id: "7",
-    member: "Tom Harris",
-    date: "Mar 15, 2026",
-    checkIn: "05:30 PM",
-    checkOut: "—",
-    method: "QR Code",
-    staff: "—",
-    location: "Downtown",
-    hasIncompleteProfile: false,
-  },
-  {
-    id: "8",
-    member: "Lisa Park",
-    date: "Mar 15, 2026",
-    checkIn: "06:00 PM",
-    checkOut: "07:30 PM",
-    method: "NFC",
-    staff: "—",
-    location: "Westside",
-    hasIncompleteProfile: false,
-  },
-];
+function memberDisplayName(member: CheckInListItem["member"]) {
+  const name = `${member.firstName} ${member.lastName}`.trim();
+  return name || member.email;
+}
 
 export function CheckInPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [methodFilter, setMethodFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
-  const [dateFilter, setDateFilter] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [sortOrder, setSortOrder] = useState<"ASC" | "DESC">("DESC");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
   const [quickCheckInOpen, setQuickCheckInOpen] = useState(false);
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
 
-  const filteredData = useMemo(() => {
-    return checkInData.filter((record) => {
-      const matchesSearch = record.member
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase().trim());
-      const matchesMethod =
-        methodFilter === "all" || record.method === methodFilter;
-      const selectedLocationName =
-        locationFilter === "all"
-          ? undefined
-          : locations?.find((location) => location.id === locationFilter)
-              ?.locationName;
-      const matchesLocation =
-        !selectedLocationName || record.location === selectedLocationName;
+  const deferredSearch = useDeferredValue(searchQuery.trim());
 
-      if (!dateFilter) {
-        return matchesSearch && matchesMethod && matchesLocation;
-      }
+  const listParams = useMemo(
+    () => ({
+      locationId: locationFilter === "all" ? undefined : locationFilter,
+      status: "checked_in" as const,
+      dateFrom: dateFrom ? `${dateFrom}T00:00:00.000Z` : undefined,
+      dateTo: dateTo ? `${dateTo}T23:59:59.999Z` : undefined,
+      search: deferredSearch || undefined,
+      page,
+      limit,
+      sortBy: "checkInTime",
+      sortOrder,
+    }),
+    [
+      locationFilter,
+      dateFrom,
+      dateTo,
+      deferredSearch,
+      page,
+      limit,
+      sortOrder,
+    ],
+  );
 
-      const formattedDate = new Date(dateFilter).toLocaleDateString("en-US", {
-        month: "short",
-        day: "2-digit",
-        year: "numeric",
-      });
-      const matchesDate = record.date.includes(formattedDate);
+  useEffect(() => {
+    setPage(1);
+  }, [locationFilter, dateFrom, dateTo, deferredSearch, sortOrder]);
 
-      return matchesSearch && matchesMethod && matchesLocation && matchesDate;
-    });
-  }, [dateFilter, locationFilter, locations, methodFilter, searchQuery]);
+  const { data: checkInsResponse, isLoading, isError } =
+    useCheckInsQuery(listParams);
 
-  const columns: ColumnDef<CheckInRecord>[] = useMemo(
+  const rows = checkInsResponse?.data ?? [];
+  const totalItems = checkInsResponse?.total ?? 0;
+  const totalPages = checkInsResponse?.totalPages ?? 0;
+
+  const columns: ColumnDef<CheckInListItem>[] = useMemo(
     () => [
       {
-        accessorKey: "member",
+        id: "member",
+        accessorFn: (row) => memberDisplayName(row.member),
         header: "Member",
-        cell: ({ row }) => (
-          <div className="flex items-center gap-1.5 font-medium">
-            <span>{row.original.member}</span>
-            {row.original.hasIncompleteProfile && (
-              <IconAlertTriangle className="size-3.5 text-[#DC5959]" />
-            )}
-          </div>
-        ),
-      },
-      { accessorKey: "date", header: "Date" },
-      { accessorKey: "checkIn", header: "Check-In" },
-      { accessorKey: "checkOut", header: "Check-Out" },
-      {
-        accessorKey: "method",
-        header: "Method",
         cell: ({ row }) => {
-          const method = row.original.method;
-          let badgeClass = "bg-[#FFF8E0] text-[#A57800]";
-          if (method === "QR Code") {
-            badgeClass = "bg-[#E8F1FF] text-[#3572D4]";
-          } else if (method === "NFC") {
-            badgeClass = "bg-[#E7F8EE] text-[#1EA85D]";
-          }
+          const member = row.original.member;
+          const incomplete =
+            member.onboardingCompleted === false || member.status === "pending";
+          return (
+            <div className="flex items-center gap-1.5 font-medium">
+              <span>{memberDisplayName(member)}</span>
+              {incomplete ? (
+                <IconAlertTriangle className="size-3.5 text-[#DC5959]" />
+              ) : null}
+            </div>
+          );
+        },
+      },
+      {
+        id: "date",
+        accessorFn: (row) => row.checkInTime,
+        header: "Date",
+        cell: ({ row }) => formatCheckInDate(row.original.checkInTime),
+      },
+      {
+        id: "checkIn",
+        accessorFn: (row) => row.checkInTime,
+        header: "Check-In",
+        cell: ({ row }) => formatCheckInTime(row.original.checkInTime),
+      },
+      {
+        id: "checkOut",
+        accessorFn: (row) => row.checkOutTime,
+        header: "Check-Out",
+        cell: ({ row }) =>
+          row.original.checkOutTime
+            ? formatCheckInTime(row.original.checkOutTime)
+            : "—",
+      },
+      {
+        id: "status",
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => {
+          const raw = row.original.status;
+          const label =
+            raw === "checked_in"
+              ? "Checked in"
+              : raw.replace(/_/g, " ");
           return (
             <Badge
               variant="secondary"
-              className={`rounded-full px-2 py-0 text-[11px] ${badgeClass}`}
+              className="rounded-full bg-[#E7F8EE] px-2 py-0 text-[11px] text-[#1EA85D]"
             >
-              {method}
+              {label}
             </Badge>
           );
         },
       },
-      { accessorKey: "staff", header: "Staff" },
-      { accessorKey: "location", header: "Location" },
+      {
+        id: "staff",
+        accessorKey: "checkedInBy",
+        header: "Staff",
+        cell: () => "—",
+      },
+      {
+        id: "location",
+        accessorFn: (row) => row.location.locationName,
+        header: "Location",
+        cell: ({ row }) => row.original.location.locationName,
+      },
     ],
     [],
+  );
+
+  const sortSelect = (
+    <Select
+      value={sortOrder}
+      onValueChange={(value) => setSortOrder(value as "ASC" | "DESC")}
+    >
+      <SelectTrigger className="h-10 min-w-[220px] border-[#F4F4F4] bg-white">
+        <SelectValue placeholder="Sort by check-in time" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="DESC">Newest check-ins first</SelectItem>
+        <SelectItem value="ASC">Oldest check-ins first</SelectItem>
+      </SelectContent>
+    </Select>
   );
 
   return (
@@ -272,7 +253,7 @@ export function CheckInPage() {
           <TableFilterBar
             searchValue={searchQuery}
             onSearchChange={setSearchQuery}
-            searchPlaceholder="Search by member name..."
+            searchPlaceholder="Search by name, email, or member ID..."
             locationValue={locationFilter}
             onLocationChange={setLocationFilter}
             locations={(locations ?? []).map((location) => ({
@@ -280,27 +261,40 @@ export function CheckInPage() {
               label: location.locationName,
             }))}
             locationDisabled={locationsLoading}
-            showMethodFilter
-            methodValue={methodFilter}
-            onMethodChange={setMethodFilter}
-            methodOptions={[
-              { value: "Manual", label: "Manual" },
-              { value: "QR Code", label: "QR Code" },
-              { value: "NFC", label: "NFC" },
-            ]}
-            dateValue={dateFilter}
-            onDateChange={setDateFilter}
+            dateValue={dateFrom}
+            onDateChange={setDateFrom}
+            dateToValue={dateTo}
+            onDateToChange={setDateTo}
+            actionNode={sortSelect}
           />
 
+          {isError ? (
+            <p className="text-destructive mb-2 text-sm">
+              Could not load check-ins. Please try again.
+            </p>
+          ) : null}
+
           <DataTable
-            data={filteredData}
+            data={rows}
             columns={columns}
             getRowId={(row) => row.id}
             emptyMessage="No check-ins found."
             enableDragAndDrop={false}
             enableColumnVisibility={false}
             enableRowSelection={false}
-            defaultPageSize={8}
+            defaultPageSize={limit}
+            isLoading={isLoading}
+            serverPagination={{
+              totalItems,
+              pageIndex: page - 1,
+              pageSize: limit,
+              pageCount: Math.max(1, totalPages),
+              onPageChange: (pageIndex) => setPage(pageIndex + 1),
+              onPageSizeChange: (next) => {
+                setLimit(next);
+                setPage(1);
+              },
+            }}
           />
         </div>
       </div>

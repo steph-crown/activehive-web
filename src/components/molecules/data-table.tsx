@@ -120,6 +120,16 @@ function DraggableRow<T>({
   );
 }
 
+export type DataTableServerPagination = {
+  /** Total rows across all pages (from the server). */
+  totalItems: number;
+  pageIndex: number;
+  pageSize: number;
+  pageCount: number;
+  onPageChange: (pageIndex: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
+};
+
 export interface DataTableProps<TData> {
   data: TData[];
   columns: ColumnDef<TData>[];
@@ -134,6 +144,8 @@ export interface DataTableProps<TData> {
   onDragEnd?: (event: DragEndEvent) => void;
   defaultPageSize?: number;
   searchQuery?: string;
+  /** When set, pagination is controlled by the server (`manualPagination`). */
+  serverPagination?: DataTableServerPagination;
 }
 
 export function DataTable<TData>({
@@ -150,6 +162,7 @@ export function DataTable<TData>({
   onDragEnd: externalOnDragEnd,
   defaultPageSize = 10,
   searchQuery,
+  serverPagination,
 }: DataTableProps<TData>) {
   const [data, setData] = React.useState(() => initialData);
   const [rowSelection, setRowSelection] = React.useState({});
@@ -188,11 +201,12 @@ export function DataTable<TData>({
 
   const normalizedQuery = (searchQuery || "").trim().toLowerCase();
   const filteredData = React.useMemo(() => {
+    if (serverPagination) return data;
     if (!normalizedQuery) return data;
     return data.filter((row) =>
       JSON.stringify(row).toLowerCase().includes(normalizedQuery)
     );
-  }, [data, normalizedQuery]);
+  }, [data, normalizedQuery, serverPagination]);
 
   const table = useReactTable({
     data: filteredData,
@@ -202,7 +216,12 @@ export function DataTable<TData>({
       columnVisibility,
       rowSelection,
       columnFilters,
-      pagination,
+      pagination: serverPagination
+        ? {
+            pageIndex: serverPagination.pageIndex,
+            pageSize: serverPagination.pageSize,
+          }
+        : pagination,
     },
     getRowId:
       getRowId ||
@@ -217,10 +236,30 @@ export function DataTable<TData>({
     onColumnVisibilityChange: enableColumnVisibility
       ? setColumnVisibility
       : undefined,
-    onPaginationChange: setPagination,
+    onPaginationChange: serverPagination
+      ? (updater) => {
+          const prev = {
+            pageIndex: serverPagination.pageIndex,
+            pageSize: serverPagination.pageSize,
+          };
+          const next = typeof updater === "function" ? updater(prev) : updater;
+          if (next.pageIndex !== prev.pageIndex) {
+            serverPagination.onPageChange(next.pageIndex);
+          }
+          if (next.pageSize !== prev.pageSize) {
+            serverPagination.onPageSizeChange?.(next.pageSize);
+          }
+        }
+      : setPagination,
+    manualPagination: Boolean(serverPagination),
+    pageCount: serverPagination
+      ? Math.max(1, serverPagination.pageCount)
+      : undefined,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    getPaginationRowModel: serverPagination
+      ? undefined
+      : getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: enableColumnVisibility
       ? getFacetedRowModel()
@@ -418,7 +457,11 @@ export function DataTable<TData>({
             </>
           )}
           {!enableRowSelection && (
-            <>{table.getFilteredRowModel().rows.length} item(s) total.</>
+            <>
+              {serverPagination
+                ? `${serverPagination.totalItems} item(s) total.`
+                : `${table.getFilteredRowModel().rows.length} item(s) total.`}
+            </>
           )}
         </div>
         <div className="flex w-full items-center gap-8 lg:w-fit">
@@ -429,7 +472,12 @@ export function DataTable<TData>({
             <Select
               value={`${table.getState().pagination.pageSize}`}
               onValueChange={(value) => {
-                table.setPageSize(Number(value));
+                const nextSize = Number(value);
+                if (serverPagination) {
+                  serverPagination.onPageSizeChange?.(nextSize);
+                } else {
+                  table.setPageSize(nextSize);
+                }
               }}
             >
               <SelectTrigger size="sm" className="w-20" id="rows-per-page">

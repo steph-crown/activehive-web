@@ -101,14 +101,23 @@ export function QuickCheckInDialog({
               onValueChange={setMemberId}
               disabled={membersLoading}
             >
-              <SelectTrigger id="quick-checkin-member" className="w-full">
+              <SelectTrigger
+                id="quick-checkin-member"
+                className="w-full min-w-0 overflow-hidden [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:flex-1 [&_[data-slot=select-value]]:truncate [&_[data-slot=select-value]]:text-left"
+              >
                 <SelectValue placeholder="Select member" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-w-[min(100vw-2rem,var(--radix-select-trigger-width))]">
                 {(members ?? []).map((sub) => (
-                  <SelectItem key={sub.memberId} value={sub.memberId}>
-                    {sub.member.firstName} {sub.member.lastName} ·{" "}
-                    {sub.member.email}
+                  <SelectItem
+                    key={sub.memberId}
+                    value={sub.memberId}
+                    className="min-w-0 max-w-full"
+                  >
+                    <span className="block min-w-0 truncate">
+                      {sub.member.firstName} {sub.member.lastName} ·{" "}
+                      {sub.member.email}
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>

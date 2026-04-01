@@ -7,7 +7,12 @@ export type CreateCheckInPayload = {
 export type CheckInsListParams = {
   locationId?: string;
   memberId?: string;
-  /** Defaults to `checked_in` when listing active check-ins. */
+  /**
+   * When true, omit `status` from the request so the API can return any status
+   * (e.g. to read nested `gym` from the latest check-in row).
+   */
+  skipStatusFilter?: boolean;
+  /** Defaults to `checked_in` when {@link skipStatusFilter} is not set. */
   status?: string;
   dateFrom?: string;
   dateTo?: string;
@@ -33,6 +38,25 @@ export type CheckInListMember = {
   onboardingCompleted?: boolean;
 };
 
+/** Nested gym on check-in list items when returned by the API. */
+export type CheckInListGym = {
+  id: string;
+  name: string;
+  description?: string | null;
+  logo?: string | null;
+  coverImage?: string | null;
+  address?: {
+    city?: string;
+    state?: string;
+    street?: string;
+    country?: string;
+    zipCode?: string;
+  } | null;
+  phoneNumber?: string | null;
+  email?: string | null;
+  website?: string | null;
+};
+
 export type CheckInListItem = {
   id: string;
   memberId: string;
@@ -45,6 +69,7 @@ export type CheckInListItem = {
   checkedOutBy?: string | null;
   member: CheckInListMember;
   location: CheckInListLocation;
+  gym?: CheckInListGym;
 };
 
 export type CheckInsListResponse = {

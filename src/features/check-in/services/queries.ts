@@ -23,7 +23,7 @@ export const checkInsQueryKeys = {
       "list",
       params.locationId ?? "",
       params.memberId ?? "",
-      params.status ?? "checked_in",
+      params.skipStatusFilter ? "__all_status__" : (params.status ?? "checked_in"),
       params.dateFrom ?? "",
       params.dateTo ?? "",
       params.search ?? "",

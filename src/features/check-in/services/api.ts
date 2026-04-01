@@ -23,7 +23,9 @@ function listQueryParams(params: CheckInsListParams): Record<string, string> {
   const query: Record<string, string> = {};
   if (params.locationId) query.locationId = params.locationId;
   if (params.memberId) query.memberId = params.memberId;
-  query.status = params.status ?? "checked_in";
+  if (!params.skipStatusFilter) {
+    query.status = params.status ?? "checked_in";
+  }
   if (params.dateFrom) query.dateFrom = params.dateFrom;
   if (params.dateTo) query.dateTo = params.dateTo;
   if (params.search) query.search = params.search;

@@ -30,11 +30,11 @@ export function BrandingStepForm({
   const { showSuccess, showError } = useToast();
   const sessionId = useGymOwnerRegistrationStore((state) => state.sessionId);
   const setStepStatus = useGymOwnerRegistrationStore(
-    (state) => state.setStepStatus
+    (state) => state.setStepStatus,
   );
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const primaryColorRef = useRef<HTMLInputElement | null>(null);
-  const secondaryColorRef = useRef<HTMLInputElement | null>(null);
+  // const primaryColorRef = useRef<HTMLInputElement | null>(null);
+  // const secondaryColorRef = useRef<HTMLInputElement | null>(null);
   const { mutateAsync: submitBranding, isPending } = useBrandingStepMutation();
 
   const form = useForm<BrandingFormValues>({
@@ -93,7 +93,7 @@ export function BrandingStepForm({
           </p>
         </div>
         <div className="grid gap-6">
-          <FormField
+          {/* <FormField
             // @ts-expect-error - Type inference issue with yup resolver
             control={form.control}
             name="primaryColor"
@@ -166,7 +166,7 @@ export function BrandingStepForm({
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
 
           <FormField
             // @ts-expect-error - Type inference issue with yup resolver
@@ -208,8 +208,8 @@ export function BrandingStepForm({
           />
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button type="submit" className="flex-1" disabled={isPending}>
-              {isPending ? "Saving..." : "Save & continue"}
+            <Button type="submit" className="flex-1" loading={isPending}>
+              Save & continue
             </Button>
             <Button
               type="button"

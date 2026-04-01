@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, useFieldArray } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -32,7 +33,6 @@ import {
   type LocationsFormValues,
 } from "@/features/gym-owner-registration/schema";
 import { useUpload } from "@/hooks/use-upload";
-import { InlineLoader } from "@/components/loader/inline-loader";
 import { NIGERIA_STATES } from "@/features/gym-owner-registration/constants/nigeria-states";
 
 export function LocationsStepForm({
@@ -50,6 +50,7 @@ export function LocationsStepForm({
   const { mutateAsync: completeRegistration, isPending: isCompleting } =
     useCompleteRegistrationMutation();
   const { upload, isUploading } = useUpload();
+  const [isSkipping, setIsSkipping] = useState(false);
 
   const form = useForm<LocationsFormValues>({
     resolver: yupResolver(locationsSchema) as never,
@@ -121,7 +122,11 @@ export function LocationsStepForm({
     }
   };
 
+  const isFormSubmitBusy =
+    isPending || isUploading || (isCompleting && !isSkipping);
+
   const handleSkip = async () => {
+    setIsSkipping(true);
     try {
       setStepStatus(4, "skipped");
 
@@ -140,6 +145,8 @@ export function LocationsStepForm({
           ? error.message
           : "Unable to complete registration.";
       showError("Error", message);
+    } finally {
+      setIsSkipping(false);
     }
   };
 
@@ -401,25 +408,20 @@ export function LocationsStepForm({
           <Button
             type="submit"
             className="flex-1"
-            disabled={isPending || isCompleting || isUploading}
+            loading={isFormSubmitBusy}
+            disabled={isFormSubmitBusy || isSkipping}
           >
-            {isPending || isCompleting || isUploading ? (
-              <span className="flex items-center justify-center gap-2">
-                <InlineLoader size="small" />
-                Processing...
-              </span>
-            ) : (
-              "Save & continue"
-            )}
+            Save & continue
           </Button>
           <Button
             type="button"
             variant="outline"
             className="flex-1"
-            onClick={handleSkip}
-            disabled={isCompleting}
+            onClick={() => void handleSkip()}
+            disabled={isFormSubmitBusy || isSkipping}
+            loading={isSkipping}
           >
-            {isCompleting ? "Processing..." : "Skip for now"}
+            Skip for now
           </Button>
         </div>
       </form>

@@ -146,7 +146,7 @@ export function DocumentsStepForm({
                     onValueChange={(value) => field.onChange(value)}
                     value={field.value ?? ""}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-10 w-full min-w-0">
                       <SelectValue placeholder="Select your government ID type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -269,8 +269,8 @@ export function DocumentsStepForm({
           />
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button type="submit" className="flex-1" disabled={isPending}>
-              {isPending ? "Uploading..." : "Save & continue"}
+            <Button type="submit" className="flex-1" loading={isPending}>
+              Save & continue
             </Button>
             <Button
               type="button"

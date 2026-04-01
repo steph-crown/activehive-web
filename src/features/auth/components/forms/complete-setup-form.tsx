@@ -145,12 +145,12 @@ export function CompleteSetupForm({
         </div>
         <div className="flex flex-col gap-3">
           <Button
-            onClick={handleProceed}
-            disabled={isLoading || isCompleting || isLoggingIn}
+            onClick={() => void handleProceed()}
             size="lg"
             className="w-full"
+            loading={isLoading || isCompleting || isLoggingIn}
           >
-            {isLoading ? "Setting up..." : "Proceed to Dashboard"}
+            Proceed to Dashboard
           </Button>
         </div>
       </div>

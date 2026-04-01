@@ -132,30 +132,33 @@ export function OtpForm({ className, ...props }: React.ComponentProps<"form">) {
             type="submit"
             className="w-full hover:scale-105"
             size={"lg"}
-            disabled={isPending}
+            loading={isPending}
           >
-            {isPending ? "Verifying..." : "Verify email"}
+            Verify email
           </Button>
 
-          <div className="flex justify-between -mt-3 cursor-pointer">
-            <button
+          <div className="-mt-3 flex justify-between">
+            <Button
               type="button"
-              className="text-sm underline-offset-4 hover:underline text-left w-max"
+              variant="link"
+              className="h-auto p-0 text-sm underline underline-offset-4"
               onClick={() => {
                 navigate("/signup");
               }}
             >
               Go back
-            </button>
+            </Button>
 
-            <button
+            <Button
               type="button"
-              className="ml-auto text-sm underline-offset-4 hover:underline"
-              onClick={handleResend}
-              disabled={isResending}
+              variant="link"
+              className="h-auto ml-auto p-0 text-sm underline underline-offset-4"
+              onClick={() => void handleResend()}
+              disabled={isPending}
+              loading={isResending}
             >
-              {isResending ? "Sending..." : "Resend OTP"}
-            </button>
+              Resend OTP
+            </Button>
           </div>
         </div>
       </form>

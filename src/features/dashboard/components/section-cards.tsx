@@ -15,6 +15,7 @@ type MetricCardTheme = {
   title: string;
   value: string;
   valueCaption?: string;
+  captionReplacesTrend?: boolean;
   percentChange: number;
   isPositive: boolean;
   comparisonText: string;
@@ -70,6 +71,7 @@ export function SectionCards({ overview }: SectionCardsProps) {
       title: "Total revenue",
       value: formatNgn(totalRevenue),
       valueCaption: `Monthly ${formatNgn(monthlyRevenue)}`,
+      captionReplacesTrend: true,
       percentChange: NO_COMPARISON_PERCENT,
       isPositive: true,
       comparisonText: "vs last month",
@@ -89,6 +91,7 @@ export function SectionCards({ overview }: SectionCardsProps) {
       title: "Total members",
       value: formatInt(totalMembers),
       valueCaption: `${formatInt(activeMembers)} active`,
+      captionReplacesTrend: true,
       percentChange: NO_COMPARISON_PERCENT,
       isPositive: true,
       comparisonText: "vs last month",
@@ -152,6 +155,7 @@ export function SectionCards({ overview }: SectionCardsProps) {
               title={card.title}
               value={card.value}
               valueCaption={card.valueCaption}
+              captionReplacesTrend={card.captionReplacesTrend}
               icon={card.icon}
               iconBgVar={card.iconBgVar}
               iconColorVar={card.iconColorVar}

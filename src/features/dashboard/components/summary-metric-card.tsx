@@ -1,12 +1,18 @@
 import type { ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react";
+import { cn } from "@/lib/utils";
 
 type SummaryMetricCardProps = {
   title: string;
   value: string;
-  /** Shown under the main value (e.g. monthly revenue, active member count). */
+  /** Shown under the main value, or on the right when {@link captionReplacesTrend} is true. */
   valueCaption?: string;
+  /**
+   * When set with `valueCaption`, shows the caption on the right instead of the
+   * trend row (~% vs last month). Use for dashboard revenue / members cards.
+   */
+  captionReplacesTrend?: boolean;
   icon: ReactNode;
   iconBgVar: string;
   iconColorVar: string;
@@ -22,6 +28,7 @@ export function SummaryMetricCard({
   title,
   value,
   valueCaption,
+  captionReplacesTrend = false,
   icon,
   iconBgVar,
   iconColorVar,
@@ -39,6 +46,9 @@ export function SummaryMetricCard({
       : isPositive
         ? "var(--success-500)"
         : "var(--error-400)";
+
+  const showCaptionBelow = valueCaption && !captionReplacesTrend;
+  const showCaptionTrailing = valueCaption && captionReplacesTrend;
 
   return (
     <Card
@@ -58,29 +68,40 @@ export function SummaryMetricCard({
           </div>
           <span className="text-xs font-medium text-gray-400">{title}</span>
         </div>
-        <div className="flex items-start justify-between gap-2">
+        <div
+          className={cn(
+            "flex justify-between gap-2",
+            showCaptionTrailing ? "items-center" : "items-start",
+          )}
+        >
           <div className="min-w-0 flex-1">
             <div className="text-3xl leading-none font-medium font-bebas text-black">
               {value}
             </div>
-            {valueCaption ? (
+            {showCaptionBelow ? (
               <p className="text-muted-foreground mt-1.5 text-xs font-medium">
                 {valueCaption}
               </p>
             ) : null}
           </div>
 
-          <div className="flex shrink-0 items-center gap-2">
-            <div
-              className="flex items-center gap-1 text-xs font-medium"
-              style={{ color: varianceColor }}
-            >
-              <TrendIcon className="size-4" stroke={2} />~{percent}%
+          {showCaptionTrailing ? (
+            <div className="text-muted-foreground max-w-[min(100%,11rem)] shrink-0 text-right text-xs leading-snug font-medium">
+              {valueCaption}
             </div>
-            <span className="text-xs font-medium text-[#959595]">
-              {comparisonText}
-            </span>
-          </div>
+          ) : (
+            <div className="flex shrink-0 items-center gap-2">
+              <div
+                className="flex items-center gap-1 text-xs font-medium"
+                style={{ color: varianceColor }}
+              >
+                <TrendIcon className="size-4" stroke={2} />~{percent}%
+              </div>
+              <span className="text-xs font-medium text-[#959595]">
+                {comparisonText}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </Card>

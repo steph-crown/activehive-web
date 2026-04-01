@@ -1,4 +1,6 @@
+import { TableFilterBar } from "@/components/molecules/table-filter-bar";
 import { DataTable } from "@/components/molecules/data-table";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,6 +18,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useLocationsQuery } from "@/features/locations/services";
@@ -28,17 +39,10 @@ import * as React from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import {
   useAssignTrainerToMemberMutation,
+  useTrainerAssignmentsQuery,
   useTrainersQuery,
 } from "../services";
-import type { TrainerListItem } from "../types";
-
-type AssignmentRow = {
-  id: string;
-  memberName: string;
-  trainerName: string;
-  plan: string;
-  since: string;
-};
+import type { TrainerAssignment, TrainerListItem } from "../types";
 
 function memberDisplayName(m: MemberSubscription): string {
   const name =
@@ -59,50 +63,155 @@ function uniqueMembersByMemberId(rows: MemberSubscription[]): MemberSubscription
   return [...map.values()];
 }
 
+function formatMemberCell(a: TrainerAssignment): string {
+  const p = a.member;
+  if (p) {
+    const name = `${p.firstName ?? ""} ${p.lastName ?? ""}`.trim();
+    if (name) return name;
+    if (p.email) return p.email;
+  }
+  return a.memberId;
+}
+
+function formatTrainerCell(a: TrainerAssignment): string {
+  const p = a.trainer;
+  if (p) {
+    const name = `${p.firstName ?? ""} ${p.lastName ?? ""}`.trim();
+    if (name) return name;
+    if (p.email) return p.email;
+  }
+  return a.trainerId;
+}
+
+function formatLocationCell(a: TrainerAssignment): string {
+  const p = a.location;
+  if (p?.locationName) return p.locationName;
+  return a.locationId;
+}
+
+function notesPreview(notes: string | null, max = 56): string {
+  if (!notes?.trim()) return "—";
+  const t = notes.trim();
+  return t.length <= max ? t : `${t.slice(0, max)}…`;
+}
+
+function AssignmentsTableSkeleton() {
+  return (
+    <div className="rounded-md border border-[#F4F4F4] bg-white">
+      <Table>
+        <TableHeader>
+          <TableRow className="hover:bg-transparent">
+            <TableHead>Member</TableHead>
+            <TableHead>Trainer</TableHead>
+            <TableHead>Location</TableHead>
+            <TableHead>Notes</TableHead>
+            <TableHead>Assigned</TableHead>
+            <TableHead>Status</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {Array.from({ length: 8 }, (_, i) => (
+            <TableRow key={i}>
+              {Array.from({ length: 6 }, (_, j) => (
+                <TableCell key={j}>
+                  <Skeleton className="h-4 w-full max-w-[140px]" />
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
 export function TrainerAssignmentsPage() {
   const { showSuccess, showError } = useToast();
   const { data: locations = [], isLoading: locationsLoading } = useLocationsQuery();
+
+  const [filterLocationId, setFilterLocationId] = React.useState("all");
+  const [filterTrainerId, setFilterTrainerId] = React.useState("all");
+  const [filterMemberId, setFilterMemberId] = React.useState("all");
+
+  const listParams = React.useMemo(
+    () => ({
+      ...(filterLocationId !== "all" ? { locationId: filterLocationId } : {}),
+      ...(filterTrainerId !== "all" ? { trainerId: filterTrainerId } : {}),
+      ...(filterMemberId !== "all" ? { memberId: filterMemberId } : {}),
+    }),
+    [filterLocationId, filterTrainerId, filterMemberId],
+  );
+
+  const {
+    data: assignments = [],
+    isLoading: assignmentsLoading,
+    isError: assignmentsError,
+    error: assignmentsErrorObj,
+  } = useTrainerAssignmentsQuery(listParams);
+
+  const { data: filterTrainers = [], isLoading: filterTrainersLoading } =
+    useTrainersQuery();
+  const { data: filterMemberSubs = [], isLoading: filterMembersLoading } =
+    useMembersQuery();
+
+  const trainerFilterOptions = React.useMemo(
+    () =>
+      filterTrainers.map((t) => ({
+        value: t.id,
+        label: trainerDisplayName(t),
+      })),
+    [filterTrainers],
+  );
+
+  const memberFilterOptions = React.useMemo(() => {
+    return uniqueMembersByMemberId(filterMemberSubs).map((m) => ({
+      value: m.memberId,
+      label: memberDisplayName(m),
+    }));
+  }, [filterMemberSubs]);
+
   const [isAssignOpen, setIsAssignOpen] = React.useState(false);
-  const [locationId, setLocationId] = React.useState("");
-  const [memberId, setMemberId] = React.useState("");
-  const [trainerId, setTrainerId] = React.useState("");
-  const [notes, setNotes] = React.useState("");
+  const [assignLocationId, setAssignLocationId] = React.useState("");
+  const [assignMemberId, setAssignMemberId] = React.useState("");
+  const [assignTrainerId, setAssignTrainerId] = React.useState("");
+  const [assignNotes, setAssignNotes] = React.useState("");
 
   const { mutateAsync: assignTrainer, isPending: isAssigning } =
     useAssignTrainerToMemberMutation();
 
-  const { data: members = [], isLoading: membersLoading } = useMembersQuery(
-    locationId || undefined,
-    { enabled: Boolean(locationId) },
-  );
+  const { data: assignMembers = [], isLoading: assignMembersLoading } =
+    useMembersQuery(assignLocationId || undefined, {
+      enabled: Boolean(assignLocationId),
+    });
 
-  const { data: trainers = [], isLoading: trainersLoading } = useTrainersQuery(
-    locationId ? { locationId } : {},
-    { enabled: Boolean(locationId) },
-  );
+  const { data: assignTrainers = [], isLoading: assignTrainersLoading } =
+    useTrainersQuery(
+      assignLocationId ? { locationId: assignLocationId } : {},
+      { enabled: Boolean(assignLocationId) },
+    );
 
-  const memberOptions = React.useMemo(
-    () => uniqueMembersByMemberId(members),
-    [members],
+  const assignMemberOptions = React.useMemo(
+    () => uniqueMembersByMemberId(assignMembers),
+    [assignMembers],
   );
 
   React.useEffect(() => {
     if (isAssignOpen) {
-      setLocationId("");
-      setMemberId("");
-      setTrainerId("");
-      setNotes("");
+      setAssignLocationId("");
+      setAssignMemberId("");
+      setAssignTrainerId("");
+      setAssignNotes("");
     }
   }, [isAssignOpen]);
 
   React.useEffect(() => {
-    setMemberId("");
-    setTrainerId("");
-  }, [locationId]);
+    setAssignMemberId("");
+    setAssignTrainerId("");
+  }, [assignLocationId]);
 
   const handleAssign = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!locationId || !memberId || !trainerId) {
+    if (!assignLocationId || !assignMemberId || !assignTrainerId) {
       showError(
         "Missing fields",
         "Choose a location, member, and trainer.",
@@ -111,10 +220,10 @@ export function TrainerAssignmentsPage() {
     }
     try {
       await assignTrainer({
-        trainerId,
-        memberId,
-        locationId,
-        ...(notes.trim() ? { notes: notes.trim() } : {}),
+        trainerId: assignTrainerId,
+        memberId: assignMemberId,
+        locationId: assignLocationId,
+        ...(assignNotes.trim() ? { notes: assignNotes.trim() } : {}),
       });
       showSuccess(
         "Trainer assigned",
@@ -129,38 +238,64 @@ export function TrainerAssignmentsPage() {
     }
   };
 
-  const columns: ColumnDef<AssignmentRow>[] = [
+  const columns: ColumnDef<TrainerAssignment>[] = [
     {
-      accessorKey: "memberName",
+      id: "member",
       header: "Member",
       cell: ({ row }) => (
-        <div className="font-medium">{row.original.memberName}</div>
-      ),
-    },
-    { accessorKey: "trainerName", header: "Trainer" },
-    {
-      accessorKey: "plan",
-      header: "Plan",
-      cell: ({ row }) => (
-        <span className="text-muted-foreground">{row.original.plan}</span>
+        <div className="font-medium">{formatMemberCell(row.original)}</div>
       ),
     },
     {
-      accessorKey: "since",
-      header: "Since",
+      id: "trainer",
+      header: "Trainer",
+      cell: ({ row }) => formatTrainerCell(row.original),
+    },
+    {
+      id: "location",
+      header: "Location",
       cell: ({ row }) => (
-        <span className="text-muted-foreground">{row.original.since}</span>
+        <span className="text-muted-foreground">
+          {formatLocationCell(row.original)}
+        </span>
+      ),
+    },
+    {
+      id: "notes",
+      header: "Notes",
+      cell: ({ row }) => (
+        <span className="text-muted-foreground max-w-[220px] truncate text-sm">
+          {notesPreview(row.original.notes)}
+        </span>
+      ),
+    },
+    {
+      id: "assignedAt",
+      header: "Assigned",
+      cell: ({ row }) => (
+        <span className="text-muted-foreground text-sm">
+          {new Date(row.original.assignedAt).toLocaleDateString()}
+        </span>
+      ),
+    },
+    {
+      id: "status",
+      header: "Status",
+      cell: ({ row }) => (
+        <Badge variant={row.original.isActive ? "default" : "secondary"}>
+          {row.original.isActive ? "Active" : "Inactive"}
+        </Badge>
       ),
     },
   ];
 
   const assignDisabled =
-    !locationId ||
-    !memberId ||
-    !trainerId ||
+    !assignLocationId ||
+    !assignMemberId ||
+    !assignTrainerId ||
     isAssigning ||
-    membersLoading ||
-    trainersLoading;
+    assignMembersLoading ||
+    assignTrainersLoading;
 
   return (
     <DashboardLayout>
@@ -179,13 +314,46 @@ export function TrainerAssignmentsPage() {
         </div>
 
         <div className="px-4 lg:px-6">
-          <DataTable
-            data={[]}
-            columns={columns}
-            enableTabs={false}
-            getRowId={(row) => row.id}
-            emptyMessage="No trainer assignments to show yet. Use Assign Trainer to create one."
+          <TableFilterBar
+            showSearch={false}
+            showExportButton={false}
+            locationValue={filterLocationId}
+            onLocationChange={setFilterLocationId}
+            locations={(locations ?? []).map((location) => ({
+              value: location.id,
+              label: location.locationName,
+            }))}
+            locationDisabled={locationsLoading}
+            showTrainerFilter
+            trainerValue={filterTrainerId}
+            onTrainerChange={setFilterTrainerId}
+            trainerOptions={trainerFilterOptions}
+            trainerDisabled={filterTrainersLoading}
+            showMemberFilter
+            memberValue={filterMemberId}
+            onMemberChange={setFilterMemberId}
+            memberOptions={memberFilterOptions}
+            memberDisabled={filterMembersLoading}
           />
+
+          {assignmentsLoading ? (
+            <AssignmentsTableSkeleton />
+          ) : assignmentsError ? (
+            <div className="text-destructive text-sm">
+              {getApiErrorMessage(
+                assignmentsErrorObj,
+                "Could not load assignments. Try again.",
+              )}
+            </div>
+          ) : (
+            <DataTable
+              data={assignments}
+              columns={columns}
+              enableTabs={false}
+              getRowId={(row) => row.id}
+              emptyMessage="No trainer assignments match these filters."
+            />
+          )}
         </div>
       </div>
 
@@ -202,8 +370,8 @@ export function TrainerAssignmentsPage() {
             <div className="space-y-2">
               <Label htmlFor="assign-location">Location</Label>
               <Select
-                value={locationId || undefined}
-                onValueChange={setLocationId}
+                value={assignLocationId || undefined}
+                onValueChange={setAssignLocationId}
                 disabled={locationsLoading}
               >
                 <SelectTrigger id="assign-location" className="!h-10 w-full">
@@ -222,30 +390,32 @@ export function TrainerAssignmentsPage() {
             <div className="space-y-2">
               <Label htmlFor="assign-member">Member</Label>
               <Select
-                value={memberId || undefined}
-                onValueChange={setMemberId}
-                disabled={!locationId || membersLoading}
+                value={assignMemberId || undefined}
+                onValueChange={setAssignMemberId}
+                disabled={!assignLocationId || assignMembersLoading}
               >
                 <SelectTrigger id="assign-member" className="!h-10 w-full">
                   <SelectValue
                     placeholder={
-                      !locationId
+                      !assignLocationId
                         ? "Select a location first"
-                        : membersLoading
+                        : assignMembersLoading
                           ? "Loading members…"
                           : "Select member"
                     }
                   />
                 </SelectTrigger>
                 <SelectContent>
-                  {memberOptions.map((m) => (
+                  {assignMemberOptions.map((m) => (
                     <SelectItem key={m.memberId} value={m.memberId}>
                       {memberDisplayName(m)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              {locationId && !membersLoading && memberOptions.length === 0 ? (
+              {assignLocationId &&
+              !assignMembersLoading &&
+              assignMemberOptions.length === 0 ? (
                 <p className="text-muted-foreground text-xs">
                   No members with subscriptions at this location.
                 </p>
@@ -255,30 +425,32 @@ export function TrainerAssignmentsPage() {
             <div className="space-y-2">
               <Label htmlFor="assign-trainer">Trainer</Label>
               <Select
-                value={trainerId || undefined}
-                onValueChange={setTrainerId}
-                disabled={!locationId || trainersLoading}
+                value={assignTrainerId || undefined}
+                onValueChange={setAssignTrainerId}
+                disabled={!assignLocationId || assignTrainersLoading}
               >
                 <SelectTrigger id="assign-trainer" className="!h-10 w-full">
                   <SelectValue
                     placeholder={
-                      !locationId
+                      !assignLocationId
                         ? "Select a location first"
-                        : trainersLoading
+                        : assignTrainersLoading
                           ? "Loading trainers…"
                           : "Select trainer"
                     }
                   />
                 </SelectTrigger>
                 <SelectContent>
-                  {trainers.map((t) => (
+                  {assignTrainers.map((t) => (
                     <SelectItem key={t.id} value={t.id}>
                       {trainerDisplayName(t)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              {locationId && !trainersLoading && trainers.length === 0 ? (
+              {assignLocationId &&
+              !assignTrainersLoading &&
+              assignTrainers.length === 0 ? (
                 <p className="text-muted-foreground text-xs">
                   No trainers at this location. Add the trainer to the location
                   first.
@@ -292,8 +464,8 @@ export function TrainerAssignmentsPage() {
                 id="assign-notes"
                 rows={3}
                 placeholder="e.g. Focus on strength training and cardio"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                value={assignNotes}
+                onChange={(e) => setAssignNotes(e.target.value)}
                 disabled={isAssigning}
               />
             </div>

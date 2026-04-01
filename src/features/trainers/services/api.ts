@@ -2,6 +2,8 @@ import { apiClient } from "@/lib/api-client";
 import type {
   AssignTrainerToMemberPayload,
   CreateTrainerPayload,
+  TrainerAssignment,
+  TrainerAssignmentsListParams,
   TrainerListItem,
   TrainersListParams,
 } from "../types";
@@ -40,5 +42,17 @@ export const trainersApi = {
     const notes = payload.notes?.trim();
     if (notes) body.notes = notes;
     return apiClient.post<unknown>(`${trainersPath}/assignments`, body);
+  },
+
+  listAssignments: (
+    params: TrainerAssignmentsListParams = {},
+  ): Promise<TrainerAssignment[]> => {
+    const query: Record<string, string> = {};
+    if (params.locationId) query.locationId = params.locationId;
+    if (params.trainerId) query.trainerId = params.trainerId;
+    if (params.memberId) query.memberId = params.memberId;
+    return apiClient.get<TrainerAssignment[]>(`${trainersPath}/assignments`, {
+      params: query,
+    });
   },
 };

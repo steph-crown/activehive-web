@@ -18,8 +18,13 @@ export const useCreateTrainerMutation = () => {
 };
 
 export const useAssignTrainerToMemberMutation = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (payload: AssignTrainerToMemberPayload) =>
       trainersApi.assignTrainer(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: trainersQueryKeys.all });
+    },
   });
 };

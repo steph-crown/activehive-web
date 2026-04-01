@@ -20,8 +20,10 @@ type Option = {
 };
 
 type TableFilterBarProps = {
-  searchValue: string;
-  onSearchChange: (value: string) => void;
+  /** When false, hides the search field (other props may be omitted). */
+  showSearch?: boolean;
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
   searchPlaceholder?: string;
   locationValue: string;
   onLocationChange: (value: string) => void;
@@ -31,19 +33,32 @@ type TableFilterBarProps = {
   methodValue?: string;
   onMethodChange?: (value: string) => void;
   methodOptions?: Option[];
+  showTrainerFilter?: boolean;
+  trainerValue?: string;
+  onTrainerChange?: (value: string) => void;
+  trainerOptions?: Option[];
+  trainerDisabled?: boolean;
+  showMemberFilter?: boolean;
+  memberValue?: string;
+  onMemberChange?: (value: string) => void;
+  memberOptions?: Option[];
+  memberDisabled?: boolean;
   dateValue?: string;
   onDateChange?: (value: string) => void;
   /** When set with `onDateToChange`, shows a second date field for the end of the range. */
   dateToValue?: string;
   onDateToChange?: (value: string) => void;
+  /** When false, hides the export button unless `actionNode` is set. */
+  showExportButton?: boolean;
   actionLabel?: string;
   onActionClick?: () => void;
   actionNode?: ReactNode;
 };
 
 export function TableFilterBar({
-  searchValue,
-  onSearchChange,
+  showSearch = true,
+  searchValue = "",
+  onSearchChange = () => {},
   searchPlaceholder = "Search...",
   locationValue,
   onLocationChange,
@@ -51,12 +66,23 @@ export function TableFilterBar({
   locationDisabled = false,
   showMethodFilter = false,
   methodValue = "all",
-  onMethodChange,
+  onMethodChange = () => {},
   methodOptions = [],
+  showTrainerFilter = false,
+  trainerValue = "all",
+  onTrainerChange = () => {},
+  trainerOptions = [],
+  trainerDisabled = false,
+  showMemberFilter = false,
+  memberValue = "all",
+  onMemberChange = () => {},
+  memberOptions = [],
+  memberDisabled = false,
   dateValue,
   onDateChange,
   dateToValue,
   onDateToChange,
+  showExportButton = true,
   actionLabel = "Export",
   onActionClick,
   actionNode,
@@ -75,15 +101,17 @@ export function TableFilterBar({
 
   return (
     <div className="mb-4 flex flex-wrap items-center gap-2.5">
-      <div className="relative min-w-[260px] flex-1">
-        <IconSearch className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-        <Input
-          value={searchValue}
-          onChange={(event) => onSearchChange(event.target.value)}
-          placeholder={searchPlaceholder}
-          className="h-10 border-[#F4F4F4] bg-white pl-9"
-        />
-      </div>
+      {showSearch ? (
+        <div className="relative min-w-[260px] flex-1">
+          <IconSearch className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+          <Input
+            value={searchValue}
+            onChange={(event) => onSearchChange(event.target.value)}
+            placeholder={searchPlaceholder}
+            className="h-10 border-[#F4F4F4] bg-white pl-9"
+          />
+        </div>
+      ) : null}
 
       {showLocationDropdown ? (
         <Select
@@ -102,6 +130,52 @@ export function TableFilterBar({
             {locations.map((location) => (
               <SelectItem key={location.value} value={location.value}>
                 {location.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      ) : null}
+
+      {showTrainerFilter ? (
+        <Select
+          value={trainerValue}
+          onValueChange={onTrainerChange}
+          disabled={trainerDisabled}
+        >
+          <SelectTrigger className="h-10 w-[180px] border-[#F4F4F4] bg-white">
+            <div className="flex items-center gap-2">
+              <IconFilter className="size-4" />
+              <SelectValue placeholder="All Trainers" />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Trainers</SelectItem>
+            {trainerOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      ) : null}
+
+      {showMemberFilter ? (
+        <Select
+          value={memberValue}
+          onValueChange={onMemberChange}
+          disabled={memberDisabled}
+        >
+          <SelectTrigger className="h-10 w-[180px] border-[#F4F4F4] bg-white">
+            <div className="flex items-center gap-2">
+              <IconFilter className="size-4" />
+              <SelectValue placeholder="All Members" />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Members</SelectItem>
+            {memberOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
               </SelectItem>
             ))}
           </SelectContent>
@@ -160,7 +234,9 @@ export function TableFilterBar({
         </div>
       ) : null}
 
-      {actionNode ?? (
+      {actionNode !== undefined ? (
+        actionNode
+      ) : showExportButton ? (
         <Button
           variant="outline"
           className="h-10 border-[#F4F4F4]"
@@ -169,7 +245,7 @@ export function TableFilterBar({
           <IconDownload className="mr-1 h-4 w-4" />
           {actionLabel}
         </Button>
-      )}
+      ) : null}
     </div>
   );
 }

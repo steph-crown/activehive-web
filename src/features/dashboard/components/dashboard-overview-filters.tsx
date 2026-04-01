@@ -1,6 +1,64 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+
+type InlineDateFieldProps = {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  className?: string;
+};
+
+function InlineLabeledDateField({
+  id,
+  label,
+  value,
+  onChange,
+  className,
+}: Readonly<InlineDateFieldProps>) {
+  return (
+    <div
+      className={cn(
+        "border-input bg-background flex h-10 min-w-[10.75rem] items-center gap-2 rounded-md border px-2.5 shadow-xs transition-[color,box-shadow] sm:min-w-[10rem] sm:px-3",
+        "focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]",
+        className,
+      )}
+    >
+      <label
+        htmlFor={id}
+        className="text-muted-foreground shrink-0 cursor-pointer text-sm font-medium"
+      >
+        {label}
+      </label>
+      <input
+        id={id}
+        type="date"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={cn(
+          "min-w-0 flex-1 border-0 bg-transparent p-0 text-sm shadow-none outline-none",
+          "text-foreground placeholder:text-muted-foreground",
+          "focus-visible:ring-0",
+          "[color-scheme:light] dark:[color-scheme:dark]",
+          /* Keep native picker usable; tuck indicator so layout stays compact */
+          "[&::-webkit-calendar-picker-indicator]:ml-0.5 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-60",
+        )}
+      />
+      {/* <button
+        type="button"
+        tabIndex={-1}
+        aria-hidden
+        className="text-muted-foreground -mr-0.5 shrink-0 cursor-pointer border-0 bg-transparent p-0.5"
+        onClick={(e) => {
+          e.preventDefault();
+          openPicker();
+        }}
+      >
+        <IconChevronDown className="size-4" stroke={2} />
+      </button> */}
+    </div>
+  );
+}
 
 type DashboardOverviewFiltersProps = {
   startDate: string;
@@ -17,55 +75,31 @@ export function DashboardOverviewFilters({
   onEndDateChange,
   onClearRange,
 }: Readonly<DashboardOverviewFiltersProps>) {
-  const hasCustomRange = Boolean(startDate.trim() || endDate.trim());
-
   return (
-    <div className="flex w-full min-w-0 flex-col items-stretch gap-2 sm:max-w-md sm:items-end">
-      <p className="text-muted-foreground text-right text-xs font-medium">
-        {hasCustomRange ? "Custom range" : "Forever (all time)"}
-      </p>
-      <div className="flex flex-wrap items-end justify-end gap-3">
-        <div className="grid min-w-[9.5rem] gap-1.5">
-          <Label
-            htmlFor="dashboard-range-start"
-            className="text-muted-foreground text-xs font-medium"
-          >
-            Start date
-          </Label>
-          <Input
-            id="dashboard-range-start"
-            type="date"
-            className="h-10"
-            value={startDate}
-            onChange={(e) => onStartDateChange(e.target.value)}
-          />
-        </div>
-        <div className="grid min-w-[9.5rem] gap-1.5">
-          <Label
-            htmlFor="dashboard-range-end"
-            className="text-muted-foreground text-xs font-medium"
-          >
-            End date
-          </Label>
-          <Input
-            id="dashboard-range-end"
-            type="date"
-            className="h-10"
-            value={endDate}
-            onChange={(e) => onEndDateChange(e.target.value)}
-          />
-        </div>
-        {hasCustomRange ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="h-10 shrink-0"
-            onClick={onClearRange}
-          >
-            Reset to forever
-          </Button>
-        ) : null}
+    <div className="flex w-full min-w-0 flex-col items-stretch sm:max-w-max sm:items-end">
+      {/* Keep From, To, and Reset on one row so Reset stays beside the fields (scroll on very narrow viewports). */}
+      <div className="-mx-1 flex max-w-full flex-nowrap items-center justify-end gap-2 overflow-x-auto px-1 sm:gap-3">
+        <InlineLabeledDateField
+          id="dashboard-range-start"
+          label="From"
+          value={startDate}
+          onChange={onStartDateChange}
+        />
+        <InlineLabeledDateField
+          id="dashboard-range-end"
+          label="To"
+          value={endDate}
+          onChange={onEndDateChange}
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-10 shrink-0"
+          onClick={onClearRange}
+        >
+          Reset
+        </Button>
       </div>
     </div>
   );

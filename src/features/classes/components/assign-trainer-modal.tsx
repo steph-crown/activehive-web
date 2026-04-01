@@ -22,12 +22,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTrainersQuery } from "@/features/trainers/services";
 import { useToast } from "@/hooks/use-toast";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { yupResolver } from "@hookform/resolvers/yup";
+import * as React from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { useAssignTrainerMutation } from "../services";
-import { useStaffQuery } from "@/features/staff/services";
 import type { Class } from "../types";
 
 const assignTrainerSchema = yup.object({
@@ -51,7 +53,14 @@ export function AssignTrainerModal({
 }: AssignTrainerModalProps) {
   const { showSuccess, showError } = useToast();
   const { mutateAsync: assignTrainer, isPending } = useAssignTrainerMutation();
-  const { data: staff } = useStaffQuery();
+
+  const listParams = classItem.locationId
+    ? { locationId: classItem.locationId }
+    : {};
+  const { data: trainers = [], isLoading: trainersLoading } = useTrainersQuery(
+    listParams,
+    { enabled: open },
+  );
 
   const form = useForm<AssignTrainerFormValues>({
     resolver: yupResolver(assignTrainerSchema),
@@ -60,6 +69,14 @@ export function AssignTrainerModal({
     },
   });
 
+  React.useEffect(() => {
+    if (open) {
+      form.reset({
+        trainerId: classItem.trainerId || "",
+      });
+    }
+  }, [open, classItem.id, classItem.trainerId, form]);
+
   const onSubmit = async (data: AssignTrainerFormValues) => {
     try {
       await assignTrainer({
@@ -67,49 +84,56 @@ export function AssignTrainerModal({
         payload: { trainerId: data.trainerId },
       });
       showSuccess("Success", "Trainer assigned successfully!");
-      form.reset({
-        trainerId: "",
-      });
       onSuccess();
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Failed to assign trainer.";
-      showError("Error", message);
+      showError(
+        "Could not assign trainer",
+        getApiErrorMessage(error, "Failed to assign trainer."),
+      );
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="w-full max-w-[500px] sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Assign Trainer</DialogTitle>
           <DialogDescription>
-            Assign a trainer to {classItem.name}
+            Assign a trainer to {classItem.name}. The trainer must be assigned to
+            this class location.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="grid gap-4 py-4"
+            className="grid w-full max-w-full gap-4 py-4"
           >
             <FormField
               control={form.control}
               name="trainerId"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="w-full max-w-full">
                   <FormLabel>Trainer</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a trainer" />
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value || undefined}
+                    disabled={trainersLoading}
+                  >
+                    <FormControl className="block w-full max-w-full">
+                      <SelectTrigger className="!h-10 w-full max-w-full">
+                        <SelectValue
+                          placeholder={
+                            trainersLoading
+                              ? "Loading trainers…"
+                              : "Select a trainer"
+                          }
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {staff?.map((member) => (
-                        <SelectItem key={member.id} value={member.id}>
-                          {member.firstName} {member.lastName}
+                      {trainers.map((t) => (
+                        <SelectItem key={t.id} value={t.id}>
+                          {`${t.firstName} ${t.lastName}`.trim() || t.email}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -126,14 +150,14 @@ export function AssignTrainerModal({
                 onClick={() => {
                   onOpenChange(false);
                   form.reset({
-                    trainerId: "",
+                    trainerId: classItem.trainerId || "",
                   });
                 }}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Assigning..." : "Assign Trainer"}
+              <Button type="submit" loading={isPending}>
+                Assign Trainer
               </Button>
             </DialogFooter>
           </form>

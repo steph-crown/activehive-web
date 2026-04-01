@@ -25,12 +25,14 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import * as yup from "yup";
 import { useCreateClassMutation } from "../services";
 import { useLocationsQuery } from "@/features/locations/services";
-import { useStaffQuery } from "@/features/staff/services";
+import { useTrainersQuery } from "@/features/trainers/services";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
+import * as React from "react";
 
 const createClassSchema = yup.object({
   name: yup.string().required("Name is required"),
@@ -57,6 +59,17 @@ const createClassSchema = yup.object({
 
 type CreateClassFormValues = yup.InferType<typeof createClassSchema>;
 
+/** API expects `HH:mm:ss` (e.g. `09:00:00`). */
+function toApiTime(time: string): string {
+  const t = time.trim();
+  if (!t) return t;
+  const parts = t.split(":");
+  const h = (parts[0] ?? "00").padStart(2, "0");
+  const m = (parts[1] ?? "00").padStart(2, "0");
+  const s = (parts[2] ?? "00").replace(/\D/g, "").slice(0, 2).padStart(2, "0");
+  return `${h}:${m}:${s}`;
+}
+
 interface CreateClassModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -71,7 +84,6 @@ export function CreateClassModal({
   const { showSuccess, showError } = useToast();
   const { mutateAsync: createClass, isPending } = useCreateClassMutation();
   const { data: locations } = useLocationsQuery();
-  const { data: staff } = useStaffQuery();
 
   const form = useForm<CreateClassFormValues>({
     resolver: yupResolver(createClassSchema) as never,
@@ -100,6 +112,29 @@ export function CreateClassModal({
     name: "schedules",
   });
 
+  const watchedLocationId = useWatch({
+    control: form.control,
+    name: "locationId",
+  });
+
+  const { data: trainers = [], isLoading: trainersLoading } = useTrainersQuery(
+    watchedLocationId ? { locationId: watchedLocationId } : {},
+    { enabled: open },
+  );
+
+  const prevLocationId = React.useRef<string | undefined>(undefined);
+  React.useEffect(() => {
+    if (!open) {
+      prevLocationId.current = undefined;
+      return;
+    }
+    const prev = prevLocationId.current;
+    if (prev !== undefined && prev !== watchedLocationId) {
+      form.setValue("trainerId", undefined);
+    }
+    prevLocationId.current = watchedLocationId;
+  }, [open, watchedLocationId, form]);
+
   const addMinutesToTime = (time: string, minutesToAdd: number) => {
     const [hoursRaw, minutesRaw] = time.split(":");
     const hours = Number(hoursRaw);
@@ -124,19 +159,24 @@ export function CreateClassModal({
   const onSubmit = async (data: CreateClassFormValues) => {
     try {
       const payload = {
-        ...data,
+        name: data.name,
+        capacity: data.capacity,
+        category: data.category,
+        difficulty: data.difficulty,
+        duration: data.duration,
+        equipment: data.equipment.filter((e): e is string => e !== undefined),
         schedules: data.schedules.map((s) => ({
           date: s.date,
-          startTime: s.startTime,
-          endTime: addMinutesToTime(s.startTime, data.duration),
-          notes: s.notes || undefined,
+          startTime: toApiTime(s.startTime),
+          endTime: toApiTime(
+            addMinutesToTime(s.startTime, data.duration),
+          ),
         })),
         locationId:
           data.locationId === "none" ? undefined : data.locationId || undefined,
         trainerId:
           data.trainerId === "none" ? undefined : data.trainerId || undefined,
         description: data.description || undefined,
-        equipment: data.equipment.filter((e): e is string => e !== undefined),
       };
       await createClass(payload);
       showSuccess("Success", "Class created successfully!");
@@ -160,9 +200,10 @@ export function CreateClassModal({
       });
       onSuccess();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to create class.";
-      showError("Error", message);
+      showError(
+        "Could not create class",
+        getApiErrorMessage(error, "Failed to create class."),
+      );
     }
   };
 
@@ -265,7 +306,9 @@ export function CreateClassModal({
                   </FormItem>
                 )}
               />
+            </div>
 
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="category"
@@ -290,9 +333,47 @@ export function CreateClassModal({
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="trainerId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Trainer (Optional)</FormLabel>
+                    <Select
+                      onValueChange={(value) =>
+                        field.onChange(value === "none" ? undefined : value)
+                      }
+                      value={field.value || "none"}
+                      disabled={trainersLoading}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="!h-10 w-full">
+                          <SelectValue
+                            placeholder={
+                              trainersLoading
+                                ? "Loading trainers…"
+                                : "No trainer assigned"
+                            }
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="none">No Trainer</SelectItem>
+                        {trainers.map((t) => (
+                          <SelectItem key={t.id} value={t.id}>
+                            {`${t.firstName} ${t.lastName}`.trim() || t.email}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="difficulty"
@@ -332,47 +413,14 @@ export function CreateClassModal({
                     >
                       <FormControl>
                         <SelectTrigger className="!h-10 w-full">
-                          <SelectValue placeholder="All locations" />
+                          <SelectValue placeholder="Gym-level (all locations)" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="none">All Locations</SelectItem>
+                        <SelectItem value="none">Gym-level (all locations)</SelectItem>
                         {locations?.map((location) => (
                           <SelectItem key={location.id} value={location.id}>
                             {location.locationName}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="trainerId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Trainer (Optional)</FormLabel>
-                    <Select
-                      onValueChange={(value) =>
-                        field.onChange(value === "none" ? undefined : value)
-                      }
-                      value={field.value || "none"}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="!h-10 w-full">
-                          <SelectValue placeholder="No trainer assigned" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="none">No Trainer</SelectItem>
-                        {staff?.map((member) => (
-                          <SelectItem key={member.id} value={member.id}>
-                            {member.firstName} {member.lastName}
                           </SelectItem>
                         ))}
                       </SelectContent>

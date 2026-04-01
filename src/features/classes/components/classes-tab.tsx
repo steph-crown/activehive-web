@@ -153,7 +153,6 @@ export function ClassesTab({
   const { showSuccess, showError } = useToast();
   const [locationFilter, setLocationFilter] = React.useState("all");
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [dateFilter, setDateFilter] = React.useState("");
   const [assigningClass, setAssigningClass] = React.useState<Class | null>(
     null,
   );
@@ -204,24 +203,14 @@ export function ClassesTab({
 
   const filteredClasses = React.useMemo(() => {
     const rows = classes || [];
-    return rows.filter((classItem) => {
-      const normalizedSearch = searchQuery.trim().toLowerCase();
-      const matchesSearch =
-        normalizedSearch.length === 0 ||
-        `${classItem.name} ${classItem.metadata?.category || ""} ${classItem.metadata?.difficulty || ""} ${classItem.location?.locationName || ""}`
-          .toLowerCase()
-          .includes(normalizedSearch);
-
-      if (!dateFilter) return matchesSearch;
-      const selectedDate = new Date(dateFilter).toLocaleDateString();
-      const createdAt = (classItem as { createdAt?: string }).createdAt;
-      if (!createdAt) return matchesSearch;
-      return (
-        matchesSearch &&
-        new Date(createdAt).toLocaleDateString() === selectedDate
-      );
-    });
-  }, [classes, dateFilter, searchQuery]);
+    const normalizedSearch = searchQuery.trim().toLowerCase();
+    if (normalizedSearch.length === 0) return rows;
+    return rows.filter((classItem) =>
+      `${classItem.name} ${classItem.metadata?.category || ""} ${classItem.metadata?.difficulty || ""} ${classItem.location?.locationName || ""}`
+        .toLowerCase()
+        .includes(normalizedSearch),
+    );
+  }, [classes, searchQuery]);
 
   return (
     <div className="space-y-4">
@@ -236,8 +225,6 @@ export function ClassesTab({
           label: location.locationName,
         }))}
         locationDisabled={locationsLoading}
-        dateValue={dateFilter}
-        onDateChange={setDateFilter}
       />
 
       <DataTable

@@ -9,18 +9,20 @@ import {
 } from "@/components/ui/dialog";
 import {
   Form,
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Checkbox } from "@/components/ui/checkbox";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { useLocationsQuery } from "@/features/locations/services";
 import { useToast } from "@/hooks/use-toast";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { useReuseClassMutation } from "../services";
-import { useLocationsQuery } from "@/features/locations/services";
 import type { Class } from "../types";
 
 const reuseClassSchema = yup.object({
@@ -48,7 +50,8 @@ export function ReuseClassModal({
 }: ReuseClassModalProps) {
   const { showSuccess, showError } = useToast();
   const { mutateAsync: reuseClass, isPending } = useReuseClassMutation();
-  const { data: locations } = useLocationsQuery();
+  const { data: locations = [], isLoading: locationsLoading } =
+    useLocationsQuery();
 
   const form = useForm<ReuseClassFormValues>({
     resolver: yupResolver(reuseClassSchema),
@@ -57,8 +60,6 @@ export function ReuseClassModal({
     },
   });
 
-  const selectedLocationIds = form.watch("locationIds");
-
   const onSubmit = async (data: ReuseClassFormValues) => {
     try {
       await reuseClass({
@@ -66,24 +67,20 @@ export function ReuseClassModal({
         payload: { locationIds: data.locationIds },
       });
       showSuccess("Success", "Class reused successfully!");
-      form.reset({
-        locationIds: [],
-      });
+      form.reset({ locationIds: [] });
       onSuccess();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to reuse class.";
-      showError("Error", message);
+      showError(
+        "Could not reuse class",
+        getApiErrorMessage(error, "Failed to reuse class."),
+      );
     }
   };
 
-  const handleLocationToggle = (locationId: string) => {
-    const currentIds = form.getValues("locationIds");
-    const newIds = currentIds.includes(locationId)
-      ? currentIds.filter((id) => id !== locationId)
-      : [...currentIds, locationId];
-    form.setValue("locationIds", newIds);
-  };
+  const locationOptions = locations.map((loc) => ({
+    value: loc.id,
+    label: loc.locationName,
+  }));
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -91,42 +88,33 @@ export function ReuseClassModal({
         <DialogHeader>
           <DialogTitle>Reuse Class</DialogTitle>
           <DialogDescription>
-            Create copies of {classItem.name} for other locations
+            Create copies of {classItem.name} for the locations you select.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="grid gap-4 py-4"
+            className="grid w-full gap-4 py-4"
           >
             <FormField
               control={form.control}
               name="locationIds"
-              render={() => (
-                <FormItem>
-                  <FormLabel>Select Locations</FormLabel>
-                  <div className="space-y-2 max-h-60 overflow-y-auto">
-                    {locations?.map((location) => (
-                      <div
-                        key={location.id}
-                        className="flex items-center space-x-2"
-                      >
-                        <Checkbox
-                          id={location.id}
-                          checked={selectedLocationIds.includes(location.id)}
-                          onCheckedChange={() =>
-                            handleLocationToggle(location.id)
-                          }
-                        />
-                        <label
-                          htmlFor={location.id}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                        >
-                          {location.locationName}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel>Locations</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      id="reuse-class-locations"
+                      options={locationOptions}
+                      value={field.value ?? []}
+                      onValueChange={field.onChange}
+                      placeholder="Select locations"
+                      emptyMessage="No locations"
+                      loading={locationsLoading}
+                      multipleSelectedText="locations selected"
+                      triggerClassName="border-[#F4F4F4] bg-white"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -138,15 +126,13 @@ export function ReuseClassModal({
                 variant="outline"
                 onClick={() => {
                   onOpenChange(false);
-                  form.reset({
-                    locationIds: [],
-                  });
+                  form.reset({ locationIds: [] });
                 }}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Reusing..." : "Reuse Class"}
+              <Button type="submit" loading={isPending}>
+                Reuse class
               </Button>
             </DialogFooter>
           </form>

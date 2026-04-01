@@ -1,26 +1,229 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card } from "@/components/ui/card";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
+import { useToast } from "@/hooks/use-toast";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { useNavigate, useParams } from "react-router-dom";
 import * as React from "react";
-import { useToast } from "@/hooks/use-toast";
 import {
   useClassQuery,
-  useDeleteClassMutation,
   useClassReportQuery,
+  useDeleteClassMutation,
 } from "../services";
 import { AssignTrainerModal } from "./assign-trainer-modal";
 import { ReuseClassModal } from "./reuse-class-modal";
 import { UpdateClassModal } from "./update-class-modal";
+import type { Class } from "../types";
+
+function LabeledRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="space-y-1.5">
+      <p className="text-xs font-semibold text-foreground">{label}</p>
+      <p className="text-sm text-foreground">{value}</p>
+    </div>
+  );
+}
+
+function dash(v: string | null | undefined): string {
+  if (v == null) return "—";
+  const s = String(v).trim();
+  return s.length ? s : "—";
+}
+
+function ClassDetailsCards({ classItem }: { classItem: Class }) {
+  return (
+    <div className="grid gap-4 lg:grid-cols-2">
+      <Card className="rounded-md border-[#F4F4F4] bg-white p-6 shadow-none">
+        <h2 className="text-xl font-semibold">Class details</h2>
+        <p className="text-muted-foreground text-xs">
+          Schedule, capacity, and assignment for this class.
+        </p>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <LabeledRow label="Name" value={dash(classItem.name)} />
+          <div className="space-y-1.5">
+            <p className="text-xs font-semibold text-foreground">Status</p>
+            <Badge variant={classItem.isActive ? "default" : "secondary"}>
+              {classItem.isActive ? "Active" : "Inactive"}
+            </Badge>
+          </div>
+          <LabeledRow
+            label="Category"
+            value={dash(classItem.metadata?.category)}
+          />
+          <LabeledRow
+            label="Difficulty"
+            value={dash(classItem.metadata?.difficulty)}
+          />
+          <LabeledRow
+            label="Capacity"
+            value={String(classItem.capacity ?? "—")}
+          />
+          <LabeledRow
+            label="Duration"
+            value={
+              classItem.metadata?.duration != null
+                ? `${classItem.metadata.duration} minutes`
+                : "—"
+            }
+          />
+          <LabeledRow
+            label="Location"
+            value={dash(classItem.location?.locationName) || "Gym-level"}
+          />
+          <LabeledRow
+            label="Trainer"
+            value={
+              classItem.trainer
+                ? `${classItem.trainer.firstName} ${classItem.trainer.lastName}`.trim()
+                : "Not assigned"
+            }
+          />
+        </div>
+        {classItem.description?.trim() ? (
+          <>
+            <Separator className="my-4" />
+            <div className="space-y-1.5">
+              <p className="text-xs font-semibold text-foreground">
+                Description
+              </p>
+              <p className="text-sm text-foreground">
+                {classItem.description.trim()}
+              </p>
+            </div>
+          </>
+        ) : null}
+        {classItem.metadata?.equipment &&
+        classItem.metadata.equipment.length > 0 ? (
+          <>
+            <Separator className="my-4" />
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-foreground">Equipment</p>
+              <div className="flex flex-wrap gap-2">
+                {classItem.metadata.equipment.map((item, index) => (
+                  <Badge key={index} variant="outline">
+                    {item}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </>
+        ) : null}
+        <Separator className="my-4" />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <LabeledRow
+            label="Created"
+            value={new Date(classItem.createdAt).toLocaleDateString()}
+          />
+          <LabeledRow
+            label="Updated"
+            value={new Date(classItem.updatedAt).toLocaleDateString()}
+          />
+        </div>
+      </Card>
+
+      <ClassReportCard classId={classItem.id} />
+    </div>
+  );
+}
+
+function ClassReportCard({ classId }: { classId: string }) {
+  const {
+    data: report,
+    isLoading: reportLoading,
+    isError,
+  } = useClassReportQuery(classId);
+
+  return (
+    <Card className="rounded-md border-[#F4F4F4] bg-white p-6 shadow-none">
+      <h2 className="text-xl font-semibold">Class report</h2>
+      <p className="text-muted-foreground text-xs">
+        Sessions, bookings, attendance, and revenue for this class.
+      </p>
+      {reportLoading ? (
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+          {Array.from({ length: 5 }, (_, i) => (
+            <Skeleton key={i} className="h-16 w-full rounded-md" />
+          ))}
+        </div>
+      ) : isError || !report ? (
+        <p className="text-muted-foreground text-sm">
+          Report could not be loaded.
+        </p>
+      ) : (
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+          <LabeledRow
+            label="Total sessions"
+            value={String(report.totalSessions ?? 0)}
+          />
+          <LabeledRow
+            label="Total bookings"
+            value={String(report.totalBookings ?? 0)}
+          />
+          <LabeledRow
+            label="Total attendance"
+            value={String(report.totalAttendance ?? 0)}
+          />
+          <LabeledRow
+            label="Avg. attendance"
+            value={String(report.averageAttendance ?? 0)}
+          />
+          <LabeledRow
+            label="Revenue"
+            value={`$${(report.revenue ?? 0).toLocaleString()}`}
+          />
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function SchedulesCard({ classItem }: { classItem: Class }) {
+  return (
+    <Card className="rounded-md border-[#F4F4F4] bg-white p-6 shadow-none">
+      <h2 className="text-xl font-semibold">Schedules</h2>
+      <p className="text-muted-foreground text-xs">
+        Upcoming and recurring session times.
+      </p>
+      <div className="space-y-2">
+        {classItem.schedules.length === 0 ? (
+          <p className="text-muted-foreground text-sm">No schedules yet.</p>
+        ) : (
+          classItem.schedules.map((schedule) => (
+            <div
+              key={schedule.id}
+              className="flex items-center justify-between rounded-md border border-[#F4F4F4] p-3"
+            >
+              <div>
+                <p className="text-sm font-medium">
+                  {new Date(schedule.date).toLocaleDateString()}
+                </p>
+                <p className="text-muted-foreground text-xs">
+                  {schedule.startTime} – {schedule.endTime}
+                </p>
+                {schedule.notes ? (
+                  <p className="text-muted-foreground mt-1 text-xs">
+                    {schedule.notes}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </Card>
+  );
+}
 
 export function ClassDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -29,54 +232,54 @@ export function ClassDetailsPage() {
   const [isAssignTrainerOpen, setIsAssignTrainerOpen] = React.useState(false);
   const [isReuseOpen, setIsReuseOpen] = React.useState(false);
   const [isUpdateOpen, setIsUpdateOpen] = React.useState(false);
-  const [showReport, setShowReport] = React.useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
 
   const { data: classItem, isLoading, refetch } = useClassQuery(id || "");
-  const { data: report, isLoading: reportLoading } = useClassReportQuery(
-    showReport ? id || "" : "",
-  );
   const { mutateAsync: deleteClass, isPending: isDeleting } =
     useDeleteClassMutation();
 
-  const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this class?")) return;
-
+  const handleConfirmDelete = async () => {
+    if (!id) return;
     try {
-      await deleteClass(id || "");
-      showSuccess("Success", "Class deleted successfully!");
+      await deleteClass(id);
+      showSuccess("Class deleted", "The class was removed.");
+      setDeleteDialogOpen(false);
       navigate("/dashboard/classes");
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to delete class.";
-      showError("Error", message);
+      showError(
+        "Could not delete class",
+        getApiErrorMessage(error, "Failed to delete class."),
+      );
     }
   };
 
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="flex flex-col gap-4 px-4 py-4 md:gap-6 md:px-6 md:py-6">
-          <Skeleton className="h-10 w-72" />
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <Skeleton className="h-6 w-44" />
-                <Skeleton className="h-4 w-56 mt-2" />
-              </CardHeader>
-              <CardContent>
+        <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+          <div className="flex items-center justify-between gap-4 px-4 lg:px-6">
+            <div>
+              <Skeleton className="h-9 w-64" />
+              <Skeleton className="mt-2 h-4 w-48" />
+            </div>
+            <Skeleton className="h-10 w-28" />
+          </div>
+          <div className="grid gap-4 px-4 lg:px-6 lg:grid-cols-2">
+            <Card className="rounded-md border-[#F4F4F4] p-6 shadow-none">
+              <Skeleton className="mb-4 h-6 w-40" />
+              <div className="space-y-3">
                 <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4 mt-3" />
-              </CardContent>
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
             </Card>
-            <Card>
-              <CardHeader>
-                <Skeleton className="h-6 w-52" />
-                <Skeleton className="h-4 w-40 mt-2" />
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-2/3 mt-3" />
-              </CardContent>
+            <Card className="rounded-md border-[#F4F4F4] p-6 shadow-none">
+              <Skeleton className="mb-4 h-6 w-32" />
+              <div className="grid grid-cols-3 gap-3">
+                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-16 w-full" />
+              </div>
             </Card>
           </div>
         </div>
@@ -87,8 +290,17 @@ export function ClassDetailsPage() {
   if (!classItem) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center py-10">
-          <p className="text-muted-foreground">Class not found</p>
+        <div className="px-4 py-6 lg:px-6">
+          <Card className="rounded-md border-[#F4F4F4] p-6 shadow-none">
+            <p className="text-muted-foreground text-sm">Class not found.</p>
+            <Button
+              variant="outline"
+              className="mt-4"
+              onClick={() => navigate("/dashboard/classes")}
+            >
+              Back to classes
+            </Button>
+          </Card>
         </div>
       </DashboardLayout>
     );
@@ -97,312 +309,111 @@ export function ClassDetailsPage() {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-        <div className="px-4 lg:px-6">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/dashboard/classes")}
-            className="mb-4"
-          >
-            ← Back to Classes
-          </Button>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-medium">{classItem.name}</h1>
-              <p className="text-muted-foreground mt-1 text-sm">
-                Class Details
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setIsAssignTrainerOpen(true)}
-              >
-                Assign Trainer
-              </Button>
-              <Button variant="outline" onClick={() => setIsReuseOpen(true)}>
-                Reuse
-              </Button>
-              <Button variant="outline" onClick={() => setShowReport(true)}>
-                Get Report
-              </Button>
-              <Button variant="outline" onClick={() => setIsUpdateOpen(true)}>
-                Update
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={handleDelete}
-                disabled={isDeleting}
-              >
-                Delete
-              </Button>
-            </div>
+        <div className="flex flex-col gap-4 px-4 lg:flex-row lg:items-start lg:justify-between lg:px-6">
+          <div>
+            <h1 className="text-3xl font-medium">{classItem.name}</h1>
+            <p className="text-muted-foreground mt-1 text-sm">
+              Class details, report, and schedules
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              className="border-[#F4F4F4]"
+              onClick={() => setIsAssignTrainerOpen(true)}
+            >
+              Assign trainer
+            </Button>
+            <Button
+              variant="outline"
+              className="border-[#F4F4F4]"
+              onClick={() => setIsReuseOpen(true)}
+            >
+              Reuse
+            </Button>
+            <Button
+              variant="outline"
+              className="border-[#F4F4F4]"
+              onClick={() => setIsUpdateOpen(true)}
+            >
+              Update
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => setDeleteDialogOpen(true)}
+            >
+              Delete
+            </Button>
           </div>
         </div>
 
-        <div className="px-4 lg:px-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Class Information</CardTitle>
-              <CardDescription>Complete details for this class</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Name
-                  </p>
-                  <p className="text-sm">{classItem.name}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Status
-                  </p>
-                  <Badge variant={classItem.isActive ? "default" : "secondary"}>
-                    {classItem.isActive ? "Active" : "Inactive"}
-                  </Badge>
-                </div>
-              </div>
-
-              {classItem.description && (
-                <>
-                  <Separator />
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground mb-2">
-                      Description
-                    </p>
-                    <p className="text-sm">{classItem.description}</p>
-                  </div>
-                </>
-              )}
-
-              <Separator />
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Category
-                  </p>
-                  <Badge variant="outline" className="mt-1">
-                    {classItem.metadata?.category || "N/A"}
-                  </Badge>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Difficulty
-                  </p>
-                  <Badge variant="secondary" className="mt-1">
-                    {classItem.metadata?.difficulty || "N/A"}
-                  </Badge>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Capacity
-                  </p>
-                  <p className="text-sm font-semibold">{classItem.capacity}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Duration
-                  </p>
-                  <p className="text-sm font-semibold">
-                    {classItem.metadata?.duration || 0} minutes
-                  </p>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Location
-                  </p>
-                  <p className="text-sm">
-                    {classItem.location?.locationName || "All Locations"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Trainer
-                  </p>
-                  <p className="text-sm">
-                    {classItem.trainer
-                      ? `${classItem.trainer.firstName} ${classItem.trainer.lastName}`
-                      : "Not assigned"}
-                  </p>
-                </div>
-              </div>
-
-              {classItem.metadata?.equipment &&
-                classItem.metadata.equipment.length > 0 && (
-                  <>
-                    <Separator />
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground mb-2">
-                        Equipment
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {classItem.metadata.equipment.map((item, index) => (
-                          <Badge key={index} variant="outline">
-                            {item}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
-
-              <Separator />
-
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-2">
-                  Schedules
-                </p>
-                <div className="space-y-2">
-                  {classItem.schedules.map((schedule, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-3 border rounded-lg"
-                    >
-                      <div>
-                        <p className="text-sm font-medium">
-                          {new Date(schedule.date).toLocaleDateString()}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {schedule.startTime} - {schedule.endTime}
-                        </p>
-                        {schedule.notes && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {schedule.notes}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {showReport && (
-                <>
-                  <Separator />
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground mb-2">
-                      Class Report
-                    </p>
-                    {reportLoading ? (
-                      <p className="text-sm text-muted-foreground">
-                        Loading report...
-                      </p>
-                    ) : report ? (
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            Total Sessions
-                          </p>
-                          <p className="text-sm font-semibold">
-                            {report.totalSessions || 0}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            Total Bookings
-                          </p>
-                          <p className="text-sm font-semibold">
-                            {report.totalBookings || 0}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            Total Attendance
-                          </p>
-                          <p className="text-sm font-semibold">
-                            {report.totalAttendance || 0}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            Average Attendance
-                          </p>
-                          <p className="text-sm font-semibold">
-                            {report.averageAttendance || 0}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">
-                            Revenue
-                          </p>
-                          <p className="text-sm font-semibold">
-                            ${(report.revenue || 0).toLocaleString()}
-                          </p>
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">
-                        No report data available
-                      </p>
-                    )}
-                  </div>
-                </>
-              )}
-
-              <Separator />
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Created At
-                  </p>
-                  <p className="text-sm">
-                    {new Date(classItem.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Updated At
-                  </p>
-                  <p className="text-sm">
-                    {new Date(classItem.updatedAt).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="space-y-4 px-4 lg:px-6">
+          <ClassDetailsCards classItem={classItem} />
+          <SchedulesCard classItem={classItem} />
         </div>
       </div>
 
-      {classItem && (
-        <>
-          <AssignTrainerModal
-            open={isAssignTrainerOpen}
-            onOpenChange={setIsAssignTrainerOpen}
-            classItem={classItem}
-            onSuccess={() => {
-              refetch();
-              setIsAssignTrainerOpen(false);
-            }}
-          />
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete this class?</DialogTitle>
+            <DialogDescription>
+              <span className="text-foreground font-medium">
+                {classItem.name}
+              </span>{" "}
+              will be permanently removed. This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              loading={isDeleting}
+              onClick={() => void handleConfirmDelete()}
+            >
+              Delete class
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-          <ReuseClassModal
-            open={isReuseOpen}
-            onOpenChange={setIsReuseOpen}
-            classItem={classItem}
-            onSuccess={() => {
-              refetch();
-              setIsReuseOpen(false);
-            }}
-          />
+      <AssignTrainerModal
+        open={isAssignTrainerOpen}
+        onOpenChange={setIsAssignTrainerOpen}
+        classItem={classItem}
+        onSuccess={() => {
+          void refetch();
+          setIsAssignTrainerOpen(false);
+        }}
+      />
 
-          <UpdateClassModal
-            open={isUpdateOpen}
-            onOpenChange={setIsUpdateOpen}
-            classItem={classItem}
-            onSuccess={() => {
-              refetch();
-              setIsUpdateOpen(false);
-            }}
-          />
-        </>
-      )}
+      <ReuseClassModal
+        open={isReuseOpen}
+        onOpenChange={setIsReuseOpen}
+        classItem={classItem}
+        onSuccess={() => {
+          void refetch();
+          setIsReuseOpen(false);
+        }}
+      />
+
+      <UpdateClassModal
+        open={isUpdateOpen}
+        onOpenChange={setIsUpdateOpen}
+        classItem={classItem}
+        onSuccess={() => {
+          void refetch();
+          setIsUpdateOpen(false);
+        }}
+      />
     </DashboardLayout>
   );
 }

@@ -21,7 +21,10 @@ import {
   useClassReportQuery,
   useDeleteClassMutation,
 } from "../services";
-import { AssignTrainerModal } from "./assign-trainer-modal";
+import {
+  AssignTrainerModal,
+  classHasAssignedTrainer,
+} from "./assign-trainer-modal";
 import { ReuseClassModal } from "./reuse-class-modal";
 import { UpdateClassModal } from "./update-class-modal";
 import type { Class } from "../types";
@@ -322,7 +325,9 @@ export function ClassDetailsPage() {
               className="border-[#F4F4F4]"
               onClick={() => setIsAssignTrainerOpen(true)}
             >
-              Assign trainer
+              {classHasAssignedTrainer(classItem)
+                ? "Reassign trainer"
+                : "Assign trainer"}
             </Button>
             <Button
               variant="outline"

@@ -38,6 +38,10 @@ const assignTrainerSchema = yup.object({
 
 type AssignTrainerFormValues = yup.InferType<typeof assignTrainerSchema>;
 
+export function classHasAssignedTrainer(c: Class): boolean {
+  return Boolean(c.trainer) || Boolean(c.trainerId);
+}
+
 interface AssignTrainerModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -53,6 +57,7 @@ export function AssignTrainerModal({
 }: AssignTrainerModalProps) {
   const { showSuccess, showError } = useToast();
   const { mutateAsync: assignTrainer, isPending } = useAssignTrainerMutation();
+  const isReassign = classHasAssignedTrainer(classItem);
 
   const listParams = classItem.locationId
     ? { locationId: classItem.locationId }
@@ -83,12 +88,22 @@ export function AssignTrainerModal({
         id: classItem.id,
         payload: { trainerId: data.trainerId },
       });
-      showSuccess("Success", "Trainer assigned successfully!");
+      showSuccess(
+        "Success",
+        isReassign
+          ? "Trainer updated successfully."
+          : "Trainer assigned successfully.",
+      );
       onSuccess();
     } catch (error) {
       showError(
-        "Could not assign trainer",
-        getApiErrorMessage(error, "Failed to assign trainer."),
+        isReassign ? "Could not reassign trainer" : "Could not assign trainer",
+        getApiErrorMessage(
+          error,
+          isReassign
+            ? "Failed to reassign trainer."
+            : "Failed to assign trainer.",
+        ),
       );
     }
   };
@@ -97,10 +112,13 @@ export function AssignTrainerModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-full max-w-[500px] sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Assign Trainer</DialogTitle>
+          <DialogTitle>
+            {isReassign ? "Reassign trainer" : "Assign trainer"}
+          </DialogTitle>
           <DialogDescription>
-            Assign a trainer to {classItem.name}. The trainer must be assigned to
-            this class location.
+            {isReassign
+              ? `Choose a new trainer for ${classItem.name}. They must be assigned to this class location.`
+              : `Assign a trainer to ${classItem.name}. They must be assigned to this class location.`}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -157,7 +175,7 @@ export function AssignTrainerModal({
                 Cancel
               </Button>
               <Button type="submit" loading={isPending}>
-                Assign Trainer
+                {isReassign ? "Reassign trainer" : "Assign trainer"}
               </Button>
             </DialogFooter>
           </form>

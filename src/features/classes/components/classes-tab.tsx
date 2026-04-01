@@ -3,29 +3,41 @@ import { TableFilterBar } from "@/components/molecules/table-filter-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
+import { useLocationsQuery } from "@/features/locations/services";
 import { IconDotsVertical } from "@tabler/icons-react";
 import { type ColumnDef } from "@tanstack/react-table";
-import { useNavigate } from "react-router-dom";
 import * as React from "react";
+import { useNavigate } from "react-router-dom";
 import { useClassesQuery, useDeleteClassMutation } from "../services";
-import { useLocationsQuery } from "@/features/locations/services";
 import type { Class } from "../types";
+import {
+  AssignTrainerModal,
+  classHasAssignedTrainer,
+} from "./assign-trainer-modal";
 import { CreateClassModal } from "./create-class-modal";
-import { AssignTrainerModal } from "./assign-trainer-modal";
 import { ReuseClassModal } from "./reuse-class-modal";
-import { useToast } from "@/hooks/use-toast";
 
 const createClassesColumns = (
   navigate: (path: string) => void,
   onAssignTrainer: (classItem: Class) => void,
   onReuse: (classItem: Class) => void,
-  onDelete: (classId: string) => void,
+  onRequestDelete: (classItem: Class) => void,
 ): ColumnDef<Class>[] => [
   {
     accessorKey: "name",
@@ -121,7 +133,9 @@ const createClassesColumns = (
               View
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onAssignTrainer(classItem)}>
-              Assign Trainer
+              {classHasAssignedTrainer(classItem)
+                ? "Reassign trainer"
+                : "Assign trainer"}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onReuse(classItem)}>
               Reuse
@@ -129,7 +143,7 @@ const createClassesColumns = (
             <DropdownMenuSeparator />
             <DropdownMenuItem
               variant="destructive"
-              onClick={() => onDelete(classItem.id)}
+              onClick={() => onRequestDelete(classItem)}
             >
               Delete
             </DropdownMenuItem>
@@ -157,6 +171,7 @@ export function ClassesTab({
     null,
   );
   const [reusingClass, setReusingClass] = React.useState<Class | null>(null);
+  const [deleteTarget, setDeleteTarget] = React.useState<Class | null>(null);
 
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
   const effectiveLocationId = locationFilter === "all" ? undefined : locationFilter;
@@ -166,19 +181,21 @@ export function ClassesTab({
     isLoading,
     refetch,
   } = useClassesQuery(effectiveLocationId);
-  const { mutateAsync: deleteClass } = useDeleteClassMutation();
+  const { mutateAsync: deleteClass, isPending: isDeleting } =
+    useDeleteClassMutation();
 
-  const handleDelete = async (classId: string) => {
-    if (!confirm("Are you sure you want to delete this class?")) return;
-
+  const handleConfirmDeleteList = async () => {
+    if (!deleteTarget) return;
     try {
-      await deleteClass(classId);
-      showSuccess("Success", "Class deleted successfully!");
+      await deleteClass(deleteTarget.id);
+      showSuccess("Class deleted", "The class was removed.");
+      setDeleteTarget(null);
       refetch();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to delete class.";
-      showError("Error", message);
+      showError(
+        "Could not delete class",
+        getApiErrorMessage(error, "Failed to delete class."),
+      );
     }
   };
 
@@ -190,15 +207,19 @@ export function ClassesTab({
     setReusingClass(classItem);
   };
 
+  const handleRequestDelete = React.useCallback((classItem: Class) => {
+    setDeleteTarget(classItem);
+  }, []);
+
   const columns = React.useMemo(
     () =>
       createClassesColumns(
         navigate,
         handleAssignTrainer,
         handleReuse,
-        handleDelete,
+        handleRequestDelete,
       ),
-    [navigate, handleAssignTrainer, handleReuse, handleDelete],
+    [navigate, handleAssignTrainer, handleReuse, handleRequestDelete],
   );
 
   const filteredClasses = React.useMemo(() => {
@@ -272,6 +293,43 @@ export function ClassesTab({
           }}
         />
       )}
+
+      <Dialog
+        open={deleteTarget != null}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete this class?</DialogTitle>
+            <DialogDescription>
+              <span className="text-foreground font-medium">
+                {deleteTarget?.name}
+              </span>{" "}
+              will be permanently removed. This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDeleteTarget(null)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              loading={isDeleting}
+              onClick={() => void handleConfirmDeleteList()}
+            >
+              Delete class
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

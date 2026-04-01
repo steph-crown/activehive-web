@@ -209,17 +209,43 @@ export function SubscriptionsPage() {
   const effectiveLocationId =
     locationFilter === "all" ? undefined : locationFilter;
 
-  // Build filters with location
-  const queryFilters: SubscriptionsFilters = React.useMemo(() => {
-    const baseFilters = { ...filters };
-    if (effectiveLocationId) {
-      baseFilters.locationId = effectiveLocationId;
-    }
-    return baseFilters;
-  }, [filters, effectiveLocationId]);
+  const deferredSearch = React.useDeferredValue(searchQuery.trim());
 
-  const { data: subscriptions, isLoading } =
+  const queryFilters: SubscriptionsFilters = React.useMemo(() => {
+    const merged: SubscriptionsFilters = {
+      ...filters,
+      page: filters.page ?? 1,
+      limit: filters.limit ?? 20,
+    };
+
+    const barSearch = deferredSearch;
+    if (barSearch) merged.search = barSearch;
+    else if (filters.search?.trim()) merged.search = filters.search.trim();
+    else delete merged.search;
+
+    if (effectiveLocationId) merged.locationId = effectiveLocationId;
+    else delete merged.locationId;
+
+    if (dateFilter) {
+      merged.startDateFrom = `${dateFilter}T00:00:00.000Z`;
+      merged.startDateTo = `${dateFilter}T23:59:59.999Z`;
+    }
+
+    return merged;
+  }, [filters, effectiveLocationId, deferredSearch, dateFilter]);
+
+  React.useEffect(() => {
+    setFilters((prev) => ({ ...prev, page: 1 }));
+  }, [effectiveLocationId, deferredSearch, dateFilter]);
+
+  const { data: subscriptionsResponse, isLoading } =
     useSubscriptionsQuery(queryFilters);
+
+  const rows = subscriptionsResponse?.data ?? [];
+  const totalItems = subscriptionsResponse?.total ?? 0;
+  const totalPages = subscriptionsResponse?.totalPages ?? 0;
+  const page = filters.page ?? 1;
+  const limit = filters.limit ?? 20;
   const { data: statistics, isLoading: statsLoading } =
     useSubscriptionStatisticsQuery(effectiveLocationId);
 
@@ -255,28 +281,6 @@ export function SubscriptionsPage() {
       ),
     [navigate],
   );
-
-  const visibleSubscriptions = React.useMemo(() => {
-    const rows = subscriptions || [];
-    return rows.filter((subscription) => {
-      const normalizedSearch = searchQuery.trim().toLowerCase();
-      const matchesSearch =
-        normalizedSearch.length === 0 ||
-        `${subscription.member.firstName} ${subscription.member.lastName} ${subscription.member.email} ${subscription.membershipPlan.name}`
-          .toLowerCase()
-          .includes(normalizedSearch);
-
-      if (!dateFilter) return matchesSearch;
-
-      const formattedDate = new Date(dateFilter).toLocaleDateString();
-      const matchesDate =
-        new Date(subscription.startDate).toLocaleDateString() ===
-          formattedDate ||
-        new Date(subscription.endDate).toLocaleDateString() === formattedDate;
-
-      return matchesSearch && matchesDate;
-    });
-  }, [dateFilter, searchQuery, subscriptions]);
 
   return (
     <DashboardLayout>
@@ -376,13 +380,7 @@ export function SubscriptionsPage() {
             onSearchChange={setSearchQuery}
             searchPlaceholder="Search subscriptions..."
             locationValue={locationFilter}
-            onLocationChange={(value) => {
-              setLocationFilter(value);
-              setFilters((prev) => ({
-                ...prev,
-                locationId: value === "all" ? undefined : value,
-              }));
-            }}
+            onLocationChange={setLocationFilter}
             locations={(locations ?? []).map((location) => ({
               value: location.id,
               label: location.locationName,
@@ -406,12 +404,27 @@ export function SubscriptionsPage() {
           />
 
           <DataTable
-            data={visibleSubscriptions}
+            data={rows}
             columns={columns}
             enableTabs={false}
             getRowId={(row) => row.id}
             emptyMessage="No subscriptions found."
             isLoading={isLoading}
+            defaultPageSize={limit}
+            serverPagination={{
+              totalItems,
+              pageIndex: page - 1,
+              pageSize: limit,
+              pageCount: Math.max(1, totalPages),
+              onPageChange: (pageIndex) =>
+                setFilters((prev) => ({ ...prev, page: pageIndex + 1 })),
+              onPageSizeChange: (next) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  limit: next,
+                  page: 1,
+                })),
+            }}
           />
         </div>
       </div>

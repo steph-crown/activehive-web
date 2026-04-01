@@ -41,9 +41,12 @@ export function SubscriptionDetailsPage() {
   const [isChangePlanOpen, setIsChangePlanOpen] = React.useState(false);
 
   // Fetch all subscriptions for the table
-  const { data: subscriptionsData } = useSubscriptionsQuery({
+  const { data: subscriptionsResponse } = useSubscriptionsQuery({
     memberId: subscription?.memberId,
+    limit: 50,
+    page: 1,
   });
+  const subscriptionsData = subscriptionsResponse?.data;
 
   const handleUpdateStatus = (sub: Subscription) => {
     setSelectedSubscription(sub);

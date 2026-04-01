@@ -27,7 +27,7 @@ export type Subscription = {
     email: string;
     firstName: string;
     lastName: string;
-    phoneNumber: string;
+    phoneNumber?: string | null;
   };
   gymId: string;
   gym: {

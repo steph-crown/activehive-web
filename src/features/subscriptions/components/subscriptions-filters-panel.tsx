@@ -49,7 +49,7 @@ export function SubscriptionsFiltersPanel({
   }, [filters]);
 
   const handleApply = () => {
-    onFiltersChange(localFilters);
+    onFiltersChange({ ...localFilters, page: 1 });
     setIsOpen(false);
   };
 
@@ -106,7 +106,7 @@ export function SubscriptionsFiltersPanel({
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-2 gap-4">
-            <div>
+            <div className="min-w-0 w-full">
               <label className="text-sm font-medium mb-2 block">Status</label>
               <Select
                 value={localFilters.status || "all"}
@@ -120,7 +120,7 @@ export function SubscriptionsFiltersPanel({
                   }))
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-10 w-full">
                   <SelectValue placeholder="All statuses" />
                 </SelectTrigger>
                 <SelectContent>
@@ -137,11 +137,14 @@ export function SubscriptionsFiltersPanel({
                   <SelectItem value={SUBSCRIPTION_STATUS.PENDING}>
                     Pending
                   </SelectItem>
+                  <SelectItem value={SUBSCRIPTION_STATUS.INACTIVE}>
+                    Inactive
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <div>
+            <div className="min-w-0 w-full">
               <label className="text-sm font-medium mb-2 block">
                 Membership Plan
               </label>
@@ -154,7 +157,7 @@ export function SubscriptionsFiltersPanel({
                   }))
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-10 w-full">
                   <SelectValue placeholder="All plans" />
                 </SelectTrigger>
                 <SelectContent>
@@ -169,9 +172,10 @@ export function SubscriptionsFiltersPanel({
             </div>
           </div>
 
-          <div>
+          <div className="w-full min-w-0">
             <label className="text-sm font-medium mb-2 block">Search</label>
             <Input
+              className="h-10"
               placeholder="Search by member name or email"
               value={localFilters.search || ""}
               onChange={(e) =>
@@ -183,7 +187,7 @@ export function SubscriptionsFiltersPanel({
             />
           </div>
 
-          <div>
+          <div className="w-full min-w-0">
             <label className="text-sm font-medium mb-2 block">Member</label>
             <Select
               value={localFilters.memberId || "all"}
@@ -195,7 +199,7 @@ export function SubscriptionsFiltersPanel({
               }
               disabled={membersLoading}
             >
-              <SelectTrigger>
+              <SelectTrigger className="h-10 w-full">
                 <SelectValue placeholder="All members" />
               </SelectTrigger>
               <SelectContent>
@@ -211,11 +215,12 @@ export function SubscriptionsFiltersPanel({
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
+            <div className="min-w-0 w-full">
               <label className="text-sm font-medium mb-2 block">
                 Start Date From
               </label>
               <DatePicker
+                className="h-10"
                 value={localFilters.startDateFrom}
                 onChange={(date) =>
                   setLocalFilters((prev) => ({
@@ -226,11 +231,12 @@ export function SubscriptionsFiltersPanel({
                 placeholder="Select start date from"
               />
             </div>
-            <div>
+            <div className="min-w-0 w-full">
               <label className="text-sm font-medium mb-2 block">
                 Start Date To
               </label>
               <DatePicker
+                className="h-10"
                 value={localFilters.startDateTo}
                 onChange={(date) =>
                   setLocalFilters((prev) => ({
@@ -244,11 +250,12 @@ export function SubscriptionsFiltersPanel({
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
+            <div className="min-w-0 w-full">
               <label className="text-sm font-medium mb-2 block">
                 End Date From
               </label>
               <DatePicker
+                className="h-10"
                 value={localFilters.endDateFrom}
                 onChange={(date) =>
                   setLocalFilters((prev) => ({
@@ -259,11 +266,12 @@ export function SubscriptionsFiltersPanel({
                 placeholder="Select end date from"
               />
             </div>
-            <div>
+            <div className="min-w-0 w-full">
               <label className="text-sm font-medium mb-2 block">
                 End Date To
               </label>
               <DatePicker
+                className="h-10"
                 value={localFilters.endDateTo}
                 onChange={(date) =>
                   setLocalFilters((prev) => ({

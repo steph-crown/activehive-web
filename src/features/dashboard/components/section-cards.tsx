@@ -5,6 +5,7 @@ import {
   IconCreditCardFilled,
 } from "@tabler/icons-react";
 import { Layers3, UsersRound } from "lucide-react";
+import type { GymOwnerDashboardOverview } from "../types";
 import { SummaryMetricCard } from "./summary-metric-card";
 
 type MetricCardTheme = {
@@ -13,6 +14,7 @@ type MetricCardTheme = {
   iconColorVar: string;
   title: string;
   value: string;
+  valueCaption?: string;
   percentChange: number;
   isPositive: boolean;
   comparisonText: string;
@@ -26,7 +28,27 @@ function mergeCssVars(vars: Record<string, string>) {
   return vars as React.CSSProperties;
 }
 
-export function SectionCards() {
+function formatNgn(amount: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "NGN",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+function formatInt(n: number): string {
+  return new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 0,
+  }).format(n);
+}
+
+const NO_COMPARISON_PERCENT = 0;
+
+type SectionCardsProps = {
+  overview: GymOwnerDashboardOverview | undefined;
+};
+
+export function SectionCards({ overview }: SectionCardsProps) {
   const baseVars = {
     "--success-500": "#22c55e",
     "--error-400": "#dc5959",
@@ -34,11 +56,21 @@ export function SectionCards() {
     "--grey-500": "#959595",
   } as Record<string, string>;
 
+  const summary = overview?.summary;
+  const quick = overview?.quickStats;
+
+  const totalRevenue = summary?.totalRevenue ?? 0;
+  const monthlyRevenue = summary?.monthlyRevenue ?? 0;
+  const totalMembers = summary?.totalMembers ?? 0;
+  const activeMembers = summary?.activeMembers ?? 0;
+  const activeSubscriptions = quick?.activeSubscriptions ?? 0;
+
   const cardThemes: MetricCardTheme[] = [
     {
-      title: "Monthly revenue",
-      value: "8,746",
-      percentChange: 2.4,
+      title: "Total revenue",
+      value: formatNgn(totalRevenue),
+      valueCaption: `Monthly ${formatNgn(monthlyRevenue)}`,
+      percentChange: NO_COMPARISON_PERCENT,
       isPositive: true,
       comparisonText: "vs last month",
       icon: <IconCreditCardFilled className="size-6" />,
@@ -55,8 +87,9 @@ export function SectionCards() {
     },
     {
       title: "Total members",
-      value: "8,746",
-      percentChange: 2.4,
+      value: formatInt(totalMembers),
+      valueCaption: `${formatInt(activeMembers)} active`,
+      percentChange: NO_COMPARISON_PERCENT,
       isPositive: true,
       comparisonText: "vs last month",
       icon: <UsersRound className="size-6 fill-current stroke-[1.8]" />,
@@ -74,8 +107,8 @@ export function SectionCards() {
     },
     {
       title: "Active plans",
-      value: "100",
-      percentChange: 2.4,
+      value: formatInt(activeSubscriptions),
+      percentChange: NO_COMPARISON_PERCENT,
       isPositive: true,
       comparisonText: "vs last month",
       icon: <Layers3 className="size-6 fill-current stroke-[1.8]" />,
@@ -92,9 +125,9 @@ export function SectionCards() {
     },
     {
       title: "Today's check-ins",
-      value: "8,746",
-      percentChange: -2.4,
-      isPositive: false,
+      value: "0",
+      percentChange: NO_COMPARISON_PERCENT,
+      isPositive: true,
       comparisonText: "vs last month",
       icon: <IconCalendarWeekFilled className="size-6" />,
       iconBgVar: "var(--error-50)",
@@ -118,6 +151,7 @@ export function SectionCards() {
             <SummaryMetricCard
               title={card.title}
               value={card.value}
+              valueCaption={card.valueCaption}
               icon={card.icon}
               iconBgVar={card.iconBgVar}
               iconColorVar={card.iconColorVar}

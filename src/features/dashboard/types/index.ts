@@ -1,3 +1,5 @@
+export * from "./overview";
+
 export type DashboardDocument = {
   id: number;
   header: string;

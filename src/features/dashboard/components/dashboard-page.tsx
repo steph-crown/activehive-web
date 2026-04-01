@@ -8,6 +8,7 @@ import { RevenueChart } from "./revenue-chart";
 import { MembersChart } from "./members-chart";
 import { WeeklyAttendanceChart } from "./weekly-attendance-chart";
 import { MembershipMixChart } from "./membership-mix-chart";
+import { useGymOwnerDashboardOverviewQuery } from "@/features/dashboard/services";
 import { useMembersQuery } from "@/features/members/services";
 import { useLocationStore } from "@/store";
 import { type ColumnDef } from "@tanstack/react-table";
@@ -172,7 +173,9 @@ const dummyMembersData: MemberSubscription[] = [
 export function DashboardPage() {
   const { selectedLocationId } = useLocationStore();
   const [searchQuery, setSearchQuery] = useState("");
-  const { isLoading } = useMembersQuery(
+  const { data: overview, isLoading: overviewLoading } =
+    useGymOwnerDashboardOverviewQuery();
+  const { isLoading: membersLoading } = useMembersQuery(
     selectedLocationId || undefined,
   );
   const tableMembers = useMemo(() => dummyMembersData, []);
@@ -181,9 +184,13 @@ export function DashboardPage() {
     <DashboardLayout>
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
         <WelcomeMessage />
-        {isLoading ? <SectionCardsSkeleton /> : <SectionCards />}
+        {overviewLoading ? (
+          <SectionCardsSkeleton />
+        ) : (
+          <SectionCards overview={overview} />
+        )}
         <div className="px-4 lg:px-6">
-          {isLoading ? (
+          {membersLoading ? (
             <ChartsSkeleton />
           ) : (
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -193,7 +200,7 @@ export function DashboardPage() {
           )}
         </div>
         <div className="px-4 lg:px-6">
-          {isLoading ? (
+          {membersLoading ? (
             <InsightsChartsSkeleton />
           ) : (
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -207,7 +214,7 @@ export function DashboardPage() {
           )}
         </div>
         <div className="px-4 lg:px-6">
-          {isLoading ? (
+          {membersLoading ? (
             <MembersTableSkeleton />
           ) : (
             <div className="flex flex-col gap-6 !rounded-md border border-[#F4F4F4] bg-white p-8">

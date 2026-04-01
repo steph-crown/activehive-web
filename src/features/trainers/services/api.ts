@@ -1,9 +1,19 @@
 import { apiClient } from "@/lib/api-client";
-import type { CreateTrainerPayload } from "../types";
+import type {
+  CreateTrainerPayload,
+  TrainerListItem,
+  TrainersListParams,
+} from "../types";
 
 const trainersPath = "/api/trainers";
 
 export const trainersApi = {
+  list: (params: TrainersListParams = {}): Promise<TrainerListItem[]> => {
+    const query: Record<string, string> = {};
+    if (params.locationId) query.locationId = params.locationId;
+    return apiClient.get<TrainerListItem[]>(trainersPath, { params: query });
+  },
+
   create: (payload: CreateTrainerPayload): Promise<unknown> => {
     const body: Record<string, unknown> = {
       email: payload.email,

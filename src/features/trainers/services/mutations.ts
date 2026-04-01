@@ -1,10 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { trainersApi } from "./api";
+import { trainersQueryKeys } from "./queries";
 import type { CreateTrainerPayload } from "../types";
-
-export const trainersQueryKeys = {
-  all: ["trainers"] as const,
-};
 
 export const useCreateTrainerMutation = () => {
   const queryClient = useQueryClient();

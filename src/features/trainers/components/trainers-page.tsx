@@ -13,9 +13,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { MultiSelect } from "@/components/ui/multi-select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useLocationsQuery } from "@/features/locations/services";
-import { useCreateTrainerMutation } from "../services";
+import { useCreateTrainerMutation, useTrainersQuery } from "../services";
+import type { TrainerListItem } from "../types";
 import { useToast } from "@/hooks/use-toast";
 import { useUpload } from "@/hooks/use-upload";
 import { getApiErrorMessage } from "@/lib/get-api-error-message";
@@ -42,86 +44,67 @@ const emptyAddTrainerForm = {
   locationIds: [] as string[],
 };
 
-type TrainerStatus = "Available" | "In Session" | "Off Today";
+function trainerDisplayName(t: TrainerListItem): string {
+  const name = `${t.firstName} ${t.lastName}`.trim();
+  return name || t.email;
+}
 
-type Trainer = {
-  id: string;
-  name: string;
-  email: string;
-  specializations: string[];
-  members: number;
-  rating: number;
-  status: TrainerStatus;
-  locationId: string;
-  createdAt: string;
-};
+function trainerInitials(t: TrainerListItem): string {
+  const name = trainerDisplayName(t);
+  return name
+    .split(/\s+/)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
 
-const trainersData: Trainer[] = [
-  {
-    id: "1",
-    name: "Mike Ross",
-    email: "mike.r@gym.com",
-    specializations: ["Weight Training", "CrossFit"],
-    members: 18,
-    rating: 4.9,
-    status: "Available",
-    locationId: "1",
-    createdAt: "2026-01-12",
-  },
-  {
-    id: "2",
-    name: "Lisa Park",
-    email: "lisa.p@gym.com",
-    specializations: ["Yoga", "Pilates"],
-    members: 15,
-    rating: 4.8,
-    status: "In Session",
-    locationId: "2",
-    createdAt: "2026-01-20",
-  },
-  {
-    id: "3",
-    name: "Carlos Diaz",
-    email: "carlos.d@gym.com",
-    specializations: ["Boxing", "HIIT"],
-    members: 12,
-    rating: 4.7,
-    status: "Available",
-    locationId: "1",
-    createdAt: "2026-02-03",
-  },
-  {
-    id: "4",
-    name: "Anna Thompson",
-    email: "anna.t@gym.com",
-    specializations: ["Swimming", "Cardio"],
-    members: 10,
-    rating: 4.9,
-    status: "Off Today",
-    locationId: "3",
-    createdAt: "2026-02-14",
-  },
-  {
-    id: "5",
-    name: "Ryan Cooper",
-    email: "ryan.c@gym.com",
-    specializations: ["CrossFit", "Strength"],
-    members: 14,
-    rating: 4.6,
-    status: "Available",
-    locationId: "2",
-    createdAt: "2026-02-21",
-  },
-];
+function trainerSpecialtyTags(t: TrainerListItem): string[] {
+  const fromArray = t.specialties ?? [];
+  const spec = t.specialization?.trim();
+  if (spec && !fromArray.includes(spec)) return [...fromArray, spec];
+  return [...fromArray];
+}
 
-const statusVariant: Record<
-  TrainerStatus,
-  "default" | "secondary" | "outline"
-> = {
-  Available: "default",
-  "In Session": "secondary",
-  "Off Today": "outline",
-};
+function statusBadgeVariant(
+  status: string,
+): "default" | "secondary" | "outline" | "destructive" {
+  const s = status.toLowerCase();
+  if (s === "active") return "default";
+  if (s === "pending") return "secondary";
+  if (s === "cancelled" || s === "suspended") return "destructive";
+  return "outline";
+}
+
+function TrainersGridSkeleton({ count = 6 }: { count?: number }) {
+  return (
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {Array.from({ length: count }, (_, index) => (
+        <div
+          key={index}
+          className="rounded-md border border-[#F4F4F4] bg-white p-5 shadow-none"
+        >
+          <div className="mb-3 flex items-start justify-between gap-2">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
+              <Skeleton className="h-10 w-10 shrink-0 rounded-full" />
+              <div className="min-w-0 flex-1 space-y-2">
+                <Skeleton className="h-4 w-36 max-w-full" />
+                <Skeleton className="h-3 w-48 max-w-full" />
+              </div>
+            </div>
+            <Skeleton className="h-5 w-16 shrink-0 rounded-full" />
+          </div>
+          <div className="mb-3 flex flex-wrap gap-1">
+            <Skeleton className="h-5 w-16 rounded" />
+            <Skeleton className="h-5 w-24 rounded" />
+            <Skeleton className="h-5 w-14 rounded" />
+          </div>
+          <Skeleton className="h-4 w-32" />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function TrainersPage() {
   const { showSuccess, showError } = useToast();
@@ -141,29 +124,29 @@ export function TrainersPage() {
   }, [isAddOpen]);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [locationFilter, setLocationFilter] = React.useState("all");
-  const [dateFilter, setDateFilter] = React.useState("");
-  const [selectedTrainer, setSelectedTrainer] = React.useState<Trainer | null>(
-    null,
-  );
+  const [selectedTrainer, setSelectedTrainer] =
+    React.useState<TrainerListItem | null>(null);
   const [isViewOpen, setIsViewOpen] = React.useState(false);
+
+  const listParams =
+    locationFilter === "all" ? {} : { locationId: locationFilter };
+  const {
+    data: trainers = [],
+    isLoading: trainersLoading,
+    isError: trainersError,
+    error: trainersErrorObj,
+  } = useTrainersQuery(listParams);
 
   const filteredTrainers = React.useMemo(() => {
     const normalizedSearch = searchQuery.trim().toLowerCase();
-    return trainersData.filter((trainer) => {
-      const matchesSearch =
-        normalizedSearch.length === 0 ||
-        `${trainer.name} ${trainer.email} ${trainer.specializations.join(" ")}`
-          .toLowerCase()
-          .includes(normalizedSearch);
-      const matchesLocation =
-        locationFilter === "all" || trainer.locationId === locationFilter;
-      const matchesDate =
-        !dateFilter ||
-        new Date(trainer.createdAt).toLocaleDateString() ===
-          new Date(dateFilter).toLocaleDateString();
-      return matchesSearch && matchesLocation && matchesDate;
+    return trainers.filter((trainer) => {
+      if (normalizedSearch.length === 0) return true;
+      const tags = trainerSpecialtyTags(trainer).join(" ");
+      const haystack =
+        `${trainerDisplayName(trainer)} ${trainer.email} ${tags}`.toLowerCase();
+      return haystack.includes(normalizedSearch);
     });
-  }, [dateFilter, locationFilter, searchQuery]);
+  }, [searchQuery, trainers]);
 
   const handleProfilePhotoChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -250,28 +233,32 @@ export function TrainersPage() {
               label: location.locationName,
             }))}
             locationDisabled={locationsLoading}
-            dateValue={dateFilter}
-            onDateChange={setDateFilter}
           />
 
-          {filteredTrainers.length === 0 ? (
-            <div className="text-sm text-muted-foreground">
+          {trainersLoading ? (
+            <TrainersGridSkeleton />
+          ) : trainersError ? (
+            <div className="text-destructive text-sm">
+              {getApiErrorMessage(
+                trainersErrorObj,
+                "Could not load trainers. Try again.",
+              )}
+            </div>
+          ) : filteredTrainers.length === 0 ? (
+            <div className="text-muted-foreground text-sm">
               No trainers found.
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               {filteredTrainers.map((trainer) => {
-                const initials = trainer.name
-                  .split(" ")
-                  .map((name) => name[0])
-                  .join("")
-                  .slice(0, 2)
-                  .toUpperCase();
+                const tags = trainerSpecialtyTags(trainer);
+                const locationNames =
+                  trainer.trainerLocations?.map((l) => l.locationName) ?? [];
                 return (
                   <button
                     key={trainer.id}
                     type="button"
-                    className="rounded-md border border-[#F4F4F4] bg-white p-5 text-left shadow-none transition hover:shadow-sm cursor-pointer"
+                    className="cursor-pointer rounded-md border border-[#F4F4F4] bg-white p-5 text-left shadow-none transition hover:shadow-sm"
                     onClick={() => {
                       setSelectedTrainer(trainer);
                       setIsViewOpen(true);
@@ -279,37 +266,54 @@ export function TrainersPage() {
                   >
                     <div className="mb-3 flex items-start justify-between gap-2">
                       <div className="flex items-center gap-3">
-                        <div className="bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold">
-                          {initials}
-                        </div>
+                        {trainer.profileImage ? (
+                          <img
+                            src={trainer.profileImage}
+                            alt=""
+                            className="h-10 w-10 shrink-0 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold">
+                            {trainerInitials(trainer)}
+                          </div>
+                        )}
                         <div>
                           <h3 className="text-base font-semibold">
-                            {trainer.name}
+                            {trainerDisplayName(trainer)}
                           </h3>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-muted-foreground text-xs">
                             {trainer.email}
                           </p>
                         </div>
                       </div>
-                      <Badge variant={statusVariant[trainer.status]}>
+                      <Badge variant={statusBadgeVariant(trainer.status)}>
                         {trainer.status}
                       </Badge>
                     </div>
 
                     <div className="mb-3 flex flex-wrap gap-1">
-                      {trainer.specializations.map((specialization) => (
-                        <span
-                          key={`${trainer.id}-${specialization}`}
-                          className="rounded bg-muted px-2 py-0.5 text-xs"
-                        >
-                          {specialization}
+                      {tags.length === 0 ? (
+                        <span className="text-muted-foreground text-xs">
+                          No specialties listed
                         </span>
-                      ))}
+                      ) : (
+                        tags.map((specialization) => (
+                          <span
+                            key={`${trainer.id}-${specialization}`}
+                            className="bg-muted rounded px-2 py-0.5 text-xs"
+                          >
+                            {specialization}
+                          </span>
+                        ))
+                      )}
                     </div>
 
-                    <div className="flex items-center justify-between text-sm text-muted-foreground">
-                      <span>{trainer.members} members</span>
-                      <span>★ {trainer.rating.toFixed(1)}</span>
+                    <div className="text-muted-foreground text-sm">
+                      {locationNames.length === 0
+                        ? "No locations"
+                        : locationNames.length === 1
+                          ? locationNames[0]
+                          : `${locationNames.length} locations`}
                     </div>
                   </button>
                 );
@@ -469,7 +473,9 @@ export function TrainersPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {selectedTrainer?.name ?? "Trainer Profile"}
+              {selectedTrainer
+                ? trainerDisplayName(selectedTrainer)
+                : "Trainer Profile"}
             </DialogTitle>
             <DialogDescription>
               Trainer details and specialization info.
@@ -478,38 +484,61 @@ export function TrainersPage() {
           {selectedTrainer ? (
             <div className="space-y-4">
               <div>
-                <p className="text-xs text-muted-foreground">Email</p>
+                <p className="text-muted-foreground text-xs">Email</p>
                 <p className="text-sm">{selectedTrainer.email}</p>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-md bg-muted/50 p-3">
-                  <p className="text-xs text-muted-foreground">Members</p>
-                  <p className="text-lg font-semibold">
-                    {selectedTrainer.members}
-                  </p>
+              {selectedTrainer.phoneNumber ? (
+                <div>
+                  <p className="text-muted-foreground text-xs">Phone</p>
+                  <p className="text-sm">{selectedTrainer.phoneNumber}</p>
                 </div>
-                <div className="rounded-md bg-muted/50 p-3">
-                  <p className="text-xs text-muted-foreground">Rating</p>
-                  <p className="text-lg font-semibold">
-                    ★ {selectedTrainer.rating}
-                  </p>
-                </div>
-              </div>
+              ) : null}
               <div>
-                <p className="mb-2 text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">Status</p>
+                <Badge
+                  className="mt-1"
+                  variant={statusBadgeVariant(selectedTrainer.status)}
+                >
+                  {selectedTrainer.status}
+                </Badge>
+              </div>
+              {selectedTrainer.bio?.trim() ? (
+                <div>
+                  <p className="text-muted-foreground text-xs">Bio</p>
+                  <p className="text-sm">{selectedTrainer.bio.trim()}</p>
+                </div>
+              ) : null}
+              <div>
+                <p className="text-muted-foreground mb-2 text-xs">
                   Specializations
                 </p>
                 <div className="flex flex-wrap gap-1">
-                  {selectedTrainer.specializations.map((item) => (
-                    <span
-                      key={`${selectedTrainer.id}-${item}`}
-                      className="rounded bg-muted px-2 py-0.5 text-xs"
-                    >
-                      {item}
-                    </span>
-                  ))}
+                  {trainerSpecialtyTags(selectedTrainer).length === 0 ? (
+                    <span className="text-muted-foreground text-xs">—</span>
+                  ) : (
+                    trainerSpecialtyTags(selectedTrainer).map((item) => (
+                      <span
+                        key={`${selectedTrainer.id}-${item}`}
+                        className="bg-muted rounded px-2 py-0.5 text-xs"
+                      >
+                        {item}
+                      </span>
+                    ))
+                  )}
                 </div>
               </div>
+              {(selectedTrainer.trainerLocations?.length ?? 0) > 0 ? (
+                <div>
+                  <p className="text-muted-foreground mb-2 text-xs">
+                    Locations
+                  </p>
+                  <ul className="text-sm list-disc pl-4">
+                    {selectedTrainer.trainerLocations!.map((loc) => (
+                      <li key={loc.id}>{loc.locationName}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
             </div>
           ) : null}
           <DialogFooter>

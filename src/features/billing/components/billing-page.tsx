@@ -1,59 +1,44 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
+import {
+  formatBillingDate,
+  formatMonthlyPriceNgn,
+  getSubscriptionStatusBadgeVariant,
+} from "../lib/billing-display";
 import { useMySubscriptionQuery } from "../services";
+import { BillingTabPanels } from "./billing-tab-panels";
 import { SubscriptionPlanModal } from "./subscription-plan-modal";
 
+const TAB_ITEMS = [
+  { value: "overview", label: "Overview" },
+  { value: "plan-dates", label: "Plan & dates" },
+  { value: "organization", label: "Organization" },
+] as const;
+
 export function BillingPage() {
+  const navigate = useNavigate();
   const { data, isLoading, error } = useMySubscriptionQuery();
   const subscriptionData = data;
   const errorMessage = error ? error.message : null;
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
 
-  const getStatusVariant = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "active":
-        return "default";
-      case "trial":
-        return "secondary";
-      case "cancelled":
-        return "destructive";
-      default:
-        return "secondary";
-    }
-  };
-
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
-  const formatDateTime = (dateString: string | null) => {
-    if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-        <div className="flex items-center justify-between px-4 lg:px-6">
+        <div className="flex items-center justify-between gap-4 px-4 lg:px-6">
           <div>
             <h1 className="text-3xl font-medium">Billing</h1>
             <p className="text-muted-foreground mt-1 text-sm">
-              View your subscription and billing information
+              {isLoading
+                ? "Loading subscription…"
+                : "Subscription, renewal dates, and account details"}
             </p>
           </div>
           {subscriptionData && (
@@ -63,309 +48,160 @@ export function BillingPage() {
           )}
         </div>
 
-        <div className="px-4 lg:px-6">
-          {(() => {
-            if (isLoading) {
-              return (
-                <div className="space-y-6">
-                  <Card>
-                    <CardHeader>
-                      <Skeleton className="h-6 w-52" />
-                      <Skeleton className="h-4 w-40 mt-3" />
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <Skeleton className="h-4 w-full" />
-                      <Skeleton className="h-4 w-3/4" />
-                      <Skeleton className="h-4 w-2/3" />
-                    </CardContent>
-                  </Card>
-                </div>
-              );
-            }
-
-            if (errorMessage) {
-              return (
-                <div className="flex items-center justify-center py-10">
-                  <p className="text-destructive">Error: {errorMessage}</p>
-                </div>
-              );
-            }
-
-            if (!subscriptionData) {
-              return null;
-            }
-
-            return (
-              <div className="space-y-6">
-                {/* Subscription Overview */}
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle>Subscription Overview</CardTitle>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant={getStatusVariant(
-                            subscriptionData.subscription.status,
-                          )}
-                        >
-                          {subscriptionData.subscription.status.toUpperCase()}
-                        </Badge>
-                        {subscriptionData.isTrial && (
-                          <Badge variant="outline">Trial</Badge>
-                        )}
-                        {subscriptionData.isActive && (
-                          <Badge variant="default">Active</Badge>
-                        )}
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Plan</p>
-                        <p className="font-medium capitalize">
-                          {subscriptionData.subscription.plan}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Monthly Price
-                        </p>
-                        <p className="font-medium">
-                          {subscriptionData.subscription.monthlyPrice
-                            ? new Intl.NumberFormat("en-US", {
-                                style: "currency",
-                                currency: "NGN",
-                              }).format(
-                                subscriptionData.subscription.monthlyPrice,
-                              )
-                            : "N/A"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Auto Renew
-                        </p>
-                        <p className="font-medium">
-                          {subscriptionData.subscription.autoRenew
-                            ? "Yes"
-                            : "No"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Days Remaining
-                        </p>
-                        <p
-                          className={`font-medium ${
-                            subscriptionData.daysRemaining <= 7
-                              ? "text-orange-600"
-                              : ""
-                          }`}
-                        >
-                          {subscriptionData.daysRemaining}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Trial Information */}
-                {subscriptionData.isTrial && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Trial Information</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm text-muted-foreground">
-                            Trial Start Date
-                          </p>
-                          <p className="font-medium">
-                            {formatDateTime(
-                              subscriptionData.subscription.trialStartDate,
-                            )}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">
-                            Trial End Date
-                          </p>
-                          <p className="font-medium">
-                            {formatDateTime(
-                              subscriptionData.subscription.trialEndDate,
-                            )}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Subscription Dates */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Subscription Dates</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Subscription Start Date
-                        </p>
-                        <p className="font-medium">
-                          {formatDate(
-                            subscriptionData.subscription.subscriptionStartDate,
-                          )}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Subscription End Date
-                        </p>
-                        <p className="font-medium">
-                          {formatDate(
-                            subscriptionData.subscription.subscriptionEndDate,
-                          )}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Last Payment Date
-                        </p>
-                        <p className="font-medium">
-                          {formatDate(
-                            subscriptionData.subscription.lastPaymentDate,
-                          )}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Next Payment Date
-                        </p>
-                        <p className="font-medium">
-                          {formatDate(
-                            subscriptionData.subscription.nextPaymentDate,
-                          )}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Cancellation Information */}
-                {subscriptionData.subscription.cancellationDate && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Cancellation Information</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm text-muted-foreground">
-                            Cancellation Date
-                          </p>
-                          <p className="font-medium">
-                            {formatDate(
-                              subscriptionData.subscription.cancellationDate,
-                            )}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">
-                            Reason
-                          </p>
-                          <p className="font-medium">
-                            {subscriptionData.subscription.cancellationReason ||
-                              "N/A"}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Gym Owner Information */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Gym Owner</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Name</p>
-                        <p className="font-medium">
-                          {subscriptionData.subscription.gymOwner.firstName}{" "}
-                          {subscriptionData.subscription.gymOwner.lastName}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Email</p>
-                        <p className="font-medium">
-                          {subscriptionData.subscription.gymOwner.email}
-                        </p>
-                      </div>
-                      {subscriptionData.subscription.gymOwner.phoneNumber && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">Phone</p>
-                          <p className="font-medium">
-                            {subscriptionData.subscription.gymOwner.phoneNumber}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Gym Information */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Gym</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Gym Name
-                        </p>
-                        <p className="font-medium">
-                          {subscriptionData.subscription.gym.name}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Email</p>
-                        <p className="font-medium">
-                          {subscriptionData.subscription.gym.email}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Phone</p>
-                        <p className="font-medium">
-                          {subscriptionData.subscription.gym.phoneNumber}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Address</p>
-                        <p className="font-medium">
-                          {subscriptionData.subscription.gym.address.street}
-                          <br />
-                          {subscriptionData.subscription.gym.address.city},{" "}
-                          {subscriptionData.subscription.gym.address.state}{" "}
-                          {subscriptionData.subscription.gym.address.zipCode}
-                          <br />
-                          {subscriptionData.subscription.gym.address.country}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+        {isLoading && (
+          <div className="grid gap-4 px-4 lg:px-6 lg:grid-cols-2">
+            <Card className="rounded-md border-[#F4F4F4] p-6 shadow-none">
+              <Skeleton className="mb-4 h-6 w-40" />
+              <div className="space-y-3">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
               </div>
-            );
-          })()}
-        </div>
+            </Card>
+            <Card className="rounded-md border-[#F4F4F4] p-6 shadow-none">
+              <Skeleton className="mb-4 h-6 w-32" />
+              <Skeleton className="h-20 w-full" />
+            </Card>
+          </div>
+        )}
+
+        {errorMessage && (
+          <div className="px-4 lg:px-6">
+            <Card className="rounded-md border-destructive/30 bg-destructive/5 p-6 shadow-none">
+              <p className="text-destructive text-sm font-medium">
+                {errorMessage}
+              </p>
+              <Button
+                variant="outline"
+                className="mt-4"
+                onClick={() => navigate("/dashboard")}
+              >
+                Back to dashboard
+              </Button>
+            </Card>
+          </div>
+        )}
+
+        {!isLoading && !errorMessage && !subscriptionData && (
+          <div className="px-4 lg:px-6">
+            <Card className="rounded-md border-[#F4F4F4] bg-white p-6 shadow-none">
+              <h2 className="text-lg font-semibold">No subscription on file</h2>
+              <p className="text-muted-foreground mt-2 text-sm">
+                We couldn&apos;t load billing details for your gym. Refresh the
+                page or contact support if this continues.
+              </p>
+              <Button
+                variant="outline"
+                className="mt-4"
+                onClick={() => window.location.reload()}
+              >
+                Refresh
+              </Button>
+            </Card>
+          </div>
+        )}
+
+        {subscriptionData && !isLoading && !errorMessage && (
+          <>
+            <div className="grid gap-4 px-4 lg:px-6 lg:grid-cols-2">
+              <Card className="rounded-md border-[#F4F4F4] bg-white p-6 shadow-none">
+                <h2 className="text-lg font-semibold">Current subscription</h2>
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <Badge
+                    variant={getSubscriptionStatusBadgeVariant(
+                      subscriptionData.subscription.status,
+                    )}
+                    className="capitalize"
+                  >
+                    {subscriptionData.subscription.status}
+                  </Badge>
+                  {subscriptionData.isTrial && (
+                    <Badge variant="outline">Trial</Badge>
+                  )}
+                  {subscriptionData.isActive && !subscriptionData.isTrial && (
+                    <Badge variant="default">Active</Badge>
+                  )}
+                </div>
+                <div className="mt-4 space-y-3 text-sm">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-muted-foreground">Plan</span>
+                    <span className="text-right font-medium capitalize">
+                      {subscriptionData.subscription.plan || "—"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-muted-foreground">Monthly price</span>
+                    <span className="text-right font-medium">
+                      {formatMonthlyPriceNgn(
+                        subscriptionData.subscription.monthlyPrice,
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="rounded-md border-[#F4F4F4] bg-white p-6 shadow-none">
+                <h2 className="text-lg font-semibold">Renewal & payments</h2>
+                <div className="mt-4 space-y-3 text-sm">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-muted-foreground">Next payment</span>
+                    <span className="text-right font-medium">
+                      {formatBillingDate(
+                        subscriptionData.subscription.nextPaymentDate,
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-muted-foreground">Last payment</span>
+                    <span className="text-right font-medium">
+                      {formatBillingDate(
+                        subscriptionData.subscription.lastPaymentDate,
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-muted-foreground">Auto renew</span>
+                    <span className="text-right font-medium">
+                      {subscriptionData.subscription.autoRenew ? "Yes" : "No"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-muted-foreground">Days remaining</span>
+                    <span
+                      className={`text-right font-medium ${
+                        subscriptionData.daysRemaining <= 7
+                          ? "text-orange-600"
+                          : ""
+                      }`}
+                    >
+                      {subscriptionData.daysRemaining}
+                    </span>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            <div className="px-4 lg:px-6">
+              <Tabs defaultValue="overview" className="w-full">
+                <TabsList className="bg-muted text-muted-foreground flex h-auto min-h-9 w-full flex-wrap justify-start gap-1 rounded-lg p-[3px]">
+                  {TAB_ITEMS.map((tab) => (
+                    <TabsTrigger
+                      key={tab.value}
+                      value={tab.value}
+                      className="text-xs sm:text-sm"
+                    >
+                      {tab.label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+                <BillingTabPanels
+                  data={subscriptionData}
+                  onChangePlan={() => setIsPlanModalOpen(true)}
+                />
+              </Tabs>
+            </div>
+          </>
+        )}
       </div>
 
       <SubscriptionPlanModal

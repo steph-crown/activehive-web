@@ -1,9 +1,22 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { checkInsApi } from "./api";
-import type { CheckInsListParams, CheckInsListResponse } from "../types";
+import type {
+  CheckInsListParams,
+  CheckInsListResponse,
+  CheckInsStatsParams,
+  CheckInsStatsResponse,
+} from "../types";
 
 export const checkInsQueryKeys = {
   all: ["check-ins"] as const,
+  stats: (params: CheckInsStatsParams) =>
+    [
+      ...checkInsQueryKeys.all,
+      "stats",
+      params.locationId ?? "",
+      params.dateFrom ?? "",
+      params.dateTo ?? "",
+    ] as const,
   list: (params: CheckInsListParams) =>
     [
       ...checkInsQueryKeys.all,
@@ -26,5 +39,12 @@ export function useCheckInsQuery(params: CheckInsListParams) {
     queryKey: checkInsQueryKeys.list(params),
     queryFn: () => checkInsApi.list(params),
     placeholderData: keepPreviousData,
+  });
+}
+
+export function useCheckInsStatsQuery(params: CheckInsStatsParams = {}) {
+  return useQuery<CheckInsStatsResponse>({
+    queryKey: checkInsQueryKeys.stats(params),
+    queryFn: () => checkInsApi.stats(params),
   });
 }

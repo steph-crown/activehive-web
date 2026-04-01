@@ -2,10 +2,22 @@ import { apiClient } from "@/lib/api-client";
 import type {
   CheckInsListParams,
   CheckInsListResponse,
+  CheckInsStatsParams,
+  CheckInsStatsResponse,
   CreateCheckInPayload,
 } from "../types";
 
 const checkInsPath = "/api/check-ins";
+
+function statsQueryParams(
+  params: CheckInsStatsParams,
+): Record<string, string> {
+  const query: Record<string, string> = {};
+  if (params.locationId) query.locationId = params.locationId;
+  if (params.dateFrom) query.dateFrom = params.dateFrom;
+  if (params.dateTo) query.dateTo = params.dateTo;
+  return query;
+}
 
 function listQueryParams(params: CheckInsListParams): Record<string, string> {
   const query: Record<string, string> = {};
@@ -29,5 +41,10 @@ export const checkInsApi = {
   list: (params: CheckInsListParams = {}): Promise<CheckInsListResponse> =>
     apiClient.get<CheckInsListResponse>(checkInsPath, {
       params: listQueryParams(params),
+    }),
+
+  stats: (params: CheckInsStatsParams = {}): Promise<CheckInsStatsResponse> =>
+    apiClient.get<CheckInsStatsResponse>(`${checkInsPath}/stats`, {
+      params: statsQueryParams(params),
     }),
 };

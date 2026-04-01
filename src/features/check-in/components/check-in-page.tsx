@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { SummaryMetricCard } from "@/features/dashboard/components/summary-metric-card";
 import type { CheckInListItem } from "../types";
-import { useCheckInsQuery } from "../services";
+import { useCheckInsQuery, useCheckInsStatsQuery } from "../services";
 import { QuickCheckInDialog } from "./quick-check-in-dialog";
 
 function formatCheckInDate(iso: string) {
@@ -83,6 +83,16 @@ export function CheckInPage() {
 
   const { data: checkInsResponse, isLoading, isError } =
     useCheckInsQuery(listParams);
+
+  const statsParams = useMemo(
+    () => ({
+      locationId: locationFilter === "all" ? undefined : locationFilter,
+    }),
+    [locationFilter],
+  );
+
+  const { data: checkInStats, isLoading: statsLoading } =
+    useCheckInsStatsQuery(statsParams);
 
   const rows = checkInsResponse?.data ?? [];
   const totalItems = checkInsResponse?.total ?? 0;
@@ -199,14 +209,16 @@ export function CheckInPage() {
         <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
           <SummaryMetricCard
             title="Today's Attendance"
-            value="47"
+            value={
+              statsLoading ? "—" : String(checkInStats?.todayCheckIns ?? 0)
+            }
             icon={<UsersRound className="size-6 fill-current stroke-[1.8]" />}
             iconBgVar="#F2EEFF"
             iconColorVar="#7E52FF"
             valueColorVar="#7E52FF"
-            percentChange={12}
+            percentChange={0}
             isPositive={true}
-            comparisonText="vs last week"
+            comparisonText="so far today"
             hoverShadowClass="hover:shadow-[0_14px_30px_-20px_rgba(126,82,255,0.26)]"
           />
           <SummaryMetricCard

@@ -54,3 +54,29 @@ export type CheckInsListResponse = {
   limit: number;
   totalPages: number;
 };
+
+export type CheckInsStatsParams = {
+  locationId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+};
+
+export type CheckInsByLocationStat = {
+  locationId: string;
+  locationName: string;
+  count: number;
+};
+
+export type CheckInsByDateStat = {
+  date: string;
+  count: number;
+};
+
+export type CheckInsStatsResponse = {
+  todayCheckIns: number;
+  totalCheckIns: number;
+  totalCheckOuts: number;
+  activeCheckIns: number;
+  checkInsByLocation: CheckInsByLocationStat[];
+  checkInsByDate: CheckInsByDateStat[];
+};

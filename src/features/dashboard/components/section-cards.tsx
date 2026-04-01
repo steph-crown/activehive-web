@@ -5,7 +5,7 @@ import {
   IconCreditCardFilled,
 } from "@tabler/icons-react";
 import { Layers3, UsersRound } from "lucide-react";
-import type { GymOwnerDashboardOverview } from "../types";
+import type { GymOwnerAnalyticsDashboard } from "../types";
 import { SummaryMetricCard } from "./summary-metric-card";
 
 type MetricCardTheme = {
@@ -46,10 +46,10 @@ function formatInt(n: number): string {
 const NO_COMPARISON_PERCENT = 0;
 
 type SectionCardsProps = {
-  overview: GymOwnerDashboardOverview | undefined;
+  analytics: GymOwnerAnalyticsDashboard | undefined;
 };
 
-export function SectionCards({ overview }: SectionCardsProps) {
+export function SectionCards({ analytics }: SectionCardsProps) {
   const baseVars = {
     "--success-500": "#22c55e",
     "--error-400": "#dc5959",
@@ -57,14 +57,12 @@ export function SectionCards({ overview }: SectionCardsProps) {
     "--grey-500": "#959595",
   } as Record<string, string>;
 
-  const summary = overview?.summary;
-  const quick = overview?.quickStats;
-
-  const totalRevenue = summary?.totalRevenue ?? 0;
-  const monthlyRevenue = summary?.monthlyRevenue ?? 0;
-  const totalMembers = summary?.totalMembers ?? 0;
-  const activeMembers = summary?.activeMembers ?? 0;
-  const activeSubscriptions = quick?.activeSubscriptions ?? 0;
+  const totalRevenue = analytics?.totalRevenue ?? 0;
+  const monthlyRevenue = analytics?.monthlyRevenue ?? 0;
+  const totalMembers = analytics?.totalMembers ?? 0;
+  const activeMembers = analytics?.activeMembers ?? 0;
+  const activeSubscriptions = analytics?.activeSubscriptions ?? 0;
+  const todaysAttendance = analytics?.todaysAttendance ?? 0;
 
   const cardThemes: MetricCardTheme[] = [
     {
@@ -128,7 +126,7 @@ export function SectionCards({ overview }: SectionCardsProps) {
     },
     {
       title: "Today's check-ins",
-      value: "0",
+      value: formatInt(todaysAttendance),
       percentChange: NO_COMPARISON_PERCENT,
       isPositive: true,
       comparisonText: "vs last month",

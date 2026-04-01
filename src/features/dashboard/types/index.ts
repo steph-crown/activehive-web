@@ -1,4 +1,5 @@
 export * from "./overview";
+export * from "./analytics-dashboard";
 
 export type DashboardDocument = {
   id: number;

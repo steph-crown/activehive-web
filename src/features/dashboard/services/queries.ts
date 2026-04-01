@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { dashboardApi } from "./api";
+import { dashboardApi, type GymOwnerAnalyticsDashboardParams } from "./api";
 import type {
   DashboardDocument,
-  GymOwnerDashboardOverview,
+  GymOwnerAnalyticsDashboard,
   UserProfile,
 } from "../types";
 
@@ -10,8 +10,14 @@ export const dashboardQueryKeys = {
   all: ["dashboard"] as const,
   documents: () => [...dashboardQueryKeys.all, "documents"] as const,
   profile: () => [...dashboardQueryKeys.all, "profile"] as const,
-  gymOwnerOverview: () =>
-    [...dashboardQueryKeys.all, "gym-owner-overview"] as const,
+  gymOwnerAnalyticsDashboard: (params: GymOwnerAnalyticsDashboardParams) =>
+    [
+      ...dashboardQueryKeys.all,
+      "gym-owner-analytics-dashboard",
+      params.locationId ?? "all",
+      params.startDate ?? "",
+      params.endDate ?? "",
+    ] as const,
 };
 
 export const useDashboardDocumentsQuery = () =>
@@ -26,8 +32,12 @@ export const useProfileQuery = () =>
     queryFn: () => dashboardApi.getProfile(),
   });
 
-export const useGymOwnerDashboardOverviewQuery = () =>
-  useQuery<GymOwnerDashboardOverview>({
-    queryKey: dashboardQueryKeys.gymOwnerOverview(),
-    queryFn: () => dashboardApi.getGymOwnerOverview(),
+export const useGymOwnerAnalyticsDashboardQuery = (
+  params: GymOwnerAnalyticsDashboardParams = {},
+) =>
+  useQuery<GymOwnerAnalyticsDashboard>({
+    queryKey: dashboardQueryKeys.gymOwnerAnalyticsDashboard(params),
+    queryFn: () => dashboardApi.getGymOwnerAnalyticsDashboard(params),
   });
+
+export type { GymOwnerAnalyticsDashboardParams } from "./api";

@@ -18,10 +18,16 @@ import {
 
 export function WelcomeMessageSkeleton() {
   return (
-    <div className="px-4 lg:px-6">
-      <Skeleton className="h-8 w-44" />
-      <div className="mt-2">
-        <Skeleton className="h-4 w-72" />
+    <div className="flex w-full flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="min-w-0 flex-1">
+        <Skeleton className="h-8 w-44" />
+        <div className="mt-2">
+          <Skeleton className="h-4 w-72" />
+        </div>
+      </div>
+      <div className="flex flex-wrap items-end justify-end gap-3">
+        <Skeleton className="h-10 w-[152px]" />
+        <Skeleton className="h-10 w-[152px]" />
       </div>
     </div>
   );

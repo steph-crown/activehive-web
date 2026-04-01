@@ -2,13 +2,16 @@ import { DataTable } from "@/components/molecules/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { DashboardLayout } from "./dashboard-layout";
+import { DashboardOverviewFilters } from "./dashboard-overview-filters";
 import { WelcomeMessage } from "./welcome-message";
 import { SectionCards } from "./section-cards";
 import { RevenueChart } from "./revenue-chart";
 import { MembersChart } from "./members-chart";
 import { WeeklyAttendanceChart } from "./weekly-attendance-chart";
 import { MembershipMixChart } from "./membership-mix-chart";
-import { useGymOwnerDashboardOverviewQuery } from "@/features/dashboard/services";
+import {
+  useGymOwnerAnalyticsDashboardQuery,
+} from "@/features/dashboard/services";
 import { useMembersQuery } from "@/features/members/services";
 import { useLocationStore } from "@/store";
 import { type ColumnDef } from "@tanstack/react-table";
@@ -173,8 +176,20 @@ const dummyMembersData: MemberSubscription[] = [
 export function DashboardPage() {
   const { selectedLocationId } = useLocationStore();
   const [searchQuery, setSearchQuery] = useState("");
-  const { data: overview, isLoading: overviewLoading } =
-    useGymOwnerDashboardOverviewQuery();
+  const [rangeStart, setRangeStart] = useState("");
+  const [rangeEnd, setRangeEnd] = useState("");
+
+  const analyticsParams = useMemo(
+    () => ({
+      locationId: selectedLocationId ?? undefined,
+      startDate: rangeStart.trim() || undefined,
+      endDate: rangeEnd.trim() || undefined,
+    }),
+    [selectedLocationId, rangeStart, rangeEnd],
+  );
+
+  const { data: analytics, isLoading: analyticsLoading } =
+    useGymOwnerAnalyticsDashboardQuery(analyticsParams);
   const { isLoading: membersLoading } = useMembersQuery(
     selectedLocationId || undefined,
   );
@@ -183,11 +198,26 @@ export function DashboardPage() {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-        <WelcomeMessage />
-        {overviewLoading ? (
+        <div className="px-4 lg:px-6">
+          <WelcomeMessage
+            endAdornment={
+              <DashboardOverviewFilters
+                startDate={rangeStart}
+                endDate={rangeEnd}
+                onStartDateChange={setRangeStart}
+                onEndDateChange={setRangeEnd}
+                onClearRange={() => {
+                  setRangeStart("");
+                  setRangeEnd("");
+                }}
+              />
+            }
+          />
+        </div>
+        {analyticsLoading ? (
           <SectionCardsSkeleton />
         ) : (
-          <SectionCards overview={overview} />
+          <SectionCards analytics={analytics} />
         )}
         <div className="px-4 lg:px-6">
           {membersLoading ? (

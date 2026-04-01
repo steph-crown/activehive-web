@@ -12,11 +12,42 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useLocationsQuery } from "@/features/locations/services";
+import { useCreateTrainerMutation } from "../services";
 import { useToast } from "@/hooks/use-toast";
+import { useUpload } from "@/hooks/use-upload";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
+import { cn } from "@/lib/utils";
 import { IconPlus } from "@tabler/icons-react";
+import { ChevronDown } from "lucide-react";
 import * as React from "react";
+
+const PROFILE_IMAGE_MAX_BYTES = 3 * 1024 * 1024;
+
+function parseSpecialtiesFromCommaSeparated(input: string): string[] {
+  return input
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+const emptyAddTrainerForm = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  phoneNumber: "",
+  specializations: "",
+  bio: "",
+  profileImageUrl: "",
+  locationIds: [] as string[],
+};
 
 type TrainerStatus = "Available" | "In Session" | "Off Today";
 
@@ -100,9 +131,21 @@ const statusVariant: Record<
 };
 
 export function TrainersPage() {
-  const { showSuccess } = useToast();
+  const { showSuccess, showError } = useToast();
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
+  const { mutateAsync: createTrainer, isPending: isCreatingTrainer } =
+    useCreateTrainerMutation();
+  const { upload: uploadProfileImage, isUploading: isProfileImageUploading } =
+    useUpload();
+  const profilePhotoInputRef = React.useRef<HTMLInputElement>(null);
   const [isAddOpen, setIsAddOpen] = React.useState(false);
+  const [addForm, setAddForm] = React.useState(emptyAddTrainerForm);
+
+  React.useEffect(() => {
+    if (isAddOpen) {
+      setAddForm(emptyAddTrainerForm);
+    }
+  }, [isAddOpen]);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [locationFilter, setLocationFilter] = React.useState("all");
   const [dateFilter, setDateFilter] = React.useState("");
@@ -129,10 +172,83 @@ export function TrainersPage() {
     });
   }, [dateFilter, locationFilter, searchQuery]);
 
-  const handleAddTrainer = (event: React.FormEvent<HTMLFormElement>) => {
+  const toggleAddFormLocation = (locationId: string) => {
+    setAddForm((prev) => ({
+      ...prev,
+      locationIds: prev.locationIds.includes(locationId)
+        ? prev.locationIds.filter((id) => id !== locationId)
+        : [...prev.locationIds, locationId],
+    }));
+  };
+
+  const locationTriggerLabel = React.useMemo(() => {
+    if (locationsLoading) return "Loading…";
+    const list = locations ?? [];
+    if (list.length === 0) return "No locations";
+    if (addForm.locationIds.length === 0) return "Select locations";
+    if (addForm.locationIds.length === 1) {
+      const name = list.find((l) => l.id === addForm.locationIds[0])
+        ?.locationName;
+      return name ?? "1 selected";
+    }
+    return `${addForm.locationIds.length} locations selected`;
+  }, [locationsLoading, locations, addForm.locationIds]);
+
+  const handleProfilePhotoChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    if (file.size > PROFILE_IMAGE_MAX_BYTES) {
+      showError("File too large", "Image must be 3 MB or smaller.");
+      return;
+    }
+    if (!file.type.startsWith("image/")) {
+      showError("Invalid file", "Please choose an image file.");
+      return;
+    }
+    try {
+      const url = await uploadProfileImage(file, "trainers/profile");
+      setAddForm((p) => ({ ...p, profileImageUrl: url }));
+    } catch (error) {
+      showError(
+        "Upload failed",
+        getApiErrorMessage(error, "Could not upload image."),
+      );
+    }
+  };
+
+  const handleAddTrainer = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setIsAddOpen(false);
-    showSuccess("Trainer added", "Trainer has been added successfully.");
+    if (addForm.locationIds.length === 0) {
+      showError(
+        "Locations required",
+        "Select at least one location for this trainer.",
+      );
+      return;
+    }
+    try {
+      await createTrainer({
+        email: addForm.email.trim(),
+        firstName: addForm.firstName.trim(),
+        lastName: addForm.lastName.trim(),
+        phoneNumber: addForm.phoneNumber.trim(),
+        specialties: parseSpecialtiesFromCommaSeparated(addForm.specializations),
+        bio: addForm.bio.trim(),
+        locationIds: addForm.locationIds,
+        ...(addForm.profileImageUrl.trim()
+          ? { profileImage: addForm.profileImageUrl.trim() }
+          : {}),
+      });
+      showSuccess("Trainer added", "Trainer has been added successfully.");
+      setIsAddOpen(false);
+    } catch (error) {
+      showError(
+        "Could not add trainer",
+        getApiErrorMessage(error, "Something went wrong. Please try again."),
+      );
+    }
   };
 
   return (
@@ -238,42 +354,160 @@ export function TrainersPage() {
             <DialogTitle>Add Trainer</DialogTitle>
             <DialogDescription>Create a new trainer profile.</DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleAddTrainer} className="space-y-4">
+          <form onSubmit={(e) => void handleAddTrainer(e)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>First Name</Label>
-                <Input required />
+                <Label htmlFor="trainer-first-name">First Name</Label>
+                <Input
+                  id="trainer-first-name"
+                  value={addForm.firstName}
+                  onChange={(e) =>
+                    setAddForm((p) => ({ ...p, firstName: e.target.value }))
+                  }
+                  required
+                />
               </div>
               <div className="space-y-2">
-                <Label>Last Name</Label>
-                <Input required />
+                <Label htmlFor="trainer-last-name">Last Name</Label>
+                <Input
+                  id="trainer-last-name"
+                  value={addForm.lastName}
+                  onChange={(e) =>
+                    setAddForm((p) => ({ ...p, lastName: e.target.value }))
+                  }
+                  required
+                />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Email</Label>
-              <Input type="email" required />
+              <Label htmlFor="trainer-email">Email</Label>
+              <Input
+                id="trainer-email"
+                type="email"
+                value={addForm.email}
+                onChange={(e) =>
+                  setAddForm((p) => ({ ...p, email: e.target.value }))
+                }
+                required
+              />
             </div>
             <div className="space-y-2">
-              <Label>Phone</Label>
-              <Input required />
+              <Label htmlFor="trainer-phone">Phone</Label>
+              <Input
+                id="trainer-phone"
+                value={addForm.phoneNumber}
+                onChange={(e) =>
+                  setAddForm((p) => ({ ...p, phoneNumber: e.target.value }))
+                }
+                required
+              />
             </div>
             <div className="space-y-2">
-              <Label>Specializations</Label>
-              <Input placeholder="Weight Training, Yoga, HIIT" />
+              <Label htmlFor="trainer-specializations">Specializations</Label>
+              <Input
+                id="trainer-specializations"
+                placeholder="Comma-separated (e.g. Yoga, Strength Training, HIIT)"
+                value={addForm.specializations}
+                onChange={(e) =>
+                  setAddForm((p) => ({ ...p, specializations: e.target.value }))
+                }
+              />
             </div>
             <div className="space-y-2">
-              <Label>Bio</Label>
-              <Textarea rows={3} />
+              <Label htmlFor="trainer-locations-trigger">Locations</Label>
+              <DropdownMenu modal={false}>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    id="trainer-locations-trigger"
+                    type="button"
+                    disabled={
+                      locationsLoading || (locations ?? []).length === 0
+                    }
+                    className={cn(
+                      "border-input bg-background flex h-10 w-full min-w-0 items-center justify-between gap-2 rounded-md border px-3 py-2 text-left text-sm shadow-xs outline-none transition-[color,box-shadow]",
+                      "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+                      "disabled:cursor-not-allowed disabled:opacity-50",
+                    )}
+                  >
+                    <span className="truncate">{locationTriggerLabel}</span>
+                    <ChevronDown className="size-4 shrink-0 opacity-50" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="max-h-64 min-w-[var(--radix-dropdown-menu-trigger-width)] w-[var(--radix-dropdown-menu-trigger-width)]"
+                  align="start"
+                >
+                  {(locations ?? []).map((loc) => (
+                    <DropdownMenuCheckboxItem
+                      key={loc.id}
+                      checked={addForm.locationIds.includes(loc.id)}
+                      onCheckedChange={() => toggleAddFormLocation(loc.id)}
+                      onSelect={(e) => e.preventDefault()}
+                    >
+                      {loc.locationName}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="trainer-bio">Bio</Label>
+              <Textarea
+                id="trainer-bio"
+                rows={3}
+                value={addForm.bio}
+                onChange={(e) =>
+                  setAddForm((p) => ({ ...p, bio: e.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="trainer-profile-photo">Profile photo (optional)</Label>
+              <div className="flex flex-wrap items-center gap-3">
+                <input
+                  ref={profilePhotoInputRef}
+                  id="trainer-profile-photo"
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={(e) => void handleProfilePhotoChange(e)}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-10"
+                  disabled={isProfileImageUploading || isCreatingTrainer}
+                  onClick={() => profilePhotoInputRef.current?.click()}
+                >
+                  {isProfileImageUploading ? "Uploading…" : "Choose image"}
+                </Button>
+                {addForm.profileImageUrl ? (
+                  <span className="text-muted-foreground max-w-[12rem] truncate text-xs">
+                    Image ready
+                  </span>
+                ) : (
+                  <span className="text-muted-foreground text-xs">
+                    PNG, JPG, or WebP · max 3 MB
+                  </span>
+                )}
+              </div>
             </div>
             <DialogFooter>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setIsAddOpen(false)}
+                disabled={isCreatingTrainer || isProfileImageUploading}
               >
                 Cancel
               </Button>
-              <Button type="submit">Add Trainer</Button>
+              <Button
+                type="submit"
+                loading={isCreatingTrainer}
+                disabled={isProfileImageUploading}
+              >
+                Add Trainer
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

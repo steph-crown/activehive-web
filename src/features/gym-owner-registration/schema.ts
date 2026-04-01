@@ -134,8 +134,10 @@ export const locationSchema = yup.object({
   address: yup.string().required("Address is required"),
   city: yup.string().required("City is required"),
   state: yup.string().required("State/Region is required"),
-  zipCode: yup.string().required("Zip code is required"),
-  country: yup.string().required("Country is required"),
+  country: yup
+    .string()
+    .oneOf(["Nigeria"], "Country must be Nigeria")
+    .required("Country is required"),
   phone: yup
     .string()
     .required("Phone is required")

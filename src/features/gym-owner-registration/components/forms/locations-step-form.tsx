@@ -34,6 +34,10 @@ import {
 } from "@/features/gym-owner-registration/schema";
 import { useUpload } from "@/hooks/use-upload";
 import { NIGERIA_STATES } from "@/features/gym-owner-registration/constants/nigeria-states";
+import {
+  ONBOARDING_COUNTRY,
+  ONBOARDING_COUNTRY_OPTIONS,
+} from "@/features/gym-owner-registration/constants/country-options";
 
 export function LocationsStepForm({
   className,
@@ -61,8 +65,7 @@ export function LocationsStepForm({
           address: "",
           city: "",
           state: "",
-          zipCode: "",
-          country: "",
+          country: ONBOARDING_COUNTRY,
           phone: "",
           email: "",
           isHeadquarters: true,
@@ -95,6 +98,7 @@ export function LocationsStepForm({
 
         mappedLocations.push({
           ...rest,
+          zipCode: "",
           coverImage,
         });
       }
@@ -214,19 +218,19 @@ export function LocationsStepForm({
                 )}
               />
 
-              <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
+              <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
                 <FormField
                   control={form.control}
                   name={`locations.${index}.state`}
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="min-w-0">
                       <FormLabel>State / Region</FormLabel>
                       <FormControl>
                         <Select
                           onValueChange={(value) => field.onChange(value)}
                           value={field.value ?? ""}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="h-10 w-full min-w-0">
                             <SelectValue placeholder="Select state" />
                           </SelectTrigger>
                           <SelectContent>
@@ -250,24 +254,10 @@ export function LocationsStepForm({
                   control={form.control}
                   name={`locations.${index}.city`}
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="min-w-0">
                       <FormLabel>City</FormLabel>
                       <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name={`locations.${index}.zipCode`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Zip code</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
+                        <Input className="w-full" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -275,39 +265,51 @@ export function LocationsStepForm({
                 />
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
-                <FormField
-                  control={form.control}
-                  name={`locations.${index}.country`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Country</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <FormField
+                control={form.control}
+                name={`locations.${index}.country`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Country</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={(value) => field.onChange(value)}
+                        value={field.value ?? ONBOARDING_COUNTRY}
+                      >
+                        <SelectTrigger className="h-10 w-full min-w-0">
+                          <SelectValue placeholder="Select country" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ONBOARDING_COUNTRY_OPTIONS.map((c) => (
+                            <SelectItem key={c.value} value={c.value}>
+                              {c.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <FormField
-                  control={form.control}
-                  name={`locations.${index}.phone`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter phone nunber"
-                          type="tel"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name={`locations.${index}.phone`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter phone number"
+                        type="tel"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
@@ -392,8 +394,7 @@ export function LocationsStepForm({
                 address: "",
                 city: "",
                 state: "",
-                zipCode: "",
-                country: "",
+                country: ONBOARDING_COUNTRY,
                 phone: "",
                 email: "",
                 isHeadquarters: false,

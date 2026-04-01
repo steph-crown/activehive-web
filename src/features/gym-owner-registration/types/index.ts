@@ -57,6 +57,7 @@ export type LocationPayload = {
   address: string;
   city: string;
   state: string;
+  /** Omitted from onboarding UI; sent empty for API compatibility. */
   zipCode: string;
   country: string;
   phone: string;

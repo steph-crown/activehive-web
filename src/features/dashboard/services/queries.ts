@@ -3,8 +3,18 @@ import { dashboardApi, type GymOwnerAnalyticsDashboardParams } from "./api";
 import type {
   DashboardDocument,
   GymOwnerAnalyticsDashboard,
+  MemberGrowthChartResponse,
+  RevenueTrendChartResponse,
   UserProfile,
 } from "../types";
+
+function analyticsParamsKey(params: GymOwnerAnalyticsDashboardParams) {
+  return [
+    params.locationId ?? "all",
+    params.startDate ?? "",
+    params.endDate ?? "",
+  ] as const;
+}
 
 export const dashboardQueryKeys = {
   all: ["dashboard"] as const,
@@ -14,9 +24,19 @@ export const dashboardQueryKeys = {
     [
       ...dashboardQueryKeys.all,
       "gym-owner-analytics-dashboard",
-      params.locationId ?? "all",
-      params.startDate ?? "",
-      params.endDate ?? "",
+      ...analyticsParamsKey(params),
+    ] as const,
+  memberGrowthChart: (params: GymOwnerAnalyticsDashboardParams) =>
+    [
+      ...dashboardQueryKeys.all,
+      "member-growth-chart",
+      ...analyticsParamsKey(params),
+    ] as const,
+  revenueTrendChart: (params: GymOwnerAnalyticsDashboardParams) =>
+    [
+      ...dashboardQueryKeys.all,
+      "revenue-trend-chart",
+      ...analyticsParamsKey(params),
     ] as const,
 };
 
@@ -38,6 +58,22 @@ export const useGymOwnerAnalyticsDashboardQuery = (
   useQuery<GymOwnerAnalyticsDashboard>({
     queryKey: dashboardQueryKeys.gymOwnerAnalyticsDashboard(params),
     queryFn: () => dashboardApi.getGymOwnerAnalyticsDashboard(params),
+  });
+
+export const useMemberGrowthChartQuery = (
+  params: GymOwnerAnalyticsDashboardParams = {},
+) =>
+  useQuery<MemberGrowthChartResponse>({
+    queryKey: dashboardQueryKeys.memberGrowthChart(params),
+    queryFn: () => dashboardApi.getMemberGrowthChart(params),
+  });
+
+export const useRevenueTrendChartQuery = (
+  params: GymOwnerAnalyticsDashboardParams = {},
+) =>
+  useQuery<RevenueTrendChartResponse>({
+    queryKey: dashboardQueryKeys.revenueTrendChart(params),
+    queryFn: () => dashboardApi.getRevenueTrendChart(params),
   });
 
 export type { GymOwnerAnalyticsDashboardParams } from "./api";

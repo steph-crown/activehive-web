@@ -18,7 +18,6 @@ import { type ColumnDef } from "@tanstack/react-table";
 import type { MemberSubscription } from "@/features/members/types";
 import { useMemo, useState } from "react";
 import {
-  ChartsSkeleton,
   InsightsChartsSkeleton,
   MembersTableSkeleton,
   SectionCardsSkeleton,
@@ -95,84 +94,6 @@ const membersColumns: ColumnDef<MemberSubscription>[] = [
   },
 ];
 
-const dummyMembersData: MemberSubscription[] = [
-  {
-    id: "sub-001",
-    memberId: "mem-001",
-    member: {
-      id: "mem-001",
-      email: "ada.okafor@example.com",
-      firstName: "Ada",
-      lastName: "Okafor",
-      phoneNumber: "+2348031112233",
-    },
-    gymId: "gym-001",
-    gym: { id: "gym-001", name: "ActiveHive VI" },
-    membershipPlanId: "plan-001",
-    membershipPlan: { id: "plan-001", name: "Monthly", price: 45000, duration: "monthly" },
-    location: { id: "loc-001", locationName: "Victoria Island" },
-    type: "standard",
-    status: "active",
-    price: 45000,
-    startDate: "2026-02-01T00:00:00.000Z",
-    endDate: "2026-03-01T00:00:00.000Z",
-    createdAt: "2026-02-01T00:00:00.000Z",
-    updatedAt: "2026-02-01T00:00:00.000Z",
-    daysRemaining: 21,
-    isExpiringSoon: false,
-  },
-  {
-    id: "sub-002",
-    memberId: "mem-002",
-    member: {
-      id: "mem-002",
-      email: "tunde.balogun@example.com",
-      firstName: "Tunde",
-      lastName: "Balogun",
-      phoneNumber: "+2348094447788",
-    },
-    gymId: "gym-001",
-    gym: { id: "gym-001", name: "ActiveHive VI" },
-    membershipPlanId: "plan-002",
-    membershipPlan: { id: "plan-002", name: "Quarterly", price: 120000, duration: "quarterly" },
-    location: { id: "loc-002", locationName: "Lekki" },
-    type: "premium",
-    status: "pending",
-    price: 120000,
-    startDate: "2026-01-11T00:00:00.000Z",
-    endDate: "2026-04-11T00:00:00.000Z",
-    createdAt: "2026-01-11T00:00:00.000Z",
-    updatedAt: "2026-01-11T00:00:00.000Z",
-    daysRemaining: 38,
-    isExpiringSoon: false,
-  },
-  {
-    id: "sub-003",
-    memberId: "mem-003",
-    member: {
-      id: "mem-003",
-      email: "chika.nwosu@example.com",
-      firstName: "Chika",
-      lastName: "Nwosu",
-      phoneNumber: "+2348162229191",
-    },
-    gymId: "gym-001",
-    gym: { id: "gym-001", name: "ActiveHive VI" },
-    membershipPlanId: "plan-003",
-    membershipPlan: { id: "plan-003", name: "Weekly", price: 15000, duration: "weekly" },
-    location: { id: "loc-003", locationName: "Yaba" },
-    type: "trial",
-    status: "inactive",
-    price: 15000,
-    startDate: "2025-12-28T00:00:00.000Z",
-    endDate: "2026-01-04T00:00:00.000Z",
-    createdAt: "2025-12-28T00:00:00.000Z",
-    updatedAt: "2026-01-04T00:00:00.000Z",
-    daysRemaining: 0,
-    isExpiringSoon: true,
-  },
-];
-
 export function DashboardPage() {
   const { selectedLocationId } = useLocationStore();
   const [searchQuery, setSearchQuery] = useState("");
@@ -190,10 +111,10 @@ export function DashboardPage() {
 
   const { data: analytics, isLoading: analyticsLoading } =
     useGymOwnerAnalyticsDashboardQuery(analyticsParams);
-  const { isLoading: membersLoading } = useMembersQuery(
+  const { data: membersList, isLoading: membersLoading } = useMembersQuery(
     selectedLocationId || undefined,
   );
-  const tableMembers = useMemo(() => dummyMembersData, []);
+  const tableMembers = membersList ?? [];
 
   return (
     <DashboardLayout>
@@ -220,14 +141,10 @@ export function DashboardPage() {
           <SectionCards analytics={analytics} />
         )}
         <div className="px-4 lg:px-6">
-          {membersLoading ? (
-            <ChartsSkeleton />
-          ) : (
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              <RevenueChart />
-              <MembersChart />
-            </div>
-          )}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <RevenueChart filters={analyticsParams} />
+            <MembersChart filters={analyticsParams} />
+          </div>
         </div>
         <div className="px-4 lg:px-6">
           {membersLoading ? (

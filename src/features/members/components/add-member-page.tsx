@@ -411,18 +411,48 @@ export function AddMemberPage({
                       <SelectValue placeholder="Select a membership plan" />
                     </SelectTrigger>
                     <SelectContent>
-                      {membershipPlans && membershipPlans.length > 0 ? (
+                      {plansLoading ? (
+                        <div className="text-muted-foreground px-2 py-6 text-center text-sm">
+                          Loading plans…
+                        </div>
+                      ) : membershipPlans && membershipPlans.length > 0 ? (
                         membershipPlans.map((plan) => (
                           <SelectItem key={plan.id} value={plan.id}>
                             {plan.name} - ₦{plan.price}
                           </SelectItem>
                         ))
                       ) : (
-                        <SelectItem value="no-plans" disabled>
-                          {form.locationId
-                            ? "No plans available for this location"
-                            : "No membership plans available"}
-                        </SelectItem>
+                        <div className="max-w-xs p-2">
+                          <p className="text-muted-foreground px-2 py-1.5 text-sm leading-snug">
+                            {form.locationId
+                              ? "No membership plans for this location yet."
+                              : "No membership plans yet. Create one to continue."}
+                          </p>
+                          <Button
+                            type="button"
+                            variant="link"
+                            className="text-primary h-auto w-full justify-start px-2 py-2 text-sm font-medium underline-offset-4 hover:underline"
+                            onPointerDown={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              const params = new URLSearchParams();
+                              params.set("createPlan", "1");
+                              params.set(
+                                "returnTo",
+                                "/dashboard/members/new",
+                              );
+                              navigate(
+                                `/dashboard/membership-plans?${params.toString()}`,
+                              );
+                            }}
+                          >
+                            Create a membership plan
+                          </Button>
+                        </div>
                       )}
                     </SelectContent>
                   </Select>

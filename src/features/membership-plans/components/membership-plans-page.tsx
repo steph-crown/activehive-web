@@ -20,6 +20,10 @@ import { DashboardLayout } from "@/features/dashboard/components/dashboard-layou
 import { useLocationsQuery } from "@/features/locations/services";
 import { IconCheck, IconDotsVertical, IconPlus } from "@tabler/icons-react";
 import * as React from "react";
+import {
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { useMembershipPlansQuery } from "../services";
 import type { MembershipPlan } from "../types";
 import { CreateMembershipPlanModal } from "./create-membership-plan-modal";
@@ -30,7 +34,15 @@ import {
   UpdateMembershipPlanModal,
 } from "./membership-plan-action-modals";
 
+function isSafeDashboardReturnPath(path: string): boolean {
+  if (!path.startsWith("/") || path.startsWith("//")) return false;
+  if (path.includes("?") || path.includes("#")) return false;
+  return path.startsWith("/dashboard/");
+}
+
 export function MembershipPlansPage() {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [locationFilter, setLocationFilter] = React.useState("all");
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -51,6 +63,30 @@ export function MembershipPlansPage() {
 
   const { data: plans, isLoading } =
     useMembershipPlansQuery(effectiveLocationId);
+
+  React.useEffect(() => {
+    if (searchParams.get("createPlan") === "1") {
+      setIsCreateModalOpen(true);
+    }
+  }, [searchParams]);
+
+  const consumeCreatePlanDeepLink = React.useCallback(() => {
+    if (searchParams.get("createPlan") !== "1") return;
+    const returnTo = searchParams.get("returnTo");
+    if (returnTo && isSafeDashboardReturnPath(returnTo)) {
+      navigate(returnTo, { replace: true });
+      return;
+    }
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete("createPlan");
+        next.delete("returnTo");
+        return next;
+      },
+      { replace: true },
+    );
+  }, [navigate, searchParams, setSearchParams]);
 
   const handleActionSuccess = () => {
     setIsUpdateOpen(false);
@@ -283,7 +319,12 @@ export function MembershipPlansPage() {
 
       <CreateMembershipPlanModal
         open={isCreateModalOpen}
-        onOpenChange={setIsCreateModalOpen}
+        onOpenChange={(open) => {
+          setIsCreateModalOpen(open);
+          if (!open) {
+            consumeCreatePlanDeepLink();
+          }
+        }}
       />
 
       <UpdateMembershipPlanModal

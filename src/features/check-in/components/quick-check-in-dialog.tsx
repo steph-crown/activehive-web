@@ -21,6 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useLocationsQuery } from "@/features/locations/services";
 import { useMembersQuery } from "@/features/members/services";
 import { useToast } from "@/hooks/use-toast";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { useLocationStore } from "@/store";
 import { useCreateCheckInMutation } from "../services";
 
@@ -72,8 +73,10 @@ export function QuickCheckInDialog({
       showSuccess("Check-in recorded", "The member has been checked in.");
       onOpenChange(false);
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to create check-in.";
+      const message = getApiErrorMessage(
+        error,
+        "Failed to create check-in.",
+      );
       showError("Check-in failed", message);
     }
   };

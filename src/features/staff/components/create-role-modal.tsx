@@ -16,20 +16,17 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
-import {
-  useCreateRoleMutation,
-  useAvailablePermissionsQuery,
-} from "../services";
+import { useCreateRoleMutation } from "../services";
+import { PERMISSION_FEATURE_GROUPS } from "../constants/permission-groups";
+import { PermissionsSelect } from "./permissions-select";
 
 const createRoleSchema = yup.object({
   name: yup.string().required("Name is required"),
   description: yup.string().optional(),
-  code: yup.string().required("Code is required"),
   permissionIds: yup
     .array()
     .of(yup.string().required())
@@ -51,36 +48,21 @@ export function CreateRoleModal({
   onSuccess,
 }: CreateRoleModalProps) {
   const { showSuccess, showError } = useToast();
-  const { data: permissions, isLoading: permissionsLoading } =
-    useAvailablePermissionsQuery();
   const { mutateAsync: createRole, isPending } = useCreateRoleMutation();
 
   const form = useForm<CreateRoleFormValues>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: yupResolver(createRoleSchema) as any,
+    resolver: yupResolver(createRoleSchema) as never,
     defaultValues: {
       name: "",
       description: "",
-      code: "",
       permissionIds: [],
     },
   });
-
-  const selectedPermissionIds = form.watch("permissionIds");
-
-  const handlePermissionToggle = (permissionId: string) => {
-    const currentIds = form.getValues("permissionIds");
-    const newIds = currentIds.includes(permissionId)
-      ? currentIds.filter((id) => id !== permissionId)
-      : [...currentIds, permissionId];
-    form.setValue("permissionIds", newIds);
-  };
 
   const onSubmit = async (data: CreateRoleFormValues) => {
     try {
       const payload = {
         name: data.name,
-        code: data.code,
         ...(data.description?.trim() && {
           description: data.description.trim(),
         }),
@@ -127,20 +109,6 @@ export function CreateRoleModal({
 
             <FormField
               control={form.control}
-              name="code"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Code</FormLabel>
-                  <FormControl>
-                    <Input placeholder="front_desk_staff" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
               name="description"
               render={({ field }) => (
                 <FormItem>
@@ -163,48 +131,17 @@ export function CreateRoleModal({
               render={() => (
                 <FormItem>
                   <FormLabel>Permissions</FormLabel>
+                  <p className="text-muted-foreground mb-2 text-xs">
+                    Select entire features quickly, or expand each feature to
+                    pick specific permissions.
+                  </p>
                   <FormControl>
-                    <div className="border rounded-md p-4 max-h-64 overflow-y-auto">
-                      {permissionsLoading ? (
-                        <div className="text-sm text-muted-foreground">
-                          Loading permissions...
-                        </div>
-                      ) : permissions && permissions.length > 0 ? (
-                        <div className="space-y-2">
-                          {permissions.map((permission) => (
-                            <div
-                              key={permission.id}
-                              className="flex items-center space-x-2"
-                            >
-                              <Checkbox
-                                id={`permission-${permission.id}`}
-                                checked={selectedPermissionIds.includes(
-                                  permission.id,
-                                )}
-                                onCheckedChange={() =>
-                                  handlePermissionToggle(permission.id)
-                                }
-                              />
-                              <label
-                                htmlFor={`permission-${permission.id}`}
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                              >
-                                {permission.name}
-                                {permission.description && (
-                                  <span className="text-muted-foreground ml-2">
-                                    - {permission.description}
-                                  </span>
-                                )}
-                              </label>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-sm text-muted-foreground">
-                          No permissions available
-                        </div>
-                      )}
-                    </div>
+                    <PermissionsSelect
+                      groups={PERMISSION_FEATURE_GROUPS}
+                      value={form.watch("permissionIds")}
+                      onChange={(next) => form.setValue("permissionIds", next)}
+                      disabled={isPending}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

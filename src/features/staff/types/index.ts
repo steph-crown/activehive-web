@@ -48,7 +48,7 @@ export type Role = {
 export type CreateRolePayload = {
   name: string;
   description?: string;
-  code: string;
+  code?: string;
   permissionIds: string[];
 };
 

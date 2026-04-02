@@ -81,7 +81,7 @@ export function CreateRoleModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Create Role</DialogTitle>
           <DialogDescription>
@@ -91,7 +91,7 @@ export function CreateRoleModal({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="grid gap-4 py-4"
+            className="grid gap-4"
           >
             <FormField
               control={form.control}

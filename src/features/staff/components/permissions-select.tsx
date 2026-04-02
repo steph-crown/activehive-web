@@ -30,9 +30,7 @@ export function PermissionsSelect({
   className,
 }: Readonly<PermissionsSelectProps>) {
   const selectedSet = React.useMemo(() => new Set(value), [value]);
-  const [openItems, setOpenItems] = React.useState<string[]>(
-    groups.map((group) => group.key),
-  );
+  const [openItems, setOpenItems] = React.useState<string[]>([]);
 
   const setPermission = React.useCallback(
     (code: string, checked: boolean) => {
@@ -89,7 +87,7 @@ export function PermissionsSelect({
         </div>
       </div>
 
-      <div className="max-h-[360px] overflow-y-auto">
+      <div className="max-h-[280px] overflow-y-auto">
         <Accordion
           type="multiple"
           value={openItems}

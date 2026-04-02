@@ -56,6 +56,7 @@ export function CreateRoleModal({
   const { mutateAsync: createRole, isPending } = useCreateRoleMutation();
 
   const form = useForm<CreateRoleFormValues>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: yupResolver(createRoleSchema) as any,
     defaultValues: {
       name: "",
@@ -80,7 +81,9 @@ export function CreateRoleModal({
       const payload = {
         name: data.name,
         code: data.code,
-        ...(data.description?.trim() && { description: data.description.trim() }),
+        ...(data.description?.trim() && {
+          description: data.description.trim(),
+        }),
         permissionIds: data.permissionIds,
       };
       await createRole(payload);
@@ -98,7 +101,7 @@ export function CreateRoleModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create Custom Role</DialogTitle>
+          <DialogTitle>Create Role</DialogTitle>
           <DialogDescription>
             Create a custom role specific to your gym with assigned permissions.
           </DialogDescription>
@@ -143,7 +146,11 @@ export function CreateRoleModal({
                 <FormItem>
                   <FormLabel>Description (Optional)</FormLabel>
                   <FormControl>
-                    <Input placeholder="Description" {...field} value={field.value || ""} />
+                    <Input
+                      placeholder="Description"
+                      {...field}
+                      value={field.value || ""}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -172,7 +179,7 @@ export function CreateRoleModal({
                               <Checkbox
                                 id={`permission-${permission.id}`}
                                 checked={selectedPermissionIds.includes(
-                                  permission.id
+                                  permission.id,
                                 )}
                                 onCheckedChange={() =>
                                   handlePermissionToggle(permission.id)

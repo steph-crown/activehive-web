@@ -1,0 +1,332 @@
+[
+  {
+    "code": "dashboard.view",
+    "name": "View Dashboard",
+    "description": "View Dashboard overview and analytics"
+  },
+  {
+    "code": "check-in.view",
+    "name": "View Check-Ins",
+    "description": "View check-in list and stats"
+  },
+  {
+    "code": "check-in.create",
+    "name": "Create Check-In",
+    "description": "Create a check-in (Quick Check-In / check-in actions)"
+  },
+
+  {
+    "code": "gym-management.view-gym-profile",
+    "name": "View Gym Profile",
+    "description": "View Gym Profile"
+  },
+  {
+    "code": "gym-management.edit-gym-profile",
+    "name": "Edit Gym Profile",
+    "description": "Edit/Save Gym Profile (branding, contact info, logo/cover upload)"
+  },
+  {
+    "code": "gym-management.view-operating-hours",
+    "name": "View Operating Hours",
+    "description": "View Operating Hours"
+  },
+  {
+    "code": "gym-management.edit-operating-hours",
+    "name": "Edit Operating Hours",
+    "description": "Edit Operating Hours (open days/hours)"
+  },
+
+  {
+    "code": "members.view",
+    "name": "View Members",
+    "description": "View Members list"
+  },
+  {
+    "code": "members.create",
+    "name": "Add/Create Member",
+    "description": "Add/Create a member"
+  },
+  {
+    "code": "members.view-details",
+    "name": "View Member Details",
+    "description": "View member profile/details page(s)"
+  },
+  {
+    "code": "members.edit",
+    "name": "Edit Member",
+    "description": "Edit member profile"
+  },
+  {
+    "code": "members.suspend",
+    "name": "Suspend Member",
+    "description": "Suspend/disable a member"
+  },
+
+  {
+    "code": "membership-plans.view",
+    "name": "View Membership Plans",
+    "description": "View membership plans list"
+  },
+  {
+    "code": "membership-plans.create",
+    "name": "Create Membership Plan",
+    "description": "Create a membership plan"
+  },
+  {
+    "code": "membership-plans.update",
+    "name": "Update Membership Plan",
+    "description": "Edit/update membership plan"
+  },
+  {
+    "code": "membership-plans.delete",
+    "name": "Delete Membership Plan",
+    "description": "Delete membership plan"
+  },
+  {
+    "code": "membership-plans.duplicate",
+    "name": "Duplicate Membership Plan",
+    "description": "Duplicate membership plan to another location"
+  },
+  {
+    "code": "membership-plans.update-status",
+    "name": "Update Plan Status",
+    "description": "Toggle/Update plan status (Active/Inactive)"
+  },
+  {
+    "code": "membership-plans.promo-codes.manage",
+    "name": "Manage Promo Codes",
+    "description": "Manage promo codes for a plan"
+  },
+  {
+    "code": "membership-plans.promo-codes.add",
+    "name": "Add Promo Code",
+    "description": "Add/create a promo code"
+  },
+  {
+    "code": "membership-plans.promo-codes.remove",
+    "name": "Remove Promo Code",
+    "description": "Remove promo code from a plan"
+  },
+  {
+    "code": "membership-plans.promo-codes.toggle-active",
+    "name": "Toggle Promo Code Active",
+    "description": "Activate/deactivate a promo code"
+  },
+
+  {
+    "code": "subscriptions.view",
+    "name": "View Subscriptions",
+    "description": "View subscriptions list"
+  },
+  {
+    "code": "subscriptions.view-details",
+    "name": "View Subscription Details",
+    "description": "View subscription details page(s)"
+  },
+  {
+    "code": "subscriptions.update-status",
+    "name": "Update Subscription Status",
+    "description": "Update subscription status"
+  },
+  {
+    "code": "subscriptions.cancel",
+    "name": "Cancel Subscription",
+    "description": "Cancel subscription (with reason)"
+  },
+  {
+    "code": "subscriptions.change-plan",
+    "name": "Change Subscription Plan",
+    "description": "Change subscription membership plan"
+  },
+
+  {
+    "code": "trainers.view",
+    "name": "View Trainers",
+    "description": "View trainers list"
+  },
+  {
+    "code": "trainers.create",
+    "name": "Create Trainer",
+    "description": "Create a trainer"
+  },
+  {
+    "code": "trainers.assignments.view",
+    "name": "View Trainer Assignments",
+    "description": "View trainer/member assignments"
+  },
+  {
+    "code": "trainer-assignments.assign",
+    "name": "Assign Trainer to Member",
+    "description": "Assign a trainer to a member at a location (POST `/api/trainers/assignments`)"
+  },
+
+  {
+    "code": "classes.view",
+    "name": "View Classes",
+    "description": "View class schedule list"
+  },
+  {
+    "code": "classes.view-details",
+    "name": "View Class Details",
+    "description": "View class details page"
+  },
+  {
+    "code": "classes.create",
+    "name": "Create Class",
+    "description": "Create class"
+  },
+  {
+    "code": "classes.edit",
+    "name": "Edit Class",
+    "description": "Update/edit class"
+  },
+  {
+    "code": "classes.delete",
+    "name": "Delete Class",
+    "description": "Delete class"
+  },
+  {
+    "code": "classes.assign-trainer",
+    "name": "Assign Trainer to Class",
+    "description": "Assign a trainer to a class"
+  },
+  {
+    "code": "classes.reuse",
+    "name": "Reuse Class",
+    "description": "Reuse/duplicate a class to other locations"
+  },
+  {
+    "code": "classes.report.view",
+    "name": "View Class Report",
+    "description": "View class report/stats"
+  },
+  {
+    "code": "classes.templates.view",
+    "name": "View Class Templates",
+    "description": "View class templates list"
+  },
+  {
+    "code": "classes.templates.create",
+    "name": "Create Class Template",
+    "description": "Create a class template"
+  },
+  {
+    "code": "classes.templates.use",
+    "name": "Use Class Template",
+    "description": "Use/apply a class template to create classes"
+  },
+  {
+    "code": "classes.attendance.view",
+    "name": "View Attendance",
+    "description": "View attendance records"
+  },
+
+  {
+    "code": "payments.view-transactions",
+    "name": "View Transactions",
+    "description": "View transactions"
+  },
+  {
+    "code": "payments.view-invoices",
+    "name": "View Invoices",
+    "description": "View invoices"
+  },
+  {
+    "code": "payments.view-refunds",
+    "name": "View Refunds",
+    "description": "View refunds"
+  },
+
+  {
+    "code": "marketing.view",
+    "name": "View Marketing",
+    "description": "View marketing pages"
+  },
+  {
+    "code": "marketing.promo-codes.view",
+    "name": "View Promo Codes",
+    "description": "View promo codes"
+  },
+  {
+    "code": "marketing.promo-codes.create",
+    "name": "Create Promo Codes",
+    "description": "Create/manage promo codes"
+  },
+  {
+    "code": "marketing.email-campaigns.view",
+    "name": "View Email Campaigns",
+    "description": "View email campaigns"
+  },
+  {
+    "code": "marketing.email-campaigns.create",
+    "name": "Create Email Campaign",
+    "description": "Create/save a new email campaign"
+  },
+  {
+    "code": "marketing.sms-campaigns.view",
+    "name": "View SMS Campaigns",
+    "description": "View SMS campaigns"
+  },
+  {
+    "code": "marketing.sms-campaigns.create",
+    "name": "Create SMS Campaign",
+    "description": "Create/save a new SMS campaign"
+  },
+
+  {
+    "code": "staff.users.view",
+    "name": "View Staff Users",
+    "description": "View staff users list"
+  },
+  {
+    "code": "staff.users.create",
+    "name": "Create Staff User",
+    "description": "Add/Create a staff user"
+  },
+  {
+    "code": "staff.users.view-details",
+    "name": "View Staff User Details",
+    "description": "View staff user details"
+  },
+  {
+    "code": "staff.users.assign-permissions",
+    "name": "Assign Staff Permissions",
+    "description": "Assign roles and permissions to a staff user"
+  },
+  {
+    "code": "staff.users.assign-locations",
+    "name": "Assign Staff Locations",
+    "description": "Assign locations to a staff user"
+  },
+  {
+    "code": "staff.roles.manage",
+    "name": "Manage Staff Roles",
+    "description": "Create/manage staff roles (roles page + create role modal)"
+  },
+  {
+    "code": "staff.permissions.manage",
+    "name": "Manage Staff Permissions",
+    "description": "Create/manage staff permissions (permissions page + create permission modal)"
+  },
+
+  {
+    "code": "locations.view",
+    "name": "View Locations",
+    "description": "View locations list"
+  },
+  {
+    "code": "locations.create",
+    "name": "Create Location",
+    "description": "Add/Create location"
+  },
+  {
+    "code": "locations.view-details",
+    "name": "View Location Details",
+    "description": "View location details"
+  },
+  {
+    "code": "locations.update-cover-image",
+    "name": "Update Location Cover Image",
+    "description": "Update a location cover image"
+  }
+]

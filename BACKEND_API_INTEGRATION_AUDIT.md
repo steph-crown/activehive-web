@@ -1,114 +1,159 @@
-# Activehive Gym Web — remaining API work
+# Activehive Gym Web — backend API checklist
 
-Forward-looking only: what is still needed so the app can be **fully** integrated end-to-end. Pages with no remaining backend gaps are not listed.
-
----
-
-### Dashboard (`/dashboard`)
-
-**APIs to be updated**
-
-- **`GET /dashboard/documents`** (or whatever the UI calls today for the “documents” feed): align the real route and response with the admin/gym-owner contract (likely under `/api/...`), and ensure errors are handled explicitly instead of silently falling back to bundled JSON in production builds.
-
-**APIs to be provided**
-
-- **Analytics: weekly attendance (time series or breakdown)** — supply data to replace the hardcoded `WeeklyAttendanceChart` (currently static Recharts data).
-- **Analytics: membership mix (distribution by plan tier / duration)** — supply data to replace the hardcoded `MembershipMixChart` (currently static pie data).
-- Optionally **fold** the above into **`GET /api/gym-owner/analytics/dashboard`** if you prefer one payload expansion rather than separate chart endpoints.
+Audience: **backend only.** Each table states what to **change on an existing API** or what **new API** to ship. No frontend implementation notes.
 
 ---
 
-### Gym profile (`/dashboard/gym-profile`)
+## Dashboard (`/dashboard`)
 
-**APIs to be provided**
+### APIs to be updated
 
-- **`GET` gym-level profile/settings** — return canonical gym branding and contact fields (name, description, registration number, email, phone, website, socials, logo/cover URLs) so the UI does not depend on inferring gym data from unrelated resources (e.g. from check-in list previews).
-- **`PATCH` (or `PUT`) gym-level profile/settings** — persist the form; replaces the current save path that does not call the backend.
-
----
-
-### Member details (`/dashboard/members/:id`)
-
-**APIs to be provided**
-
-- **Member activity log** — paginated list for the activity tab so the UI can stop merging demo rows when the API returns empty.
-- **Member attendance history** — same for the attendance tab.
-- **Member payments / billing history** — same for the payments tab.
-- **Member documents / files** — same for the documents tab (upload/list/delete as product requires).
-
-**APIs to be updated**
-
-- **`GET /api/gym-owner/members/:id` (or equivalent detail)** — if the backend can already return these collections, extend the detail DTO to include them (or stable linked IDs) so the frontend can remove `withMemberDetailDemoData` and demo fallbacks entirely.
+| Endpoint | Method | Change to response body | Change to request (query / path) |
+| -------- | ------ | ------------------------ | ---------------------------------- |
+| `/api/gym-owner/analytics/dashboard` | GET | Add **`weeklyAttendanceByDay`**: array of **7** objects `{ `label`: string, `morning`: number, `afternoon`: number, `evening`: number }` (one per weekday for the current analytics window). Add **`membershipMix`**: array of `{ `segmentLabel`: string, `memberCount`: number }` (counts by membership segment, e.g. weekly/monthly/quarterly/yearly — labels must match product). | **Existing query params** (keep documented): **`locationId`** (optional), **`startDate`** (optional), **`endDate`** (optional). |
 
 ---
 
-### Location operating hours (`/dashboard/locations/:id/operating-hours`)
+## Gym profile (`/dashboard/gym-profile`)
 
-**APIs to be provided**
+### APIs to be provided
 
-- **`GET` hours for a location** — load the persisted weekly schedule (open/close per day).
-- **`PATCH` hours for a location** — save edits from the UI (replaces local-only state in the page today).
-
----
-
-### Class attendance (`/dashboard/classes/attendance`)
-
-**APIs to be provided**
-
-- **`GET` attendance records** — list (with filters: location, class, member, date range) and pagination so the table is backed by real data instead of the static rows in the UI.
+| Method | Endpoint | Description |
+| ------ | -------- | ----------- |
+| GET | `/api/gym-owner/gym-profile` | Single gym object: **`gymName`**, **`businessRegistrationNumber`**, **`description`**, **`gymEmail`**, **`gymPhone`**, **`website`**, **`instagram`**, **`facebook`**, **`twitterX`**, **`logoUrl`**, **`coverImageUrl`** (all strings; nulls allowed where not set). |
+| PATCH | `/api/gym-owner/gym-profile` | Same fields as PATCHable subset; partial updates allowed. Returns updated gym profile object. |
 
 ---
 
-### Payments — transactions (`/dashboard/payments/transactions`)
+## Member details (`/dashboard/members/:id`)
 
-**APIs to be provided**
+### APIs to be updated
 
-- **`GET` transactions** — list with filters (member, location, status, date range) and pagination; amounts and currency fields aligned with how the UI displays money.
-
----
-
-### Payments — invoices (`/dashboard/payments/invoices`)
-
-**APIs to be provided**
-
-- **`GET` invoices** — list/detail as needed for the table and any future drill-down.
+| Endpoint | Method | Change to response body | Change to request |
+| -------- | ------ | ------------------------ | ----------------- |
+| `/api/gym-owner/members/{memberId}` | GET | Must return real data for tabs (no empty arrays when DB has rows): **`activityLog`**: array of `{ `id`, `title`, `category`, `actor`, `date` }`. **`attendance`**: array of `{ `id`, `date`, `checkIn`, `checkOut`, `processedBy`, `branch` }`. **`payments`**: array of `{ `id`, `date`, `amount`, `method`, `status`, `invoiceRef?` }`. **`documents`**: array of `{ `id`, `label`, `uploaded`, `url?` }`. | — |
 
 ---
 
-### Payments — refunds (`/dashboard/payments/refunds`)
+### APIs to be provided
 
-**APIs to be provided**
+| Method | Endpoint | Description |
+| ------ | -------- | ----------- |
+| GET | `/api/gym-owner/members/{memberId}/activity` | Paginated activity log (use if you prefer not to embed on detail `GET`). Query: **`page`**, **`limit`**. |
+| GET | `/api/gym-owner/members/{memberId}/attendance` | Paginated attendance history. Query: **`page`**, **`limit`**, optional **`dateFrom`**, **`dateTo`**. |
+| GET | `/api/gym-owner/members/{memberId}/payments` | Paginated payments. Query: **`page`**, **`limit`**. |
+| GET | `/api/gym-owner/members/{memberId}/documents` | List documents. |
+| POST | `/api/gym-owner/members/{memberId}/documents` | Upload metadata / presigned flow per your storage design. |
+| DELETE | `/api/gym-owner/members/{memberId}/documents/{documentId}` | Remove a document if product allows. |
 
-- **`GET` refunds** — list with status and linkage to original transaction/invoice where applicable.
-
----
-
-### Marketing — promo codes (`/dashboard/marketing/promo-codes`)
-
-**APIs to be provided**
-
-- **Promo codes CRUD + list** — create/update/archive codes, usage counts, validity window, scope (e.g. location), unless this domain is intentionally merged with membership-plan promos (then document one canonical API surface).
-
----
-
-### Marketing — email campaigns (`/dashboard/marketing/email-campaigns`)
-
-**APIs to be provided**
-
-- **Email campaigns CRUD + list** — persist drafts/sent campaigns, audience selection, and metrics (recipients, opens) so the UI is not using local-only arrays and toast-only “create”.
+**Note:** If everything is embedded on **`GET /api/gym-owner/members/{memberId}`**, you do **not** need the separate `GET` routes above; the **update** row is the minimum.
 
 ---
 
-### Marketing — SMS campaigns (`/dashboard/marketing/sms-campaigns`)
+## Location operating hours (`/dashboard/locations/:id/operating-hours`)
 
-**APIs to be provided**
+### APIs to be provided
 
-- **SMS campaigns CRUD + list** — same pattern as email for SMS-specific constraints (segments, compliance fields as required).
+| Method | Endpoint | Description |
+| ------ | -------- | ----------- |
+| GET | `/api/gym-owner/locations/{locationId}/operating-hours` | Weekly schedule: array of `{ `dayOfWeek` (0–6 or Mon–Sun), `isOpen` (boolean), `openingTime` (HH:mm), `closingTime` (HH:mm) }`. |
+| PUT | `/api/gym-owner/locations/{locationId}/operating-hours` | Replaces full weekly schedule with the same body shape as `GET`. |
 
 ---
 
-### Global / scalability (optional but recommended)
+## Class attendance (`/dashboard/classes/attendance`)
 
-**APIs to be updated**
+### APIs to be provided
 
-- **Existing list endpoints** used by large tables (members, subscriptions, classes, check-ins, etc.) — add **server-side** `page`, `limit`, `sort`, and filter query parameters where lists are currently fetched in full and paged only in the browser, so integration remains correct at scale.
+| Method | Endpoint | Description |
+| ------ | -------- | ----------- |
+| GET | `/api/gym-owner/class-attendance` (or `/api/classes/attendance` with gym-owner auth) | Paginated list. Each row: **`id`**, **`className`**, **`memberName`**, **`date`** (display or ISO), **`status`** (`present` \| `absent` \| `late`), **`locationName`**. Query: **`page`**, **`limit`**, optional **`locationId`**, **`classId`**, **`memberId`**, **`dateFrom`**, **`dateTo`**, **`status`**. |
+
+---
+
+## Payments — transactions (`/dashboard/payments/transactions`)
+
+### APIs to be provided
+
+| Method | Endpoint | Description |
+| ------ | -------- | ----------- |
+| GET | `/api/gym-owner/payments/transactions` | Paginated list. Query: **`page`**, **`limit`**, optional **`memberId`**, **`locationId`**, **`status`**, **`dateFrom`**, **`dateTo`**. Rows include transaction id, member, plan, amount, status, date, location. |
+
+---
+
+## Payments — invoices (`/dashboard/payments/invoices`)
+
+### APIs to be provided
+
+| Method | Endpoint | Description |
+| ------ | -------- | ----------- |
+| GET | `/api/gym-owner/payments/invoices` | Paginated list + filters as needed. |
+| GET | `/api/gym-owner/payments/invoices/{invoiceId}` | Invoice detail (if/when UI adds drill-down). |
+
+---
+
+## Payments — refunds (`/dashboard/payments/refunds`)
+
+### APIs to be provided
+
+| Method | Endpoint | Description |
+| ------ | -------- | ----------- |
+| GET | `/api/gym-owner/payments/refunds` | Paginated list; link to transaction/invoice ids. |
+
+---
+
+## Marketing — promo codes (`/dashboard/marketing/promo-codes`)
+
+### APIs to be provided
+
+| Method | Endpoint | Description |
+| ------ | -------- | ----------- |
+| GET | `/api/gym-owner/marketing/promo-codes` | List promo codes. |
+| POST | `/api/gym-owner/marketing/promo-codes` | Create. |
+| PATCH | `/api/gym-owner/marketing/promo-codes/{promoCodeId}` | Update. |
+| DELETE | `/api/gym-owner/marketing/promo-codes/{promoCodeId}` | Delete or archive. |
+
+---
+
+## Marketing — email campaigns (`/dashboard/marketing/email-campaigns`)
+
+### APIs to be provided
+
+| Method | Endpoint | Description |
+| ------ | -------- | ----------- |
+| GET | `/api/gym-owner/marketing/email-campaigns` | List campaigns. |
+| POST | `/api/gym-owner/marketing/email-campaigns` | Create draft / send (per product). |
+| PATCH | `/api/gym-owner/marketing/email-campaigns/{campaignId}` | Update. |
+
+---
+
+## Marketing — SMS campaigns (`/dashboard/marketing/sms-campaigns`)
+
+### APIs to be provided
+
+| Method | Endpoint | Description |
+| ------ | -------- | ----------- |
+| GET | `/api/gym-owner/marketing/sms-campaigns` | List. |
+| POST | `/api/gym-owner/marketing/sms-campaigns` | Create. |
+| PATCH | `/api/gym-owner/marketing/sms-campaigns/{campaignId}` | Update. |
+
+---
+
+## Optional: list endpoints (scalability)
+
+### APIs to be updated
+
+| Endpoint | Method | Change to request | Change to response |
+| -------- | ------ | ----------------- | ------------------ |
+| `/api/gym-owner/subscriptions/members` | GET | **`page`**, **`limit`**, optional **`locationId`**, **`search`**, **`status`**. | Paginated: **`items`**, **`total`**, **`page`**, **`pageSize`**. |
+| `/api/gym-owner/subscriptions` | GET | **`page`**, **`limit`**, filters as needed. | Paginated envelope. |
+| `/api/classes` | GET | **`page`**, **`limit`**, optional **`locationId`**, **`trainerId`**, **`dateFrom`**, **`dateTo`**. | Paginated envelope. |
+| `/api/check-ins` | GET | **`page`**, **`limit`**, optional **`locationId`**, **`dateFrom`**, **`dateTo`**, **`search`**, **`sortBy`**, **`sortOrder`**. | Paginated envelope. |
+| `/api/trainers` | GET | **`page`**, **`limit`**, optional **`locationId`**. | Paginated envelope. |
+| `/api/trainers/assignments` | GET | **`page`**, **`limit`**, optional **`locationId`**, **`trainerId`**, **`memberId`**. | Paginated envelope. |
+
+---
+
+## Audit scope
+
+This checklist is the **backend contract** for **known** integration gaps in the gym app at audit time. Anything **not** listed is **out of scope** for this document. New screens or contract changes require a new pass.

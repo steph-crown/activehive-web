@@ -6,6 +6,7 @@ import type {
   MemberGrowthChartResponse,
   RevenueTrendChartResponse,
   UserProfile,
+  WeeklyAttendanceChartResponse,
 } from "../types";
 
 function analyticsParamsKey(params: GymOwnerAnalyticsDashboardParams) {
@@ -36,6 +37,12 @@ export const dashboardQueryKeys = {
     [
       ...dashboardQueryKeys.all,
       "revenue-trend-chart",
+      ...analyticsParamsKey(params),
+    ] as const,
+  weeklyAttendanceChart: (params: GymOwnerAnalyticsDashboardParams) =>
+    [
+      ...dashboardQueryKeys.all,
+      "weekly-attendance-chart",
       ...analyticsParamsKey(params),
     ] as const,
 };
@@ -74,6 +81,14 @@ export const useRevenueTrendChartQuery = (
   useQuery<RevenueTrendChartResponse>({
     queryKey: dashboardQueryKeys.revenueTrendChart(params),
     queryFn: () => dashboardApi.getRevenueTrendChart(params),
+  });
+
+export const useWeeklyAttendanceChartQuery = (
+  params: GymOwnerAnalyticsDashboardParams = {},
+) =>
+  useQuery<WeeklyAttendanceChartResponse>({
+    queryKey: dashboardQueryKeys.weeklyAttendanceChart(params),
+    queryFn: () => dashboardApi.getWeeklyAttendanceChart(params),
   });
 
 export type { GymOwnerAnalyticsDashboardParams } from "./api";

@@ -11,8 +11,8 @@ Same contract as the table version, in **nested lists** for easier reading. Audi
 ### APIs to be updated
 
 - **`GET /api/gym-owner/analytics/dashboard`**
-  - **Response:** add **`weeklyAttendanceByDay`**: array of **7** objects `{ label, morning, afternoon, evening }` (strings/numbers as specified — one row per weekday in the analytics window). Add **`membershipMix`**: array of `{ segmentLabel, memberCount }` for membership segments (e.g. weekly/monthly/quarterly/yearly; labels must match product).
-  - **Request:** keep existing query params documented: **`locationId`** (optional), **`startDate`** (optional), **`endDate`** (optional).
+  - **Response:** add **`membershipMix`**: array of `{ segmentLabel, memberCount }` for membership segments (e.g. weekly/monthly/quarterly/yearly; labels must match product). *(Weekly attendance: **`GET /api/gym-owner/analytics/weekly-attendance`** — implemented in the app; same optional query params.)*
+  - **Request:** **`locationId`** (optional), **`startDate`** (optional), **`endDate`** (optional).
 
 ---
 

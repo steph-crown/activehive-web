@@ -23,3 +23,20 @@ export type RevenueTrendChartResponse = {
   min?: number;
   max?: number;
 };
+
+/** GET /api/gym-owner/analytics/weekly-attendance */
+export type WeeklyAttendanceDayRow = {
+  day: string;
+  dayShort: string;
+  morning: number;
+  afternoon: number;
+  evening: number;
+  total: number;
+};
+
+export type WeeklyAttendanceChartResponse = {
+  title: string;
+  subtitle: string;
+  data: WeeklyAttendanceDayRow[];
+  maxValue: number;
+};

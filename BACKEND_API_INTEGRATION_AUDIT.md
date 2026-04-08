@@ -12,7 +12,7 @@ Audience: **backend only.** Each table states what to **change on an existing AP
 
 | Endpoint | Method | Change to response body | Change to request (query / path) |
 | -------- | ------ | ------------------------ | ---------------------------------- |
-| `/api/gym-owner/analytics/dashboard` | GET | Add **`weeklyAttendanceByDay`**: array of **7** objects `{ `label`: string, `morning`: number, `afternoon`: number, `evening`: number }` (one per weekday for the current analytics window). Add **`membershipMix`**: array of `{ `segmentLabel`: string, `memberCount`: number }` (counts by membership segment, e.g. weekly/monthly/quarterly/yearly — labels must match product). | **Existing query params** (keep documented): **`locationId`** (optional), **`startDate`** (optional), **`endDate`** (optional). |
+| `/api/gym-owner/analytics/dashboard` | GET | Add **`membershipMix`**: array of `{ `segmentLabel`: string, `memberCount`: number }` (counts by membership segment, e.g. weekly/monthly/quarterly/yearly — labels must match product). *(Weekly attendance is provided by **`GET /api/gym-owner/analytics/weekly-attendance`** — implemented in the app.)* | **Existing query params** (keep documented): **`locationId`** (optional), **`startDate`** (optional), **`endDate`** (optional). |
 
 ---
 

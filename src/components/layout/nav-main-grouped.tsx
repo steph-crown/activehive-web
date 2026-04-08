@@ -45,25 +45,14 @@ type NavGroupItem = {
   items: NavSubItem[];
 };
 
-type NavMainGroupedProps = Readonly<{
-  selectedLocationId: string | null;
-}>;
-
-export function NavMainGrouped({ selectedLocationId }: NavMainGroupedProps) {
+export function NavMainGrouped() {
   const location = useLocation();
   const pathname = location.pathname;
-  const gymProfileHref = "/dashboard/gym-profile";
-  const operatingHoursHref = selectedLocationId
-    ? `/dashboard/locations/${selectedLocationId}/operating-hours`
-    : "/dashboard/locations";
 
   const isDashboardActive = pathname === "/dashboard";
   const isCheckInActive = pathname === "/dashboard/check-in";
 
   const isGymProfileActive = pathname === "/dashboard/gym-profile";
-  const isOperatingHoursActive =
-    /^\/dashboard\/locations\/[^/]+\/operating-hours$/.test(pathname) ||
-    pathname === "/dashboard/operating-hours";
 
   const isPlansActive =
     pathname === "/dashboard/membership-plans" ||
@@ -92,23 +81,6 @@ export function NavMainGrouped({ selectedLocationId }: NavMainGroupedProps) {
     /^\/dashboard\/members\/[^/]+\/edit$/.test(pathname);
 
   const groups: NavGroupItem[] = [
-    {
-      title: "Gym Management",
-      icon: IconBuildingStore,
-      isActive: isGymProfileActive || isOperatingHoursActive,
-      items: [
-        {
-          title: "Gym Profile",
-          href: gymProfileHref,
-          isActive: isGymProfileActive,
-        },
-        {
-          title: "Operating Hours",
-          href: operatingHoursHref,
-          isActive: isOperatingHoursActive,
-        },
-      ],
-    },
     {
       title: "Members",
       icon: IconUsers,
@@ -294,6 +266,19 @@ export function NavMainGrouped({ selectedLocationId }: NavMainGroupedProps) {
               <Link to="/dashboard/check-in">
                 <IconCalendarCheck />
                 <span>Check-In</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              tooltip="Gym Profile"
+              isActive={isGymProfileActive}
+            >
+              <Link to="/dashboard/gym-profile">
+                <IconBuildingStore />
+                <span>Gym Profile</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

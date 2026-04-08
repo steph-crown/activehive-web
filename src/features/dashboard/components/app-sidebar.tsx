@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useProfileQuery } from "../services";
 import { useMySubscriptionQuery } from "@/features/billing/services";
-import { useLocationStore, useSubscriptionStore } from "@/store";
+import { useSubscriptionStore } from "@/store";
 import { useToast } from "@/hooks/use-toast";
 import { GetHelpModal } from "./get-help-modal";
 
@@ -35,7 +35,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { isLoading: isSubscriptionLoading, isFetched } =
     useMySubscriptionQuery();
   const { hasActiveSubscription } = useSubscriptionStore();
-  const { selectedLocationId } = useLocationStore();
   const { showError } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
@@ -115,7 +114,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent className="px-2">
-        <NavMainGrouped selectedLocationId={selectedLocationId} />
+        <NavMainGrouped />
         <NavSecondary items={navSecondaryWithHandler} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border px-4 py-3">

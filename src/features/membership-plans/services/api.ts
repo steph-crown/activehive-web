@@ -11,6 +11,9 @@ import type {
 
 const membershipPlansPath = "/api/membership-plans";
 
+/** Path segment for promo code (may contain special characters). */
+const promoCodePath = (code: string) => encodeURIComponent(code);
+
 export const membershipPlansApi = {
   getMembershipPlans: (locationId?: string): Promise<MembershipPlan[]> => {
     const params = locationId ? { locationId } : {};
@@ -50,7 +53,7 @@ export const membershipPlansApi = {
     code: string
   ): Promise<MembershipPlanWithPromoCodes> =>
     apiClient.delete<MembershipPlanWithPromoCodes>(
-      `${membershipPlansPath}/${id}/promo-codes/${code}`
+      `${membershipPlansPath}/${id}/promo-codes/${promoCodePath(code)}`
     ),
   togglePromoCode: (
     id: string,
@@ -58,7 +61,7 @@ export const membershipPlansApi = {
     payload: TogglePromoCodePayload
   ): Promise<MembershipPlanWithPromoCodes> =>
     apiClient.patch<MembershipPlanWithPromoCodes>(
-      `${membershipPlansPath}/${id}/promo-codes/${code}/toggle`,
+      `${membershipPlansPath}/${id}/promo-codes/${promoCodePath(code)}/toggle`,
       payload
     ),
 };

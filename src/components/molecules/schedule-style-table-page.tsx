@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/molecules/data-table";
 import { TableFilterBar } from "@/components/molecules/table-filter-bar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useLocationsQuery } from "@/features/locations/services";
 
@@ -18,6 +19,8 @@ type ScheduleStyleTablePageProps<T extends WithLocation> = {
   emptyMessage: string;
   /** Rendered in the page header row (e.g. primary action). */
   headerActions?: ReactNode;
+  /** When true, shows a skeleton instead of the data table. */
+  isLoading?: boolean;
 };
 
 export function ScheduleStyleTablePage<T extends WithLocation>({
@@ -27,6 +30,7 @@ export function ScheduleStyleTablePage<T extends WithLocation>({
   data,
   emptyMessage,
   headerActions,
+  isLoading = false,
 }: Readonly<ScheduleStyleTablePageProps<T>>) {
   const [searchQuery, setSearchQuery] = useState("");
   const [locationFilter, setLocationFilter] = useState("all");
@@ -106,15 +110,23 @@ export function ScheduleStyleTablePage<T extends WithLocation>({
               onDateChange={setDateFilter}
             />
 
-            <DataTable
-              data={filteredData}
-              columns={columns}
-              getRowId={(row) => row.id}
-              emptyMessage={emptyMessage}
-              enableDragAndDrop={false}
-              enableColumnVisibility={false}
-              enableRowSelection={false}
-            />
+            {isLoading ? (
+              <div className="space-y-3 rounded-md border border-[#F4F4F4] p-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton key={`table-skel-${i}`} className="h-10 w-full" />
+                ))}
+              </div>
+            ) : (
+              <DataTable
+                data={filteredData}
+                columns={columns}
+                getRowId={(row) => row.id}
+                emptyMessage={emptyMessage}
+                enableDragAndDrop={false}
+                enableColumnVisibility={false}
+                enableRowSelection={false}
+              />
+            )}
           </div>
         </div>
       </div>

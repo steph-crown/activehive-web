@@ -1,3 +1,30 @@
+/** GET/PATCH `/api/gym-owner/gym-profile` — gym-level profile (cover images are per location). */
+export type GymOwnerProfile = {
+  gymName: string | null;
+  businessRegistrationNumber: string | null;
+  description: string | null;
+  gymEmail: string | null;
+  gymPhone: string | null;
+  website: string | null;
+  instagram: string | null;
+  facebook: string | null;
+  twitterX: string | null;
+  logoUrl: string | null;
+};
+
+export type GymOwnerProfilePatchPayload = Partial<{
+  gymName: string;
+  businessRegistrationNumber: string;
+  description: string;
+  gymEmail: string;
+  gymPhone: string;
+  website: string;
+  instagram: string;
+  facebook: string;
+  twitterX: string;
+  logoUrl: string;
+}>;
+
 export type GymLocation = {
   id: string;
   locationName: string;

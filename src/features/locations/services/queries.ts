@@ -1,11 +1,35 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { locationsApi } from "./api";
+import { gymProfileApi, locationsApi } from "./api";
 import type {
   GymLocation,
+  GymOwnerProfile,
+  GymOwnerProfilePatchPayload,
   LocationDetailsResponse,
   CreateLocationPayload,
   Facility,
 } from "../types";
+
+export const gymProfileQueryKeys = {
+  detail: () => ["gym-owner", "gym-profile"] as const,
+};
+
+export const useGymProfileQuery = () =>
+  useQuery<GymOwnerProfile>({
+    queryKey: gymProfileQueryKeys.detail(),
+    queryFn: () => gymProfileApi.get(),
+  });
+
+export const usePatchGymProfileMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: GymOwnerProfilePatchPayload) =>
+      gymProfileApi.patch(payload),
+    onSuccess: (data) => {
+      queryClient.setQueryData(gymProfileQueryKeys.detail(), data);
+    },
+  });
+};
 
 export const locationsQueryKeys = {
   all: ["locations"] as const,

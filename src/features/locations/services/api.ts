@@ -1,12 +1,24 @@
 import { apiClient } from "@/lib/api-client";
 import type {
   GymLocation,
+  GymOwnerProfile,
+  GymOwnerProfilePatchPayload,
   LocationDetailsResponse,
   CreateLocationPayload,
   Facility,
 } from "../types";
 
 const locationsPath = "/api/gym-owner/locations";
+const gymOwnerGymProfilePath = "/api/gym-owner/gym-profile";
+
+export const gymProfileApi = {
+  get: (): Promise<GymOwnerProfile> =>
+    apiClient.get<GymOwnerProfile>(gymOwnerGymProfilePath),
+  patch: (
+    payload: GymOwnerProfilePatchPayload,
+  ): Promise<GymOwnerProfile> =>
+    apiClient.patch<GymOwnerProfile>(gymOwnerGymProfilePath, payload),
+};
 
 export const locationsApi = {
   getLocations: (): Promise<GymLocation[]> =>

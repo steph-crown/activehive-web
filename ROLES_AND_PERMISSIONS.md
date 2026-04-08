@@ -27,7 +27,7 @@ This file is intended for the backend engineer who will seed/define the permissi
 Sidebar group: `Gym Management`
 
 - `gym-management.view-gym-profile` — View Gym Profile
-- `gym-management.edit-gym-profile` — Edit/Save Gym Profile (branding, contact info, logo/cover upload)
+- `gym-management.edit-gym-profile` — Edit/Save Gym Profile (branding, contact info, logo upload)
 - `gym-management.view-operating-hours` — View Operating Hours
 - `gym-management.edit-operating-hours` — Edit Operating Hours (open days/hours)
 

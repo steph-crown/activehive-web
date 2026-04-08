@@ -45,7 +45,7 @@ export const PERMISSION_FEATURE_GROUPS: PermissionFeatureGroup[] = [
         code: "gym-management.edit-gym-profile",
         name: "Edit Gym Profile",
         description:
-          "Edit/Save Gym Profile (branding, contact info, logo/cover upload)",
+          "Edit/Save Gym Profile (branding, contact info, logo upload)",
       },
       {
         code: "gym-management.view-operating-hours",

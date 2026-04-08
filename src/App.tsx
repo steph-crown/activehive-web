@@ -54,8 +54,8 @@ const Attendance = lazy(() => import("@/app/dashboard/classes/attendance/page"))
 const Transactions = lazy(
   () => import("@/app/dashboard/payments/transactions/page")
 );
-const Invoices = lazy(() => import("@/app/dashboard/payments/invoices/page"));
-const Refunds = lazy(() => import("@/app/dashboard/payments/refunds/page"));
+// const Invoices = lazy(() => import("@/app/dashboard/payments/invoices/page"));
+// const Refunds = lazy(() => import("@/app/dashboard/payments/refunds/page"));
 const PromoCodes = lazy(
   () => import("@/app/dashboard/marketing/promo-codes/page")
 );
@@ -132,8 +132,8 @@ function App() {
           <Route path="/dashboard/classes/:id" element={<ClassDetails />} />
           <Route path="/dashboard/check-in" element={<CheckIn />} />
           <Route path="/dashboard/payments/transactions" element={<Transactions />} />
-          <Route path="/dashboard/payments/invoices" element={<Invoices />} />
-          <Route path="/dashboard/payments/refunds" element={<Refunds />} />
+          {/* <Route path="/dashboard/payments/invoices" element={<Invoices />} /> */}
+          {/* <Route path="/dashboard/payments/refunds" element={<Refunds />} /> */}
           <Route path="/dashboard/marketing/promo-codes" element={<PromoCodes />} />
           <Route
             path="/dashboard/marketing/email-campaigns"

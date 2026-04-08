@@ -157,26 +157,25 @@ export function NavMainGrouped() {
     {
       title: "Payments",
       icon: IconCurrencyNaira,
-      isActive:
-        pathname === "/dashboard/payments/transactions" ||
-        pathname === "/dashboard/payments/invoices" ||
-        pathname === "/dashboard/payments/refunds",
+      isActive: pathname === "/dashboard/payments/transactions",
+      // || pathname === "/dashboard/payments/invoices" ||
+      // pathname === "/dashboard/payments/refunds",
       items: [
         {
           title: "Transactions",
           href: "/dashboard/payments/transactions",
           isActive: pathname === "/dashboard/payments/transactions",
         },
-        {
-          title: "Invoices",
-          href: "/dashboard/payments/invoices",
-          isActive: pathname === "/dashboard/payments/invoices",
-        },
-        {
-          title: "Refunds",
-          href: "/dashboard/payments/refunds",
-          isActive: pathname === "/dashboard/payments/refunds",
-        },
+        // {
+        //   title: "Invoices",
+        //   href: "/dashboard/payments/invoices",
+        //   isActive: pathname === "/dashboard/payments/invoices",
+        // },
+        // {
+        //   title: "Refunds",
+        //   href: "/dashboard/payments/refunds",
+        //   isActive: pathname === "/dashboard/payments/refunds",
+        // },
       ],
     },
     {

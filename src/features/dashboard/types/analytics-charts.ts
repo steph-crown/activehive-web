@@ -40,3 +40,17 @@ export type WeeklyAttendanceChartResponse = {
   data: WeeklyAttendanceDayRow[];
   maxValue: number;
 };
+
+/** GET /api/gym-owner/analytics/member-mix */
+export type MemberMixChartRow = {
+  membershipType: string;
+  count: number;
+  percentage: number;
+  color: string;
+};
+
+export type MemberMixChartResponse = {
+  title: string;
+  subtitle: string;
+  data: MemberMixChartRow[];
+};

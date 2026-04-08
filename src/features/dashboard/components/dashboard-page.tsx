@@ -148,7 +148,7 @@ export function DashboardPage() {
               <WeeklyAttendanceChart filters={analyticsParams} />
             </div>
             <div className="lg:col-span-1">
-              <MembershipMixChart />
+              <MembershipMixChart filters={analyticsParams} />
             </div>
           </div>
         </div>

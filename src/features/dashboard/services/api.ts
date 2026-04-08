@@ -6,6 +6,7 @@ import type {
   RevenueTrendChartResponse,
   UserProfile,
   WeeklyAttendanceChartResponse,
+  MemberMixChartResponse,
 } from "../types";
 import mockData from "./data.json";
 
@@ -18,6 +19,7 @@ const revenueTrendChartPath =
   "/api/gym-owner/analytics/charts/revenue-trend";
 const weeklyAttendanceChartPath =
   "/api/gym-owner/analytics/weekly-attendance";
+const memberMixChartPath = "/api/gym-owner/analytics/member-mix";
 
 export type GymOwnerAnalyticsDashboardParams = {
   /** Only when a branch is selected in the header location filter (omit for "Global"). */
@@ -63,6 +65,13 @@ export const dashboardApi = {
     params: GymOwnerAnalyticsDashboardParams = {},
   ): Promise<WeeklyAttendanceChartResponse> =>
     apiClient.get<WeeklyAttendanceChartResponse>(weeklyAttendanceChartPath, {
+      params: analyticsQueryParams(params),
+    }),
+
+  getMemberMixChart: (
+    params: GymOwnerAnalyticsDashboardParams = {},
+  ): Promise<MemberMixChartResponse> =>
+    apiClient.get<MemberMixChartResponse>(memberMixChartPath, {
       params: analyticsQueryParams(params),
     }),
 

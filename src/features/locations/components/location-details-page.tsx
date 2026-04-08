@@ -8,6 +8,7 @@ import { IconChevronRight, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useNavigate, useParams } from "react-router-dom";
 import * as React from "react";
 import { useToast } from "@/hooks/use-toast";
+import type { OperatingHoursLocationState } from "../constants/operating-hours-nav";
 import {
   useLocationQuery,
   useFacilitiesQuery,
@@ -122,9 +123,11 @@ export function LocationDetailsPage() {
                 variant="outline"
                 size="sm"
                 onClick={() =>
-                  navigate(
-                    `/dashboard/locations/${id}/operating-hours`,
-                  )
+                  navigate(`/dashboard/locations/${id}/operating-hours`, {
+                    state: {
+                      operatingHoursFrom: "location-detail",
+                    } satisfies OperatingHoursLocationState,
+                  })
                 }
               >
                 Operating hours

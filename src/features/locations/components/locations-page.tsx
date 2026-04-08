@@ -12,6 +12,7 @@ import { DashboardLayout } from "@/features/dashboard/components/dashboard-layou
 import { IconPlus, IconDotsVertical } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import * as React from "react";
+import type { OperatingHoursLocationState } from "../constants/operating-hours-nav";
 import { useLocationsQuery } from "../services";
 import type { GymLocation } from "../types";
 import { UpdateCoverImageModal } from "./update-cover-image-modal";
@@ -156,6 +157,11 @@ export function LocationsPage() {
                               onClick={() =>
                                 navigate(
                                   `/dashboard/locations/${location.id}/operating-hours`,
+                                  {
+                                    state: {
+                                      operatingHoursFrom: "locations",
+                                    } satisfies OperatingHoursLocationState,
+                                  },
                                 )
                               }
                             >

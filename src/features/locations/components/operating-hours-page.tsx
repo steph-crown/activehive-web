@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Navigate, useParams } from "react-router-dom";
+import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   Accordion,
   AccordionContent,
@@ -30,6 +30,7 @@ import {
   mergeOperatingHoursApi,
   toPutOperatingHoursPayload,
 } from "../lib/merge-operating-hours";
+import type { OperatingHoursLocationState } from "../constants/operating-hours-nav";
 
 /** Monday → Sunday display order; `dayOfWeek` still 0–6 (Sun–Sat) for the API. */
 const DISPLAY_ORDER: readonly number[] = [1, 2, 3, 4, 5, 6, 0];
@@ -63,6 +64,8 @@ function createTimeOptions() {
 
 export function OperatingHoursPage() {
   const { id: locationId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { state: locationState } = useLocation();
   const { showSuccess, showError } = useToast();
   const timeOptions = useMemo(() => createTimeOptions(), []);
 
@@ -79,6 +82,17 @@ export function OperatingHoursPage() {
   const [openAccordionItem, setOpenAccordionItem] = useState<string>("1");
 
   const locationName = locationRes?.location?.locationName;
+
+  const entry = (locationState as OperatingHoursLocationState | null)
+    ?.operatingHoursFrom;
+  const backHref =
+    entry === "locations"
+      ? "/dashboard/locations"
+      : `/dashboard/locations/${locationId}`;
+  const backLabel =
+    entry === "locations"
+      ? "Back to Locations"
+      : `Back to ${locationName?.trim() ? locationName : "location"}`;
 
   useEffect(() => {
     if (hoursData !== undefined) {
@@ -134,21 +148,31 @@ export function OperatingHoursPage() {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-        <div className="px-4 lg:px-6">
-          <h1 className="text-3xl font-medium">Operating hours</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            {locationName ? (
-              <>
-                Weekly schedule for{" "}
-                <span className="text-foreground font-medium">
-                  {locationName}
-                </span>
-                . Changes apply to this location only.
-              </>
-            ) : (
-              "Set opening days and times for this location."
-            )}
-          </p>
+        <div className="space-y-4 px-4 lg:px-6">
+          <Button
+            type="button"
+            variant="ghost"
+            className="w-fit -ml-2 has-[>svg]:px-2"
+            onClick={() => navigate(backHref)}
+          >
+            ← {backLabel}
+          </Button>
+          <div>
+            <h1 className="text-3xl font-medium">Operating hours</h1>
+            <p className="text-muted-foreground mt-1 text-sm">
+              {locationName ? (
+                <>
+                  Weekly schedule for{" "}
+                  <span className="text-foreground font-medium">
+                    {locationName}
+                  </span>
+                  . Changes apply to this location only.
+                </>
+              ) : (
+                "Set opening days and times for this location."
+              )}
+            </p>
+          </div>
         </div>
 
         <div className="px-4 lg:px-6">

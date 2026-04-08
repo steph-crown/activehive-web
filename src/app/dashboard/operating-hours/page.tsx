@@ -1,5 +1,6 @@
 import { Navigate } from "react-router-dom";
 
+import type { OperatingHoursLocationState } from "@/features/locations/constants/operating-hours-nav";
 import { useLocationStore } from "@/store/location.store";
 
 /**
@@ -13,6 +14,11 @@ export default function OperatingHoursRedirectPage() {
       <Navigate
         to={`/dashboard/locations/${selectedLocationId}/operating-hours`}
         replace
+        state={
+          {
+            operatingHoursFrom: "location-detail",
+          } satisfies OperatingHoursLocationState
+        }
       />
     );
   }

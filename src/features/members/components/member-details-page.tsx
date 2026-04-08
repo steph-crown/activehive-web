@@ -79,7 +79,7 @@ const TAB_ITEMS = [
   { value: "gym-profile", label: "Gym Profile" },
   { value: "health", label: "Health & Safety" },
   { value: "membership", label: "Membership" },
-  { value: "attendance", label: "Attendance" },
+  { value: "attendance", label: "Check-Ins" },
   { value: "payments", label: "Payments" },
   { value: "documents", label: "Documents" },
 ] as const;
@@ -174,9 +174,7 @@ export function MemberDetailsPage() {
                       Account status
                     </p>
                     {detail.memberAccountStatus?.trim() ? (
-                      <AccountStatusBadge
-                        status={detail.memberAccountStatus}
-                      />
+                      <AccountStatusBadge status={detail.memberAccountStatus} />
                     ) : (
                       <p className="text-sm text-muted-foreground">—</p>
                     )}

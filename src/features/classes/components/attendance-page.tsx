@@ -11,32 +11,32 @@ type AttendanceRecord = {
   location: string;
 };
 
-const attendanceData: AttendanceRecord[] = [
-  {
-    id: "att-001",
-    className: "Morning Yoga",
-    member: "Sarah Johnson",
-    date: "Mar 20, 2026",
-    status: "present",
-    location: "Downtown",
-  },
-  {
-    id: "att-002",
-    className: "HIIT Basics",
-    member: "Mike Chen",
-    date: "Mar 20, 2026",
-    status: "late",
-    location: "Westside",
-  },
-  {
-    id: "att-003",
-    className: "Strength Training",
-    member: "Emma Wilson",
-    date: "Mar 20, 2026",
-    status: "absent",
-    location: "Downtown",
-  },
-];
+// const attendanceData: AttendanceRecord[] = [
+//   {
+//     id: "att-001",
+//     className: "Morning Yoga",
+//     member: "Sarah Johnson",
+//     date: "Mar 20, 2026",
+//     status: "present",
+//     location: "Downtown",
+//   },
+//   {
+//     id: "att-002",
+//     className: "HIIT Basics",
+//     member: "Mike Chen",
+//     date: "Mar 20, 2026",
+//     status: "late",
+//     location: "Westside",
+//   },
+//   {
+//     id: "att-003",
+//     className: "Strength Training",
+//     member: "Emma Wilson",
+//     date: "Mar 20, 2026",
+//     status: "absent",
+//     location: "Downtown",
+//   },
+// ];
 
 const columns: ColumnDef<AttendanceRecord>[] = [
   { accessorKey: "className", header: "Class" },
@@ -64,9 +64,8 @@ export function AttendancePage() {
       title="Attendance"
       description="View class attendance records."
       columns={columns}
-      data={attendanceData}
+      data={[]}
       emptyMessage="No attendance records found."
     />
   );
 }
-

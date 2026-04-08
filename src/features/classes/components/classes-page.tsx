@@ -1,26 +1,26 @@
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { IconPlus } from "@tabler/icons-react";
 import * as React from "react";
 import { ClassesTab } from "./classes-tab";
-import { ClassTemplatesTab } from "./class-templates-tab";
+// import { ClassTemplatesTab } from "./class-templates-tab";
 
 export function ClassesPage() {
-  const [activeTab, setActiveTab] = React.useState<"classes" | "templates">(
-    "classes",
-  );
+  // const [activeTab, setActiveTab] = React.useState<"classes" | "templates">(
+  //   "classes",
+  // );
   const [isCreateClassModalOpen, setIsCreateClassModalOpen] = React.useState(false);
-  const [isCreateTemplateModalOpen, setIsCreateTemplateModalOpen] =
-    React.useState(false);
+  // const [isCreateTemplateModalOpen, setIsCreateTemplateModalOpen] =
+  //   React.useState(false);
 
-  const handleCreateClick = () => {
-    if (activeTab === "templates") {
-      setIsCreateTemplateModalOpen(true);
-      return;
-    }
-    setIsCreateClassModalOpen(true);
-  };
+  // const handleCreateClick = () => {
+  //   if (activeTab === "templates") {
+  //     setIsCreateTemplateModalOpen(true);
+  //     return;
+  //   }
+  //   setIsCreateClassModalOpen(true);
+  // };
 
   return (
     <DashboardLayout>
@@ -29,16 +29,21 @@ export function ClassesPage() {
           <div>
             <h1 className="text-3xl font-medium">Classes</h1>
             <p className="text-muted-foreground mt-1 text-sm">
-              Manage your gym classes and templates
+              Manage your gym classes
             </p>
           </div>
-          <Button onClick={handleCreateClick}>
+          <Button onClick={() => setIsCreateClassModalOpen(true)}>
             <IconPlus className="h-4 w-4" />
-            {activeTab === "templates" ? "Create Template" : "Create Class"}
+            Create Class
           </Button>
         </div>
 
         <div className="px-4 lg:px-6">
+          <ClassesTab
+            isCreateModalOpen={isCreateClassModalOpen}
+            onCreateModalOpenChange={setIsCreateClassModalOpen}
+          />
+          {/*
           <Tabs
             value={activeTab}
             onValueChange={(value) => setActiveTab(value as "classes" | "templates")}
@@ -61,6 +66,7 @@ export function ClassesPage() {
               />
             </TabsContent>
           </Tabs>
+          */}
         </div>
       </div>
     </DashboardLayout>

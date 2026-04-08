@@ -27,9 +27,11 @@ import {
   IconQrcode,
   IconUserOff,
 } from "@tabler/icons-react";
+import { Loader2 } from "lucide-react";
 import { type ColumnDef } from "@tanstack/react-table";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
+import { useInstantCheckIn } from "@/features/check-in/hooks/use-instant-check-in";
 import { useMembersQuery } from "../services";
 import type { MemberSubscription } from "../types";
 
@@ -41,6 +43,7 @@ export function MembersPage() {
     React.useState<MemberSubscription | null>(null);
   const navigate = useNavigate();
   const { showSuccess } = useToast();
+  const { executeCheckIn, loadingRowId } = useInstantCheckIn();
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
 
   const effectiveLocationId =
@@ -123,6 +126,8 @@ export function MembersPage() {
         cell: ({ row }) => {
           const member = row.original.member;
           const fullName = `${member.firstName} ${member.lastName}`;
+          const rowKey = row.original.id;
+          const isCheckingIn = loadingRowId === rowKey;
 
           return (
             <div className="flex items-center gap-1">
@@ -130,11 +135,21 @@ export function MembersPage() {
                 variant="ghost"
                 size="icon"
                 className="size-8"
+                title={`Check in · ${fullName}`}
+                disabled={isCheckingIn}
                 onClick={() =>
-                  showSuccess("Check-in", `${fullName} has been checked in`)
+                  void executeCheckIn({
+                    memberId: row.original.memberId,
+                    locationId: row.original.location.id,
+                    rowId: rowKey,
+                  })
                 }
               >
-                <IconQrcode className="size-4" />
+                {isCheckingIn ? (
+                  <Loader2 className="size-4 animate-spin" aria-hidden />
+                ) : (
+                  <IconQrcode className="size-4" />
+                )}
               </Button>
 
               <DropdownMenu>
@@ -176,7 +191,7 @@ export function MembersPage() {
         },
       },
     ],
-    [navigate, showSuccess],
+    [navigate, executeCheckIn, loadingRowId],
   );
 
   const filteredMembers = React.useMemo(() => {
@@ -238,6 +253,7 @@ export function MembersPage() {
           />
         </div>
       </div>
+
       <Dialog
         open={!!suspendTarget}
         onOpenChange={() => setSuspendTarget(null)}

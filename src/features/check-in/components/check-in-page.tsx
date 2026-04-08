@@ -37,6 +37,7 @@ function formatCheckInTime(iso: string) {
 }
 
 function memberDisplayName(member: CheckInListItem["member"]) {
+  if (member == null) return "—";
   const name = `${member.firstName} ${member.lastName}`.trim();
   return name || member.email;
 }
@@ -107,7 +108,8 @@ export function CheckInPage() {
         cell: ({ row }) => {
           const member = row.original.member;
           const incomplete =
-            member.onboardingCompleted === false || member.status === "pending";
+            member != null &&
+            (member.onboardingCompleted === false || member.status === "pending");
           return (
             <div className="flex items-center gap-1.5 font-medium">
               <span>{memberDisplayName(member)}</span>
@@ -129,15 +131,6 @@ export function CheckInPage() {
         accessorFn: (row) => row.checkInTime,
         header: "Check-In",
         cell: ({ row }) => formatCheckInTime(row.original.checkInTime),
-      },
-      {
-        id: "checkOut",
-        accessorFn: (row) => row.checkOutTime,
-        header: "Check-Out",
-        cell: ({ row }) =>
-          row.original.checkOutTime
-            ? formatCheckInTime(row.original.checkOutTime)
-            : "—",
       },
       {
         id: "status",
@@ -167,9 +160,9 @@ export function CheckInPage() {
       },
       {
         id: "location",
-        accessorFn: (row) => row.location.locationName,
+        accessorFn: (row) => row.location?.locationName ?? "",
         header: "Location",
-        cell: ({ row }) => row.original.location.locationName,
+        cell: ({ row }) => row.original.location?.locationName ?? "—",
       },
     ],
     [],

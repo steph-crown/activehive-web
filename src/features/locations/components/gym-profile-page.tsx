@@ -106,7 +106,10 @@ export function GymProfilePage() {
     [locations],
   );
 
-  const gymFromCheckIn = checkInsPreview?.data?.[0]?.gym;
+  const gymFromCheckIn =
+    checkInsPreview?.data?.[0]?.gym != null
+      ? checkInsPreview.data[0].gym
+      : undefined;
 
   const baseline = useMemo(
     () => buildGymProfileForm(gymFromCheckIn, hq),

@@ -1,5 +1,7 @@
 # Activehive Gym Web — backend API checklist
 
+**List format (same content):** [`BACKEND_API_INTEGRATION_AUDIT_LIST.md`](./BACKEND_API_INTEGRATION_AUDIT_LIST.md)
+
 Audience: **backend only.** Each table states what to **change on an existing API** or what **new API** to ship. No frontend implementation notes.
 
 ---
@@ -148,7 +150,6 @@ Audience: **backend only.** Each table states what to **change on an existing AP
 | `/api/gym-owner/subscriptions/members` | GET | **`page`**, **`limit`**, optional **`locationId`**, **`search`**, **`status`**. | Paginated: **`items`**, **`total`**, **`page`**, **`pageSize`**. |
 | `/api/gym-owner/subscriptions` | GET | **`page`**, **`limit`**, filters as needed. | Paginated envelope. |
 | `/api/classes` | GET | **`page`**, **`limit`**, optional **`locationId`**, **`trainerId`**, **`dateFrom`**, **`dateTo`**. | Paginated envelope. |
-| `/api/check-ins` | GET | **`page`**, **`limit`**, optional **`locationId`**, **`dateFrom`**, **`dateTo`**, **`search`**, **`sortBy`**, **`sortOrder`**. | Paginated envelope. |
 | `/api/trainers` | GET | **`page`**, **`limit`**, optional **`locationId`**. | Paginated envelope. |
 | `/api/trainers/assignments` | GET | **`page`**, **`limit`**, optional **`locationId`**, **`trainerId`**, **`memberId`**. | Paginated envelope. |
 

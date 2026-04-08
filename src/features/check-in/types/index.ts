@@ -67,9 +67,11 @@ export type CheckInListItem = {
   notes: string | null;
   checkedInBy?: string | null;
   checkedOutBy?: string | null;
-  member: CheckInListMember;
-  location: CheckInListLocation;
-  gym?: CheckInListGym;
+  /** API may omit nested member until hydrated. */
+  member: CheckInListMember | null;
+  /** API may omit nested location until hydrated. */
+  location: CheckInListLocation | null;
+  gym?: CheckInListGym | null;
 };
 
 export type CheckInsListResponse = {

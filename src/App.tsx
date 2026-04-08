@@ -44,8 +44,8 @@ const SubscriptionDetails = lazy(
 const Classes = lazy(() => import("@/app/dashboard/classes/page"));
 const ClassDetails = lazy(() => import("@/app/dashboard/classes/[id]/page"));
 const CheckIn = lazy(() => import("@/app/dashboard/check-in/page"));
-const OperatingHoursDummy = lazy(
-  () => import("@/app/dashboard/operating-hours/page")
+const OperatingHoursLegacyRedirect = lazy(
+  () => import("@/app/dashboard/operating-hours/page"),
 );
 const OperatingHours = lazy(
   () => import("@/app/dashboard/locations/[id]/operating-hours/page")
@@ -118,7 +118,7 @@ function App() {
           />
           <Route
             path="/dashboard/operating-hours"
-            element={<OperatingHoursDummy />}
+            element={<OperatingHoursLegacyRedirect />}
           />
           <Route path="/dashboard/staff" element={<Staff />} />
           <Route path="/dashboard/staff/roles" element={<StaffRoles />} />

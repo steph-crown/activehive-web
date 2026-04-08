@@ -6,6 +6,8 @@ import type {
   LocationDetailsResponse,
   CreateLocationPayload,
   Facility,
+  LocationOperatingHoursDay,
+  PutLocationOperatingHoursPayload,
 } from "../types";
 
 const locationsPath = "/api/gym-owner/locations";
@@ -97,4 +99,18 @@ export const locationsApi = {
   },
   getCoverImage: (locationId: string): Promise<{ imageUrl: string }> =>
     apiClient.get<{ imageUrl: string }>(`${locationsPath}/${locationId}/cover-image`),
+  getOperatingHours: (
+    locationId: string,
+  ): Promise<LocationOperatingHoursDay[]> =>
+    apiClient.get<LocationOperatingHoursDay[]>(
+      `${locationsPath}/${locationId}/operating-hours`,
+    ),
+  putOperatingHours: (
+    locationId: string,
+    payload: PutLocationOperatingHoursPayload,
+  ): Promise<unknown> =>
+    apiClient.put<unknown>(
+      `${locationsPath}/${locationId}/operating-hours`,
+      payload,
+    ),
 };

@@ -145,3 +145,15 @@ export type UpdateFacilityPayload = {
   description?: string;
   image?: File;
 };
+
+/** `dayOfWeek` 0–6 (Sun–Sat, same as `Date.getDay()`). GET may return `[]` if unset. */
+export type LocationOperatingHoursDay = {
+  dayOfWeek: number;
+  isOpen: boolean;
+  openingTime: string;
+  closingTime: string;
+};
+
+export type PutLocationOperatingHoursPayload = {
+  operatingHours: LocationOperatingHoursDay[];
+};

@@ -117,13 +117,26 @@ export function LocationDetailsPage() {
                 Location Details
               </p>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsCoverModalOpen(true)}
-            >
-              Update cover image
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  navigate(
+                    `/dashboard/locations/${id}/operating-hours`,
+                  )
+                }
+              >
+                Operating hours
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsCoverModalOpen(true)}
+              >
+                Update cover image
+              </Button>
+            </div>
           </div>
         </div>
 

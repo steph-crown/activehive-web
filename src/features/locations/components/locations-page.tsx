@@ -153,6 +153,15 @@ export function LocationsPage() {
                               View
                             </DropdownMenuItem>
                             <DropdownMenuItem
+                              onClick={() =>
+                                navigate(
+                                  `/dashboard/locations/${location.id}/operating-hours`,
+                                )
+                              }
+                            >
+                              Operating hours
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
                               onClick={() => handleOpenCoverModal(location)}
                             >
                               Update cover image

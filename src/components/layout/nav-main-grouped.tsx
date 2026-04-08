@@ -52,17 +52,18 @@ type NavMainGroupedProps = Readonly<{
 export function NavMainGrouped({ selectedLocationId }: NavMainGroupedProps) {
   const location = useLocation();
   const pathname = location.pathname;
-  void selectedLocationId; // currently unused (dummy links)
-
-  // These are currently dummy pages (not backed by the location-dependent UI yet).
   const gymProfileHref = "/dashboard/gym-profile";
-  const operatingHoursHref = "/dashboard/operating-hours";
+  const operatingHoursHref = selectedLocationId
+    ? `/dashboard/locations/${selectedLocationId}/operating-hours`
+    : "/dashboard/locations";
 
   const isDashboardActive = pathname === "/dashboard";
   const isCheckInActive = pathname === "/dashboard/check-in";
 
   const isGymProfileActive = pathname === "/dashboard/gym-profile";
-  const isOperatingHoursActive = pathname === "/dashboard/operating-hours";
+  const isOperatingHoursActive =
+    /^\/dashboard\/locations\/[^/]+\/operating-hours$/.test(pathname) ||
+    pathname === "/dashboard/operating-hours";
 
   const isPlansActive =
     pathname === "/dashboard/membership-plans" ||

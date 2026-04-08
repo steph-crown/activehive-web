@@ -7,6 +7,8 @@ import type {
   LocationDetailsResponse,
   CreateLocationPayload,
   Facility,
+  LocationOperatingHoursDay,
+  PutLocationOperatingHoursPayload,
 } from "../types";
 
 export const gymProfileQueryKeys = {
@@ -39,6 +41,8 @@ export const locationsQueryKeys = {
     [...locationsQueryKeys.all, "facilities", locationId] as const,
   coverImage: (locationId: string) =>
     [...locationsQueryKeys.all, "cover-image", locationId] as const,
+  operatingHours: (locationId: string) =>
+    [...locationsQueryKeys.all, "operating-hours", locationId] as const,
 };
 
 export const useLocationsQuery = () =>
@@ -53,6 +57,27 @@ export const useLocationQuery = (id: string) =>
     queryFn: () => locationsApi.getLocationById(id),
     enabled: !!id,
   });
+
+export const useOperatingHoursQuery = (locationId: string | undefined) =>
+  useQuery<LocationOperatingHoursDay[]>({
+    queryKey: locationsQueryKeys.operatingHours(locationId ?? ""),
+    queryFn: () => locationsApi.getOperatingHours(locationId!),
+    enabled: Boolean(locationId),
+  });
+
+export const usePutOperatingHoursMutation = (locationId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: PutLocationOperatingHoursPayload) =>
+      locationsApi.putOperatingHours(locationId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: locationsQueryKeys.operatingHours(locationId),
+      });
+    },
+  });
+};
 
 export const useCreateLocationMutation = () => {
   const queryClient = useQueryClient();

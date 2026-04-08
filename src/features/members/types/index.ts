@@ -121,6 +121,29 @@ export type MemberAttendanceEntry = {
   branch: string;
 };
 
+/** Embedded check-in on GET /api/gym-owner/members/:id (raw `checkIns`). */
+export type GymMemberCheckInApi = {
+  id: string;
+  locationId?: string;
+  location?: { id: string; locationName: string };
+  gymId?: string;
+  status?: string;
+  checkInTime?: string;
+  checkedInBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+/** Derived attendance rows on GET /api/gym-owner/members/:id — use for Attendance tab. */
+export type GymMemberAttendanceApi = {
+  id: string;
+  date: string;
+  checkIn: string;
+  checkOut?: string | null;
+  processedBy?: string;
+  branch?: string;
+};
+
 export type MemberPaymentEntry = {
   id: string;
   date: string;
@@ -218,7 +241,9 @@ export type GymMemberDetailApiResponse = {
   createdAt: string;
   updatedAt: string;
   memberships: GymMemberMembershipApi[];
-  checkIns?: unknown[];
+  /** Raw visit records; prefer `attendance` for the Attendance tab when present. */
+  checkIns?: GymMemberCheckInApi[];
+  attendance?: GymMemberAttendanceApi[];
   trainer?: MemberTrainerRef | null;
   assignedTrainerName?: string;
   preferredWorkoutTime?: string;

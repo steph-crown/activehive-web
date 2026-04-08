@@ -41,6 +41,44 @@ function formatDisplayDate(iso: string | undefined): string {
   }
 }
 
+function toValidDate(value: string | undefined): Date | null {
+  if (value == null) return null;
+  const s = String(value).trim();
+  if (!s || s === "—") return null;
+  const d = new Date(s);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+/** Visit row “Date” column — calendar date only. */
+function formatAttendanceVisitDate(row: MemberAttendanceEntry): string {
+  const primary = row.date?.trim() ? row.date : row.checkIn;
+  const d = toValidDate(primary);
+  if (!d) return "—";
+  return d.toLocaleDateString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+/** Check-in / check-out: full localized date + time (no raw ISO). */
+function formatAttendanceDateTime(value: string | undefined): string {
+  if (value == null) return "—";
+  const s = String(value).trim();
+  if (!s || s === "—") return "—";
+  const d = toValidDate(s);
+  if (!d) return s;
+  return d.toLocaleString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
 function formatDob(iso: string | undefined): string {
   if (!iso) return "—";
   try {
@@ -171,22 +209,28 @@ export function MemberDetailTabPanels({ detail }: PanelsProps) {
       {
         accessorKey: "date",
         header: "Date",
-        cell: ({ row }) => formatDisplayDate(row.original.date),
+        cell: ({ row }) => formatAttendanceVisitDate(row.original),
       },
       {
         accessorKey: "checkIn",
         header: "Check-in",
         cell: ({ row }) => (
           <span className="inline-flex items-center gap-1.5">
-            <IconClock className="size-4 text-muted-foreground" />
-            {row.original.checkIn}
+            <IconClock className="size-4 shrink-0 text-muted-foreground" />
+            <span className="tabular-nums">
+              {formatAttendanceDateTime(row.original.checkIn)}
+            </span>
           </span>
         ),
       },
       {
         accessorKey: "checkOut",
         header: "Check-out",
-        cell: ({ row }) => row.original.checkOut,
+        cell: ({ row }) => (
+          <span className="tabular-nums">
+            {formatAttendanceDateTime(row.original.checkOut)}
+          </span>
+        ),
       },
       {
         accessorKey: "processedBy",

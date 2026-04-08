@@ -1,6 +1,7 @@
 import type {
   GymMemberDetail,
   GymMemberDetailApiResponse,
+  GymMemberCheckInApi,
   MemberAttendanceEntry,
 } from "../types";
 
@@ -22,42 +23,44 @@ function pickMembership(
   return list[0] ?? null;
 }
 
-function mapCheckIns(
-  checkIns: GymMemberDetailApiResponse["checkIns"],
+/** Prefer API `attendance` (stable columns for the Attendance tab). */
+function mapAttendanceApi(
+  rows: GymMemberDetailApiResponse["attendance"],
 ): MemberAttendanceEntry[] {
+  if (!rows?.length) return [];
+  return rows.map((row) => ({
+    id: row.id,
+    date: row.date,
+    checkIn: row.checkIn,
+    checkOut:
+      row.checkOut == null || String(row.checkOut).trim() === ""
+        ? "—"
+        : String(row.checkOut),
+    processedBy: row.processedBy?.trim() ? row.processedBy : "—",
+    branch: row.branch?.trim() ? row.branch : "—",
+  }));
+}
+
+/** Fallback when only `checkIns` is returned — aligns with attendance / visit history. */
+function mapCheckIns(checkIns: GymMemberCheckInApi[] | undefined): MemberAttendanceEntry[] {
   if (!checkIns?.length) return [];
   return checkIns.map((c, i) => {
-    const any = c as Record<string, unknown>;
     const dateRaw =
-      (any.date as string) ??
-      (any.checkInDate as string) ??
-      (any.createdAt as string) ??
+      c.checkInTime ??
+      c.createdAt ??
       "";
-    const checkIn =
-      (any.checkIn as string) ??
-      (any.checkInTime as string) ??
-      (any.checkedInAt as string) ??
-      "—";
-    const checkOut =
-      (any.checkOut as string) ??
-      (any.checkOutTime as string) ??
-      (any.checkedOutAt as string) ??
-      "—";
-    const processedBy =
-      (any.processedBy as string) ??
-      (any.staffName as string) ??
-      (any.method as string) ??
-      "—";
+    const checkIn = c.checkInTime ?? c.createdAt ?? "—";
+    const checkOut = "—";
+    const processedBy = c.checkedInBy?.trim() ? c.checkedInBy : "—";
     const branch =
-      (any.branch as string) ??
-      (any.locationName as string) ??
-      (any.location as string) ??
+      c.location?.locationName?.trim() ||
+      c.locationId ||
       "—";
     return {
-      id: (any.id as string) ?? `checkin-${i}`,
+      id: c.id ?? `checkin-${i}`,
       date: dateRaw,
       checkIn: String(checkIn),
-      checkOut: String(checkOut),
+      checkOut,
       processedBy: String(processedBy),
       branch: String(branch),
     };
@@ -81,6 +84,12 @@ export function normalizeGymMemberDetail(
   const startDate = sub?.startDate ?? raw.createdAt;
   const endDate = sub?.endDate ?? raw.createdAt;
   const daysRemaining = daysRemainingFromEnd(endDate);
+
+  const attendanceFromApi = mapAttendanceApi(raw.attendance);
+  const attendance =
+    attendanceFromApi.length > 0
+      ? attendanceFromApi
+      : mapCheckIns(raw.checkIns);
 
   return {
     id: sub?.id ?? raw.id,
@@ -129,7 +138,7 @@ export function normalizeGymMemberDetail(
     fitnessGoals: raw.fitnessGoals,
     compliance: raw.compliance,
     activityLog: raw.activityLog,
-    attendance: mapCheckIns(raw.checkIns),
+    attendance,
     payments: raw.payments,
     documents: raw.documents,
   };

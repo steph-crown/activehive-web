@@ -338,9 +338,10 @@ export function GymProfilePage() {
                 <Button
                   type="button"
                   onClick={handleSave}
+                  loading={saving}
                   disabled={!canEdit || saving || isUploading}
                 >
-                  {saving ? "Saving..." : "Save changes"}
+                  Save changes
                 </Button>
               </div>
             </Card>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/molecules/data-table";
 import { TableFilterBar } from "@/components/molecules/table-filter-bar";
@@ -16,6 +16,8 @@ type ScheduleStyleTablePageProps<T extends WithLocation> = {
   columns: ColumnDef<T>[];
   data: T[];
   emptyMessage: string;
+  /** Rendered in the page header row (e.g. primary action). */
+  headerActions?: ReactNode;
 };
 
 export function ScheduleStyleTablePage<T extends WithLocation>({
@@ -24,6 +26,7 @@ export function ScheduleStyleTablePage<T extends WithLocation>({
   columns,
   data,
   emptyMessage,
+  headerActions,
 }: Readonly<ScheduleStyleTablePageProps<T>>) {
   const [searchQuery, setSearchQuery] = useState("");
   const [locationFilter, setLocationFilter] = useState("all");
@@ -77,9 +80,16 @@ export function ScheduleStyleTablePage<T extends WithLocation>({
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-        <div className="px-4 lg:px-6">
-          <h1 className="text-3xl font-medium">{title}</h1>
-          <p className="text-muted-foreground mt-1 text-sm">{description}</p>
+        <div className="flex items-center justify-between px-4 lg:px-6">
+          <div>
+            <h1 className="text-3xl font-medium">{title}</h1>
+            <p className="text-muted-foreground mt-1 text-sm">{description}</p>
+          </div>
+          {headerActions ? (
+            <div className="flex shrink-0 flex-wrap justify-end gap-2">
+              {headerActions}
+            </div>
+          ) : null}
         </div>
 
         <div className="px-4 lg:px-6">

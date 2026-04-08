@@ -518,25 +518,23 @@ export function DuplicateMembershipPlanModal({
 }
 
 // Add Promo Code Modal
-const addPromoCodeSchema = yup.object({
-  code: yup.string().required("Promo code is required"),
-  discountType: yup
-    .string()
-    .oneOf(["percentage", "fixed"])
-    .required("Discount type is required"),
-  discountValue: yup.number().required("Discount value is required").min(0),
-  validFrom: yup.string().required("Start date is required"),
-  validUntil: yup.string().required("End date is required"),
-  maxUses: yup.number().optional().min(1),
-  isActive: yup.boolean().default(true),
-});
-
-type AddPromoCodeFormValues = yup.InferType<typeof addPromoCodeSchema>;
+type AddPromoCodeFormValues = {
+  planId?: string;
+  code: string;
+  discountType: string;
+  discountValue: number;
+  validFrom: string;
+  validUntil: string;
+  maxUses?: number;
+  isActive: boolean;
+};
 
 interface AddPromoCodeModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   plan: MembershipPlan | null;
+  /** When `plan` is null, pass plans so the user can choose which plan receives the promo code. */
+  plansForPicker?: MembershipPlan[];
   onSuccess: () => void;
 }
 
@@ -544,14 +542,39 @@ export function AddPromoCodeModal({
   open,
   onOpenChange,
   plan,
+  plansForPicker,
   onSuccess,
 }: AddPromoCodeModalProps) {
   const { showSuccess, showError } = useToast();
   const { mutateAsync: addPromoCode, isPending } = useAddPromoCodeMutation();
 
-  const form = useForm<AddPromoCodeFormValues>({
-    resolver: yupResolver(addPromoCodeSchema) as unknown as never,
-    defaultValues: {
+  const showPlanPicker = Boolean(!plan && plansForPicker && plansForPicker.length > 0);
+
+  const addPromoCodeSchema = React.useMemo(() => {
+    const baseFields = {
+      code: yup.string().required("Promo code is required"),
+      discountType: yup
+        .string()
+        .oneOf(["percentage", "fixed"])
+        .required("Discount type is required"),
+      discountValue: yup.number().required("Discount value is required").min(0),
+      validFrom: yup.string().required("Start date is required"),
+      validUntil: yup.string().required("End date is required"),
+      maxUses: yup.number().optional().min(1),
+      isActive: yup.boolean().default(true),
+    };
+    if (showPlanPicker) {
+      return yup.object({
+        planId: yup.string().required("Select a membership plan"),
+        ...baseFields,
+      });
+    }
+    return yup.object(baseFields);
+  }, [showPlanPicker]);
+
+  const defaultValues = React.useMemo(
+    (): AddPromoCodeFormValues => ({
+      ...(showPlanPicker ? { planId: "" } : {}),
       code: "",
       discountType: "percentage",
       discountValue: undefined as unknown as number,
@@ -559,15 +582,30 @@ export function AddPromoCodeModal({
       validUntil: "",
       maxUses: undefined,
       isActive: true,
-    },
+    }),
+    [showPlanPicker],
+  );
+
+  const form = useForm<AddPromoCodeFormValues>({
+    resolver: yupResolver(addPromoCodeSchema) as unknown as never,
+    defaultValues,
   });
 
+  React.useEffect(() => {
+    if (!open) return;
+    form.reset(defaultValues);
+  }, [open, defaultValues, form]);
+
   const onSubmit = async (data: AddPromoCodeFormValues) => {
-    if (!plan) return;
+    const resolvedPlanId = plan?.id ?? data.planId;
+    if (!resolvedPlanId) {
+      showError("Error", "Select a membership plan.");
+      return;
+    }
 
     try {
       await addPromoCode({
-        id: plan.id,
+        id: resolvedPlanId,
         payload: {
           code: data.code.toUpperCase(),
           discountType: data.discountType as "percentage" | "fixed",
@@ -579,7 +617,7 @@ export function AddPromoCodeModal({
         },
       });
       showSuccess("Success", "Promo code added successfully!");
-      form.reset();
+      form.reset(defaultValues);
       onSuccess();
     } catch (error) {
       const message =
@@ -594,11 +632,47 @@ export function AddPromoCodeModal({
         <DialogHeader>
           <DialogTitle>Add Promo Code</DialogTitle>
           <DialogDescription>
-            Add a promo code to {plan?.name}
+            {plan
+              ? `Add a promo code to ${plan.name}`
+              : showPlanPicker
+                ? "Select a membership plan and configure the promo code."
+                : "Add a promo code to a membership plan."}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {!plan && !showPlanPicker ? (
+              <p className="text-sm text-destructive">
+                No membership plans available. Create a plan under Subscriptions
+                first.
+              </p>
+            ) : null}
+            {showPlanPicker ? (
+              <FormField
+                control={form.control}
+                name="planId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Membership plan</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="!h-10 w-full">
+                          <SelectValue placeholder="Select a plan" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {plansForPicker?.map((p) => (
+                          <SelectItem key={p.id} value={p.id}>
+                            {p.name} — {p.location.locationName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : null}
             <FormField
               control={form.control}
               name="code"
@@ -760,10 +834,15 @@ export function AddPromoCodeModal({
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
+                disabled={isPending}
               >
                 Cancel
               </Button>
-              <Button type="submit" loading={isPending}>
+              <Button
+                type="submit"
+                loading={isPending}
+                disabled={!plan && !showPlanPicker}
+              >
                 Add Promo Code
               </Button>
             </DialogFooter>

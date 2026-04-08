@@ -1,6 +1,11 @@
+import { useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
+import { IconPlus } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ScheduleStyleTablePage } from "@/components/molecules/schedule-style-table-page";
+import { AddPromoCodeModal } from "@/features/membership-plans/components/membership-plan-action-modals";
+import { useMembershipPlansQuery } from "@/features/membership-plans/services";
 
 type PromoCodeRow = {
   id: string;
@@ -69,14 +74,42 @@ const columns: ColumnDef<PromoCodeRow>[] = [
 ];
 
 export default function Page() {
+  const [addOpen, setAddOpen] = useState(false);
+  const { data: plans, isLoading: plansLoading } = useMembershipPlansQuery();
+  const planList = plans ?? [];
+  const canAddPromo = !plansLoading && planList.length > 0;
+
   return (
-    <ScheduleStyleTablePage
-      title="Promo Codes"
-      description="Manage promotional discount codes."
-      columns={columns}
-      data={data}
-      emptyMessage="No promo codes found."
-    />
+    <>
+      <ScheduleStyleTablePage
+        title="Promo Codes"
+        description="Manage promotional discount codes."
+        columns={columns}
+        data={data}
+        emptyMessage="No promo codes found."
+        headerActions={
+          <Button
+            disabled={!canAddPromo}
+            title={
+              !canAddPromo && !plansLoading
+                ? "Create a membership plan under Subscriptions first"
+                : undefined
+            }
+            onClick={() => setAddOpen(true)}
+          >
+            <IconPlus className="h-4 w-4" />
+            Add Promo Code
+          </Button>
+        }
+      />
+      <AddPromoCodeModal
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        plan={null}
+        plansForPicker={planList}
+        onSuccess={() => setAddOpen(false)}
+      />
+    </>
   );
 }
 

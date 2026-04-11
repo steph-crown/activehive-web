@@ -105,13 +105,7 @@ function ReadBox({
   );
 }
 
-function ReadArea({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function ReadArea({ label, value }: { label: string; value: string }) {
   return (
     <div className="space-y-1.5">
       <p className="text-xs font-semibold text-foreground">{label}</p>
@@ -348,7 +342,8 @@ export function MemberDetailTabPanels({ detail }: PanelsProps) {
                   <div>
                     <p className="font-medium">{row.title}</p>
                     <p className="text-muted-foreground text-sm">
-                      {row.category} · {row.actor}
+                      Performed by{" "}
+                      <span className="font-medium">{row.actor}</span>
                     </p>
                   </div>
                   <span className="text-muted-foreground shrink-0 text-sm sm:text-right">
@@ -422,7 +417,10 @@ export function MemberDetailTabPanels({ detail }: PanelsProps) {
                   : "—"
               }
             />
-            <LegalTile label="Liability Waiver" value={dash(c?.liabilityWaiver)} />
+            <LegalTile
+              label="Liability Waiver"
+              value={dash(c?.liabilityWaiver)}
+            />
             <LegalTile label="Media Consent" value={dash(c?.mediaConsent)} />
           </div>
         </Card>
@@ -465,15 +463,9 @@ export function MemberDetailTabPanels({ detail }: PanelsProps) {
         <Card className="rounded-md border-[#F4F4F4] bg-white p-6 shadow-none">
           <SectionHeading>Membership details</SectionHeading>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
-            <ReadBox
-              label="Plan"
-              value={dash(detail.membershipPlan?.name)}
-            />
+            <ReadBox label="Plan" value={dash(detail.membershipPlan?.name)} />
             <ReadBox label="Status" value={dash(detail.status)} />
-            <ReadBox
-              label="Start date"
-              value={formatDob(detail.startDate)}
-            />
+            <ReadBox label="Start date" value={formatDob(detail.startDate)} />
             <ReadBox label="End date" value={formatDob(detail.endDate)} />
           </div>
         </Card>
@@ -573,7 +565,11 @@ export function MemberDetailTabPanels({ detail }: PanelsProps) {
                       Uploaded
                     </span>
                   ) : (
-                    <Button variant="outline" size="sm" className="shrink-0 gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0 gap-1"
+                    >
                       <IconUpload className="size-4" />
                       Upload
                     </Button>

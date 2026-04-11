@@ -9,9 +9,11 @@ import type {
   AssignTrainerPayload,
   ReuseClassPayload,
   ClassReport,
+  AddClassAttendancePayload,
 } from "../types";
 
 const classesPath = "/api/classes";
+const classAttendancePath = "/api/gym-owner/class-attendance";
 
 export const classesApi = {
   getClasses: (locationId?: string): Promise<Class[]> => {
@@ -41,4 +43,15 @@ export const classesApi = {
     apiClient.post<ClassTemplate>(`${classesPath}/templates`, payload),
   useTemplate: (payload: UseTemplatePayload): Promise<Class> =>
     apiClient.post<Class>(`${classesPath}/use-template`, payload),
+};
+
+export const classAttendanceApi = {
+  addAttendance: (
+    classScheduleId: string,
+    payload: AddClassAttendancePayload,
+  ): Promise<unknown> =>
+    apiClient.post<unknown>(
+      `${classAttendancePath}/${classScheduleId}/attendance`,
+      payload,
+    ),
 };

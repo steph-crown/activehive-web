@@ -8,3 +8,4 @@ export * from "./use-template-modal";
 export * from "./assign-trainer-modal";
 export * from "./reuse-class-modal";
 export * from "./update-class-modal";
+export * from "./add-class-attendance-modal";

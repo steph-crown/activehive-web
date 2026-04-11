@@ -162,3 +162,9 @@ export type ClassReport = {
   revenue: number;
   // Add more fields as needed based on actual API response
 };
+
+/** POST `/api/gym-owner/class-attendance/{classScheduleId}/attendance` */
+export type AddClassAttendancePayload = {
+  memberIds: string[];
+  notes?: string;
+};

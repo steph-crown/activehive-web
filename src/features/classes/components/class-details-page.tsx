@@ -25,9 +25,15 @@ import {
   AssignTrainerModal,
   classHasAssignedTrainer,
 } from "./assign-trainer-modal";
+import { AddClassAttendanceModal } from "./add-class-attendance-modal";
 import { ReuseClassModal } from "./reuse-class-modal";
 import { UpdateClassModal } from "./update-class-modal";
+import { IconUserCheck } from "@tabler/icons-react";
 import type { Class } from "../types";
+import {
+  formatScheduleDateOnly,
+  formatScheduleTimeRange12h,
+} from "../utils/format-schedule-display";
 
 function LabeledRow({ label, value }: { label: string; value: string }) {
   return (
@@ -209,10 +215,13 @@ function SchedulesCard({ classItem }: { classItem: Class }) {
             >
               <div>
                 <p className="text-sm font-medium">
-                  {new Date(schedule.date).toLocaleDateString()}
+                  {formatScheduleDateOnly(schedule.date)}
                 </p>
                 <p className="text-muted-foreground text-xs">
-                  {schedule.startTime} – {schedule.endTime}
+                  {formatScheduleTimeRange12h(
+                    schedule.startTime,
+                    schedule.endTime,
+                  )}
                 </p>
                 {schedule.notes ? (
                   <p className="text-muted-foreground mt-1 text-xs">
@@ -235,6 +244,7 @@ export function ClassDetailsPage() {
   const [isAssignTrainerOpen, setIsAssignTrainerOpen] = React.useState(false);
   const [isReuseOpen, setIsReuseOpen] = React.useState(false);
   const [isUpdateOpen, setIsUpdateOpen] = React.useState(false);
+  const [isAddAttendanceOpen, setIsAddAttendanceOpen] = React.useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
 
   const { data: classItem, isLoading, refetch } = useClassQuery(id || "");
@@ -319,42 +329,67 @@ export function ClassDetailsPage() {
               Class details, report, and schedules
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant="outline"
-              className="border-[#F4F4F4]"
-              onClick={() => setIsAssignTrainerOpen(true)}
-            >
-              {classHasAssignedTrainer(classItem)
-                ? "Reassign trainer"
-                : "Assign trainer"}
-            </Button>
-            <Button
-              variant="outline"
-              className="border-[#F4F4F4]"
-              onClick={() => setIsReuseOpen(true)}
-            >
-              Reuse
-            </Button>
-            <Button
-              variant="outline"
-              className="border-[#F4F4F4]"
-              onClick={() => setIsUpdateOpen(true)}
-            >
-              Update
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => setDeleteDialogOpen(true)}
-            >
-              Delete
-            </Button>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
+              <Button
+                onClick={() => setIsAddAttendanceOpen(true)}
+                disabled={classItem.schedules.length === 0}
+                title={
+                  classItem.schedules.length === 0
+                    ? "Add a schedule before recording attendance"
+                    : undefined
+                }
+              >
+                <IconUserCheck className="h-4 w-4" />
+                Add attendance
+              </Button>
+              <Button
+                variant="outline"
+                className="border-[#F4F4F4]"
+                onClick={() => setIsAssignTrainerOpen(true)}
+              >
+                {classHasAssignedTrainer(classItem)
+                  ? "Reassign trainer"
+                  : "Assign trainer"}
+              </Button>
+              <Button
+                variant="outline"
+                className="border-[#F4F4F4]"
+                onClick={() => setIsReuseOpen(true)}
+              >
+                Reuse
+              </Button>
+              <Button
+                variant="outline"
+                className="border-[#F4F4F4]"
+                onClick={() => setIsUpdateOpen(true)}
+              >
+                Update
+              </Button>
+            </div>
           </div>
         </div>
 
         <div className="space-y-4 px-4 lg:px-6">
           <ClassDetailsCards classItem={classItem} />
           <SchedulesCard classItem={classItem} />
+          <Card className="rounded-md border border-destructive/25 bg-white p-6 shadow-none">
+            <h2 className="text-lg font-semibold text-destructive">
+              Danger zone
+            </h2>
+            <p className="text-muted-foreground mt-1 max-w-xl text-sm">
+              Deleting removes this class and its schedules. Members and history
+              may still appear in other reports depending on your backend.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-4 border-destructive/40 text-destructive hover:bg-destructive/5"
+              onClick={() => setDeleteDialogOpen(true)}
+            >
+              Delete class
+            </Button>
+          </Card>
         </div>
       </div>
 
@@ -417,6 +452,16 @@ export function ClassDetailsPage() {
         onSuccess={() => {
           void refetch();
           setIsUpdateOpen(false);
+        }}
+      />
+
+      <AddClassAttendanceModal
+        open={isAddAttendanceOpen}
+        onOpenChange={setIsAddAttendanceOpen}
+        classItem={classItem}
+        onSuccess={() => {
+          void refetch();
+          setIsAddAttendanceOpen(false);
         }}
       />
     </DashboardLayout>

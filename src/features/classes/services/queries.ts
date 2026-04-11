@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { classesApi } from "./api";
+import { classAttendanceApi, classesApi } from "./api";
 import type {
   Class,
   ClassTemplate,
@@ -9,6 +9,7 @@ import type {
   UseTemplatePayload,
   AssignTrainerPayload,
   ReuseClassPayload,
+  AddClassAttendancePayload,
 } from "../types";
 
 export const classesQueryKeys = {
@@ -141,6 +142,33 @@ export const useUseTemplateMutation = () => {
     mutationFn: (payload: UseTemplatePayload) =>
       classesApi.useTemplate(payload),
     onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: classesQueryKeys.all,
+      });
+    },
+  });
+};
+
+export const useAddClassScheduleAttendanceMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      classId,
+      classScheduleId,
+      payload,
+    }: {
+      classId: string;
+      classScheduleId: string;
+      payload: AddClassAttendancePayload;
+    }) => classAttendanceApi.addAttendance(classScheduleId, payload),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: classesQueryKeys.detail(variables.classId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: classesQueryKeys.report(variables.classId),
+      });
       queryClient.invalidateQueries({
         queryKey: classesQueryKeys.all,
       });

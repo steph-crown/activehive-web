@@ -156,8 +156,8 @@ export function CreateRoleModal({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Creating..." : "Create Role"}
+              <Button type="submit" loading={isPending}>
+                Create Role
               </Button>
             </DialogFooter>
           </form>

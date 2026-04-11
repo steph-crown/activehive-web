@@ -10,6 +10,8 @@ import type {
   ReuseClassPayload,
   ClassReport,
   AddClassAttendancePayload,
+  ClassAttendanceListQuery,
+  ScheduleAttendanceQuery,
 } from "../types";
 
 const classesPath = "/api/classes";
@@ -45,6 +47,14 @@ export const classesApi = {
     apiClient.post<Class>(`${classesPath}/use-template`, payload),
 };
 
+function omitEmptyParams<T extends Record<string, unknown>>(obj: T): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(obj).filter(
+      ([, v]) => v !== undefined && v !== "" && v !== null,
+    ),
+  );
+}
+
 export const classAttendanceApi = {
   addAttendance: (
     classScheduleId: string,
@@ -53,5 +63,21 @@ export const classAttendanceApi = {
     apiClient.post<unknown>(
       `${classAttendancePath}/${classScheduleId}/attendance`,
       payload,
+    ),
+
+  /** Paginated attendance across classes (optional filters). */
+  listAttendance: (params: ClassAttendanceListQuery): Promise<unknown> =>
+    apiClient.get<unknown>(classAttendancePath, {
+      params: omitEmptyParams(params as Record<string, unknown>),
+    }),
+
+  /** Attendance for one class schedule session. */
+  getScheduleAttendance: (
+    classScheduleId: string,
+    params: ScheduleAttendanceQuery,
+  ): Promise<unknown> =>
+    apiClient.get<unknown>(
+      `${classAttendancePath}/${classScheduleId}/attendance`,
+      { params: omitEmptyParams(params as Record<string, unknown>) },
     ),
 };

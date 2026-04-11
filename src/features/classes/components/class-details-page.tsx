@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/lib/get-api-error-message";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import * as React from "react";
 import {
   useClassQuery,
@@ -141,7 +141,7 @@ function ClassDetailsCards({ classItem }: { classItem: Class }) {
         </div>
       </Card>
 
-      <ClassReportCard classId={classItem.id} />
+      <SchedulesCard classItem={classItem} />
     </div>
   );
 }
@@ -211,7 +211,7 @@ function SchedulesCard({ classItem }: { classItem: Class }) {
           classItem.schedules.map((schedule) => (
             <div
               key={schedule.id}
-              className="flex items-center justify-between rounded-md border border-[#F4F4F4] p-3"
+              className="flex flex-col gap-3 rounded-md border border-[#F4F4F4] p-3 sm:flex-row sm:items-center sm:justify-between"
             >
               <div>
                 <p className="text-sm font-medium">
@@ -229,6 +229,16 @@ function SchedulesCard({ classItem }: { classItem: Class }) {
                   </p>
                 ) : null}
               </div>
+              <Button variant="outline" size="sm" className="border-[#F4F4F4]" asChild>
+                <Link
+                  to={`/dashboard/classes/attendance?${new URLSearchParams({
+                    classId: classItem.id,
+                    classScheduleId: schedule.id,
+                  }).toString()}`}
+                >
+                  View attendance
+                </Link>
+              </Button>
             </div>
           ))
         )}
@@ -326,7 +336,7 @@ export function ClassDetailsPage() {
           <div>
             <h1 className="text-3xl font-medium">{classItem.name}</h1>
             <p className="text-muted-foreground mt-1 text-sm">
-              Class details, report, and schedules
+              Class details, schedules, and report
             </p>
           </div>
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
@@ -371,7 +381,7 @@ export function ClassDetailsPage() {
 
         <div className="space-y-4 px-4 lg:px-6">
           <ClassDetailsCards classItem={classItem} />
-          <SchedulesCard classItem={classItem} />
+          <ClassReportCard classId={classItem.id} />
           <Card className="rounded-md border border-destructive/25 bg-white p-6 shadow-none">
             <h2 className="text-lg font-semibold text-destructive">
               Danger zone

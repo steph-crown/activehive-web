@@ -168,3 +168,42 @@ export type AddClassAttendancePayload = {
   memberIds: string[];
   notes?: string;
 };
+
+/** GET `/api/gym-owner/class-attendance` query */
+export type ClassAttendanceListQuery = {
+  page?: number;
+  limit?: number;
+  locationId?: string;
+  classId?: string;
+  memberId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  status?: string;
+};
+
+/** GET `/api/gym-owner/class-attendance/{classScheduleId}/attendance` query */
+export type ScheduleAttendanceQuery = {
+  page?: number;
+  limit?: number;
+  date?: string;
+  status?: string;
+  hasCheckedIn?: boolean;
+  memberSearch?: string;
+};
+
+/** Normalized row for the attendance table (both list + schedule endpoints). */
+export type ClassAttendanceTableRow = {
+  id: string;
+  className: string;
+  member: string;
+  date: string;
+  status: string;
+  location: string;
+  checkedIn?: string;
+};
+
+export type ClassAttendancePaginated = {
+  rows: ClassAttendanceTableRow[];
+  total: number;
+  totalPages: number;
+};

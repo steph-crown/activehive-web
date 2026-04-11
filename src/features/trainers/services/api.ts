@@ -6,9 +6,16 @@ import type {
   TrainerAssignmentsListParams,
   TrainerListItem,
   TrainersListParams,
+  TrainerSpecialty,
 } from "../types";
 
 const trainersPath = "/api/trainers";
+const specialtiesActivePath = "/api/admin/specialties/active";
+
+export const trainerSpecialtiesApi = {
+  getActive: (): Promise<TrainerSpecialty[]> =>
+    apiClient.get<TrainerSpecialty[]>(specialtiesActivePath),
+};
 
 export const trainersApi = {
   list: (params: TrainersListParams = {}): Promise<TrainerListItem[]> => {

@@ -23,12 +23,21 @@ export type TrainersListParams = {
   locationId?: string;
 };
 
+/** GET /api/admin/specialties/active */
+export type TrainerSpecialty = {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  displayOrder: number;
+};
+
 export type CreateTrainerPayload = {
   email: string;
   firstName: string;
   lastName: string;
   phoneNumber: string;
-  /** API field name for specializations. */
+  /** Specialty IDs from `GET /api/admin/specialties/active` (API field `specialties`). */
   specialties: string[];
   bio: string;
   locationIds: string[];

@@ -1,11 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
-import { trainersApi } from "./api";
+import { trainerSpecialtiesApi, trainersApi } from "./api";
 import type {
   TrainerAssignment,
   TrainerAssignmentsListParams,
   TrainerListItem,
   TrainersListParams,
 } from "../types";
+
+export const trainerSpecialtiesQueryKeys = {
+  active: ["trainer-specialties", "active"] as const,
+};
+
+export function useActiveTrainerSpecialtiesQuery() {
+  return useQuery({
+    queryKey: trainerSpecialtiesQueryKeys.active,
+    queryFn: () => trainerSpecialtiesApi.getActive(),
+    staleTime: 1000 * 60 * 30,
+  });
+}
 
 export const trainersQueryKeys = {
   all: ["trainers"] as const,

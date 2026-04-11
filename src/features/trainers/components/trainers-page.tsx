@@ -16,7 +16,11 @@ import { MultiSelect } from "@/components/ui/multi-select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useLocationsQuery } from "@/features/locations/services";
-import { useCreateTrainerMutation, useTrainersQuery } from "../services";
+import {
+  useActiveTrainerSpecialtiesQuery,
+  useCreateTrainerMutation,
+  useTrainersQuery,
+} from "../services";
 import type { TrainerListItem } from "../types";
 import { useToast } from "@/hooks/use-toast";
 import { useUpload } from "@/hooks/use-upload";
@@ -26,19 +30,12 @@ import * as React from "react";
 
 const PROFILE_IMAGE_MAX_BYTES = 3 * 1024 * 1024;
 
-function parseSpecialtiesFromCommaSeparated(input: string): string[] {
-  return input
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-}
-
 const emptyAddTrainerForm = {
   firstName: "",
   lastName: "",
   email: "",
   phoneNumber: "",
-  specializations: "",
+  specialtyIds: [] as string[],
   bio: "",
   profileImageUrl: "",
   locationIds: [] as string[],
@@ -136,6 +133,17 @@ export function TrainersPage() {
     isError: trainersError,
     error: trainersErrorObj,
   } = useTrainersQuery(listParams);
+  const {
+    data: activeSpecialties,
+    isLoading: specialtiesLoading,
+    isError: specialtiesError,
+  } = useActiveTrainerSpecialtiesQuery();
+
+  const specialtyOptions = React.useMemo(() => {
+    const list = [...(activeSpecialties ?? [])];
+    list.sort((a, b) => a.displayOrder - b.displayOrder);
+    return list.map((s) => ({ value: s.id, label: s.name }));
+  }, [activeSpecialties]);
 
   const filteredTrainers = React.useMemo(() => {
     const normalizedSearch = searchQuery.trim().toLowerCase();
@@ -188,7 +196,7 @@ export function TrainersPage() {
         firstName: addForm.firstName.trim(),
         lastName: addForm.lastName.trim(),
         phoneNumber: addForm.phoneNumber.trim(),
-        specialties: parseSpecialtiesFromCommaSeparated(addForm.specializations),
+        specialties: addForm.specialtyIds,
         bio: addForm.bio.trim(),
         locationIds: addForm.locationIds,
         ...(addForm.profileImageUrl.trim()
@@ -379,14 +387,33 @@ export function TrainersPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="trainer-specializations">Specializations</Label>
-              <Input
+              <MultiSelect
                 id="trainer-specializations"
-                placeholder="Comma-separated (e.g. Yoga, Strength Training, HIIT)"
-                value={addForm.specializations}
-                onChange={(e) =>
-                  setAddForm((p) => ({ ...p, specializations: e.target.value }))
+                options={specialtyOptions}
+                value={addForm.specialtyIds}
+                onValueChange={(specialtyIds) =>
+                  setAddForm((p) => ({ ...p, specialtyIds }))
                 }
+                placeholder={
+                  specialtiesError
+                    ? "Could not load specialties"
+                    : "Select specialties"
+                }
+                emptyMessage="No specialties available"
+                loading={specialtiesLoading}
+                disabled={specialtiesError}
+                multipleSelectedText="specialties selected"
               />
+              {specialtiesError ? (
+                <p className="text-destructive text-xs">
+                  Specialties could not be loaded. Try again later.
+                </p>
+              ) : (
+                <p className="text-muted-foreground text-xs">
+                  Optional. Choose one or more active specialties for this
+                  trainer.
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="trainer-locations-trigger">Locations</Label>

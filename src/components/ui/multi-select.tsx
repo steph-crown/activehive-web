@@ -100,39 +100,43 @@ export function MultiSelect({
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="start"
+          portalled={false}
           className={cn(
-            "max-h-64 min-w-[var(--radix-dropdown-menu-trigger-width)] w-[var(--radix-dropdown-menu-trigger-width)] p-1",
+            "min-w-[var(--radix-dropdown-menu-trigger-width)] w-[var(--radix-dropdown-menu-trigger-width)] p-0",
             contentClassName,
           )}
         >
-          {options.map((opt) => {
-            const checkboxId = `${reactId}-${opt.value}`.replace(/:/g, "");
-            const checked = value.includes(opt.value);
-            return (
-              <DropdownMenuItem
-                key={opt.value}
-                disabled={opt.disabled}
-                onSelect={(e) => e.preventDefault()}
-                className="cursor-pointer gap-2 rounded-sm px-2 py-1.5"
-              >
-                <Checkbox
-                  id={checkboxId}
-                  checked={checked}
+          {/* Scroll region stays inside the dialog tree so wheel/trackpad events are not blocked by dialog scroll lock. */}
+          <div className="max-h-64 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain p-1">
+            {options.map((opt) => {
+              const checkboxId = `${reactId}-${opt.value}`.replace(/:/g, "");
+              const checked = value.includes(opt.value);
+              return (
+                <DropdownMenuItem
+                  key={opt.value}
                   disabled={opt.disabled}
-                  onCheckedChange={() =>
-                    onValueChange(toggleSelected(value, opt.value))
-                  }
-                  className="size-4 shrink-0 border-2 border-muted-foreground/45 bg-background shadow-sm data-[state=checked]:border-primary"
-                />
-                <label
-                  htmlFor={checkboxId}
-                  className="flex-1 cursor-pointer text-left text-sm leading-snug font-normal"
+                  onSelect={(e) => e.preventDefault()}
+                  className="cursor-pointer gap-2 rounded-sm px-2 py-1.5"
                 >
-                  {opt.label}
-                </label>
-              </DropdownMenuItem>
-            );
-          })}
+                  <Checkbox
+                    id={checkboxId}
+                    checked={checked}
+                    disabled={opt.disabled}
+                    onCheckedChange={() =>
+                      onValueChange(toggleSelected(value, opt.value))
+                    }
+                    className="size-4 shrink-0 border-2 border-muted-foreground/45 bg-background shadow-sm data-[state=checked]:border-primary"
+                  />
+                  <label
+                    htmlFor={checkboxId}
+                    className="flex-1 cursor-pointer text-left text-sm leading-snug font-normal"
+                  >
+                    {opt.label}
+                  </label>
+                </DropdownMenuItem>
+              );
+            })}
+          </div>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

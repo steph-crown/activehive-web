@@ -14,6 +14,7 @@ import { useLoginMutation } from "../../services";
 import { useAuthStore } from "@/store";
 import type { AuthResponse } from "../../types";
 import { cn } from "@/lib/utils";
+import { formatDisplayDate } from "@/lib/display-datetime";
 
 const resolveSession = (response: AuthResponse) => {
   const token =
@@ -131,8 +132,7 @@ export function CompleteSetupForm({
               </Badge>
               {data.subscriptionTrialEndsOn && (
                 <Badge>
-                  Trial ends{" "}
-                  {new Date(data.subscriptionTrialEndsOn).toLocaleDateString()}
+                  Trial ends {formatDisplayDate(data.subscriptionTrialEndsOn)}
                 </Badge>
               )}
             </div>

@@ -18,6 +18,7 @@ import { type ColumnDef } from "@tanstack/react-table";
 import type { MemberSubscription } from "@/features/members/types";
 import { useMemo, useState } from "react";
 import { MembersTableSkeleton, SectionCardsSkeleton } from "./dashboard-skeleton";
+import { formatDisplayDate } from "@/lib/display-datetime";
 
 const membersColumns: ColumnDef<MemberSubscription>[] = [
   {
@@ -83,10 +84,9 @@ const membersColumns: ColumnDef<MemberSubscription>[] = [
   {
     accessorKey: "createdAt",
     header: "Joined",
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("createdAt"));
-      return <div className="text-sm">{date.toLocaleDateString()}</div>;
-    },
+    cell: ({ row }) => (
+      <div className="text-sm">{formatDisplayDate(row.getValue("createdAt"))}</div>
+    ),
   },
 ];
 

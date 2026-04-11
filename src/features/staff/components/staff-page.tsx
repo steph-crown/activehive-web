@@ -20,6 +20,7 @@ import { CreateStaffModal } from "./create-staff-modal";
 import { AssignPermissionsModal } from "./assign-permissions-modal";
 import { AssignLocationsModal } from "./assign-locations-modal";
 import { ViewStaffModal } from "./view-staff-modal";
+import { formatDisplayDate, localCalendarDateKey } from "@/lib/display-datetime";
 
 const staffColumns: ColumnDef<Staff>[] = [
   {
@@ -89,10 +90,9 @@ const staffColumns: ColumnDef<Staff>[] = [
   {
     accessorKey: "hireDate",
     header: "Hire Date",
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("hireDate"));
-      return <div className="text-sm">{date.toLocaleDateString()}</div>;
-    },
+    cell: ({ row }) => (
+      <div className="text-sm">{formatDisplayDate(row.getValue("hireDate"))}</div>
+    ),
   },
   {
     accessorKey: "status",
@@ -151,10 +151,13 @@ export function StaffPage() {
     }
 
     if (dateFilter) {
-      const selectedDate = new Date(dateFilter).toLocaleDateString();
-      rows = rows.filter(
-        (s) => new Date(s.hireDate).toLocaleDateString() === selectedDate,
-      );
+      const selectedKey = localCalendarDateKey(`${dateFilter}T12:00:00`);
+      rows = rows.filter((s) => {
+        const rowKey = localCalendarDateKey(s.hireDate);
+        return (
+          selectedKey != null && rowKey != null && rowKey === selectedKey
+        );
+      });
     }
 
     return rows;

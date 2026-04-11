@@ -33,6 +33,7 @@ import {
   DuplicateMembershipPlanModal,
   UpdateMembershipPlanModal,
 } from "./membership-plan-action-modals";
+import { localCalendarDateKey } from "@/lib/display-datetime";
 
 function isSafeDashboardReturnPath(path: string): boolean {
   if (!path.startsWith("/") || path.startsWith("//")) return false;
@@ -117,12 +118,15 @@ export function MembershipPlansPage() {
           .includes(normalizedSearch);
 
       if (!dateFilter) return matchesSearch;
-      const selectedDate = new Date(dateFilter).toLocaleDateString();
+      const selectedKey = localCalendarDateKey(`${dateFilter}T12:00:00`);
       const planCreatedAt = (plan as { createdAt?: string }).createdAt;
       if (!planCreatedAt) return matchesSearch;
+      const planKey = localCalendarDateKey(planCreatedAt);
       return (
         matchesSearch &&
-        new Date(planCreatedAt).toLocaleDateString() === selectedDate
+        selectedKey != null &&
+        planKey != null &&
+        planKey === selectedKey
       );
     });
   }, [dateFilter, plans, searchQuery]);

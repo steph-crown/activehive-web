@@ -34,6 +34,7 @@ import { useNavigate } from "react-router-dom";
 import { useInstantCheckIn } from "@/features/check-in/hooks/use-instant-check-in";
 import { useMembersQuery } from "../services";
 import type { MemberSubscription } from "../types";
+import { formatDisplayDate, localCalendarDateKey } from "@/lib/display-datetime";
 
 export function MembersPage() {
   const [locationFilter, setLocationFilter] = React.useState("all");
@@ -116,8 +117,11 @@ export function MembersPage() {
         accessorKey: "createdAt",
         header: "Joined",
         cell: ({ row }) => {
-          const date = new Date(row.getValue("createdAt"));
-          return <div className="text-sm">{date.toLocaleDateString()}</div>;
+          return (
+            <div className="text-sm">
+              {formatDisplayDate(row.getValue("createdAt"))}
+            </div>
+          );
         },
       },
       {
@@ -205,9 +209,14 @@ export function MembersPage() {
           .includes(normalizedSearch);
 
       if (!dateFilter) return matchesSearch;
-      const selectedDate = new Date(dateFilter).toLocaleDateString();
-      const rowDate = new Date(member.createdAt).toLocaleDateString();
-      return matchesSearch && rowDate === selectedDate;
+      const selectedKey = localCalendarDateKey(`${dateFilter}T12:00:00`);
+      const rowKey = localCalendarDateKey(member.createdAt);
+      return (
+        matchesSearch &&
+        selectedKey != null &&
+        rowKey != null &&
+        rowKey === selectedKey
+      );
     });
   }, [dateFilter, members, searchQuery]);
 

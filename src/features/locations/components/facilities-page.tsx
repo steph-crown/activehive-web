@@ -35,6 +35,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { Separator } from "@/components/ui/separator";
+import { formatDisplayDate } from "@/lib/display-datetime";
 import {
   useFacilitiesQuery,
   useCreateFacilityMutation,
@@ -369,7 +370,7 @@ export function FacilitiesPage() {
                     Created At
                   </p>
                   <p className="text-sm">
-                    {new Date(viewingFacility.createdAt).toLocaleDateString()}
+                    {formatDisplayDate(viewingFacility.createdAt)}
                   </p>
                 </div>
               </div>

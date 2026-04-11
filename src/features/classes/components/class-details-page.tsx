@@ -29,6 +29,7 @@ import { AddClassAttendanceModal } from "./add-class-attendance-modal";
 import { ReuseClassModal } from "./reuse-class-modal";
 import { UpdateClassModal } from "./update-class-modal";
 import type { Class } from "../types";
+import { formatDisplayDate } from "@/lib/display-datetime";
 import {
   formatScheduleDateOnly,
   formatScheduleTimeRange12h,
@@ -131,11 +132,11 @@ function ClassDetailsCards({ classItem }: { classItem: Class }) {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <LabeledRow
             label="Created"
-            value={new Date(classItem.createdAt).toLocaleDateString()}
+            value={formatDisplayDate(classItem.createdAt)}
           />
           <LabeledRow
             label="Updated"
-            value={new Date(classItem.updatedAt).toLocaleDateString()}
+            value={formatDisplayDate(classItem.updatedAt)}
           />
         </div>
       </Card>

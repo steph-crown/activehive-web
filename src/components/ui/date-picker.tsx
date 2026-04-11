@@ -1,5 +1,4 @@
 import * as React from "react";
-import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { formatDisplayDate } from "@/lib/display-datetime";
 
 interface DatePickerProps {
   value?: string;
@@ -41,7 +41,7 @@ export function DatePicker({
           disabled={disabled}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PPP") : <span>{placeholder}</span>}
+          {date ? formatDisplayDate(date) : <span>{placeholder}</span>}
         </Button>
       </DialogTrigger>
       <DialogContent className="w-auto p-0">

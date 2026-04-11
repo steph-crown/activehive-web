@@ -36,6 +36,7 @@ import {
   ChangeSubscriptionPlanModal,
 } from "./subscription-action-modals";
 import { SummaryMetricCard } from "@/features/dashboard/components/summary-metric-card";
+import { formatDisplayDate } from "@/lib/display-datetime";
 
 const createSubscriptionColumns = (
   navigate: (path: string) => void,
@@ -117,18 +118,16 @@ const createSubscriptionColumns = (
   {
     accessorKey: "startDate",
     header: "Start Date",
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("startDate"));
-      return <div>{date.toLocaleDateString()}</div>;
-    },
+    cell: ({ row }) => (
+      <div>{formatDisplayDate(row.getValue("startDate"))}</div>
+    ),
   },
   {
     accessorKey: "endDate",
     header: "End Date",
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("endDate"));
-      return <div>{date.toLocaleDateString()}</div>;
-    },
+    cell: ({ row }) => (
+      <div>{formatDisplayDate(row.getValue("endDate"))}</div>
+    ),
   },
   {
     accessorKey: "daysRemaining",

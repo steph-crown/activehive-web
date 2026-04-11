@@ -21,7 +21,7 @@ const data: RefundRow[] = [
     amount: "₦15,000",
     reason: "Duplicate charge",
     status: "approved",
-    date: "Mar 18, 2026",
+    date: "18th Mar, 2026",
     location: "Westside",
   },
   {
@@ -31,7 +31,7 @@ const data: RefundRow[] = [
     amount: "₦45,000",
     reason: "Membership cancellation",
     status: "pending",
-    date: "Mar 19, 2026",
+    date: "19th Mar, 2026",
     location: "Downtown",
   },
   {
@@ -41,7 +41,7 @@ const data: RefundRow[] = [
     amount: "₦15,000",
     reason: "Billing error",
     status: "rejected",
-    date: "Mar 17, 2026",
+    date: "17th Mar, 2026",
     location: "Downtown",
   },
 ];

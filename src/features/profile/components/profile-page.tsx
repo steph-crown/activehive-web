@@ -31,6 +31,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import * as React from "react";
 import { DatePicker } from "@/components/ui/date-picker";
+import { formatDisplayDate, formatDisplayDateTime } from "@/lib/display-datetime";
 
 const updateProfileSchema = yup.object({
   firstName: yup.string().optional(),
@@ -199,22 +200,12 @@ export function ProfilePage() {
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    return formatDisplayDate(dateString);
   };
 
   const formatDateTime = (dateString: string | null) => {
     if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return formatDisplayDateTime(dateString);
   };
 
   if (isLoading) {

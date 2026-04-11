@@ -16,6 +16,7 @@ import {
 } from "../services";
 import { UploadLocationImageModal } from "./upload-location-image-modal";
 import { UpdateCoverImageModal } from "./update-cover-image-modal";
+import { formatDisplayDate } from "@/lib/display-datetime";
 
 export function LocationDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -243,13 +244,13 @@ export function LocationDetailsPage() {
                 <div className="rounded-md border border-[#F4F4F4] bg-white p-4">
                   <p className="text-xs text-muted-foreground">Created At</p>
                   <p className="mt-1 text-sm">
-                    {new Date(locationData.createdAt).toLocaleDateString()}
+                    {formatDisplayDate(locationData.createdAt)}
                   </p>
                 </div>
                 <div className="rounded-md border border-[#F4F4F4] bg-white p-4">
                   <p className="text-xs text-muted-foreground">Updated At</p>
                   <p className="mt-1 text-sm">
-                    {new Date(locationData.updatedAt).toLocaleDateString()}
+                    {formatDisplayDate(locationData.updatedAt)}
                   </p>
                 </div>
                 <div className="rounded-md border border-[#F4F4F4] bg-white p-4 md:col-span-2">

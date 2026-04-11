@@ -21,7 +21,7 @@ const data: TransactionRow[] = [
     plan: "Monthly",
     amount: "₦45,000",
     status: "successful",
-    date: "Mar 20, 2026",
+    date: "20th Mar, 2026",
     location: "Downtown",
   },
   {
@@ -31,7 +31,7 @@ const data: TransactionRow[] = [
     plan: "Quarterly",
     amount: "₦120,000",
     status: "pending",
-    date: "Mar 20, 2026",
+    date: "20th Mar, 2026",
     location: "Westside",
   },
   {
@@ -41,7 +41,7 @@ const data: TransactionRow[] = [
     plan: "Weekly",
     amount: "₦15,000",
     status: "failed",
-    date: "Mar 19, 2026",
+    date: "19th Mar, 2026",
     location: "Downtown",
   },
 ];

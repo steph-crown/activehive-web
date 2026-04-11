@@ -8,6 +8,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import type { Staff } from "../types";
+import { formatDisplayDate } from "@/lib/display-datetime";
 
 interface ViewStaffModalProps {
   open: boolean;
@@ -127,17 +128,13 @@ export function ViewStaffModal({
               <p className="text-sm font-medium text-muted-foreground">
                 Hire Date
               </p>
-              <p className="text-sm">
-                {new Date(staff.hireDate).toLocaleDateString()}
-              </p>
+              <p className="text-sm">{formatDisplayDate(staff.hireDate)}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">
                 Created At
               </p>
-              <p className="text-sm">
-                {new Date(staff.createdAt).toLocaleDateString()}
-              </p>
+              <p className="text-sm">{formatDisplayDate(staff.createdAt)}</p>
             </div>
           </div>
 

@@ -33,6 +33,7 @@ import { useLocationsQuery } from "@/features/locations/services";
 import { useMembersQuery } from "@/features/members/services";
 import type { MemberSubscription } from "@/features/members/types";
 import { useToast } from "@/hooks/use-toast";
+import { formatDisplayDateTime } from "@/lib/display-datetime";
 import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { IconPlus } from "@tabler/icons-react";
 import * as React from "react";
@@ -274,7 +275,7 @@ export function TrainerAssignmentsPage() {
       header: "Assigned",
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
-          {new Date(row.original.assignedAt).toLocaleDateString()}
+          {formatDisplayDateTime(row.original.assignedAt)}
         </span>
       ),
     },

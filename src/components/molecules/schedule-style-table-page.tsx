@@ -5,6 +5,7 @@ import { TableFilterBar } from "@/components/molecules/table-filter-bar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useLocationsQuery } from "@/features/locations/services";
+import { formatDisplayDate } from "@/lib/display-datetime";
 
 type WithLocation = {
   id: string;
@@ -68,14 +69,10 @@ export function ScheduleStyleTablePage<T extends WithLocation>({
         return matchesLocation && matchesSearch;
       }
 
-      const formattedDate = new Date(dateFilter).toLocaleDateString("en-US", {
-        month: "short",
-        day: "2-digit",
-        year: "numeric",
-      });
-      const matchesDate = Object.values(item).some((value) =>
-        String(value).includes(formattedDate),
-      );
+      const needle = formatDisplayDate(`${dateFilter}T12:00:00`);
+      const matchesDate =
+        needle !== "—" &&
+        Object.values(item).some((value) => String(value).includes(needle));
 
       return matchesLocation && matchesSearch && matchesDate;
     });

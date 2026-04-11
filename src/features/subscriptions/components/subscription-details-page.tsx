@@ -29,6 +29,7 @@ import {
   CancelSubscriptionModal,
   ChangeSubscriptionPlanModal,
 } from "./subscription-action-modals";
+import { formatDisplayDate, formatDisplayDateTime } from "@/lib/display-datetime";
 
 export function SubscriptionDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -140,18 +141,16 @@ export function SubscriptionDetailsPage() {
       {
         accessorKey: "startDate",
         header: "Start Date",
-        cell: ({ row }) => {
-          const date = new Date(row.getValue("startDate"));
-          return <div>{date.toLocaleDateString()}</div>;
-        },
+        cell: ({ row }) => (
+          <div>{formatDisplayDate(row.getValue("startDate"))}</div>
+        ),
       },
       {
         accessorKey: "endDate",
         header: "End Date",
-        cell: ({ row }) => {
-          const date = new Date(row.getValue("endDate"));
-          return <div>{date.toLocaleDateString()}</div>;
-        },
+        cell: ({ row }) => (
+          <div>{formatDisplayDate(row.getValue("endDate"))}</div>
+        ),
       },
       {
         id: "actions",
@@ -286,13 +285,13 @@ export function SubscriptionDetailsPage() {
                 <div>
                   <p className="text-sm text-muted-foreground">Start Date</p>
                   <p className="font-medium">
-                    {new Date(subscription.startDate).toLocaleDateString()}
+                    {formatDisplayDate(subscription.startDate)}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">End Date</p>
                   <p className="font-medium">
-                    {new Date(subscription.endDate).toLocaleDateString()}
+                    {formatDisplayDate(subscription.endDate)}
                   </p>
                 </div>
                 <div>
@@ -426,13 +425,13 @@ export function SubscriptionDetailsPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Created At</p>
                 <p className="font-medium">
-                  {new Date(subscription.createdAt).toLocaleString()}
+                  {formatDisplayDateTime(subscription.createdAt)}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Updated At</p>
                 <p className="font-medium">
-                  {new Date(subscription.updatedAt).toLocaleString()}
+                  {formatDisplayDateTime(subscription.updatedAt)}
                 </p>
               </div>
             </CardContent>

@@ -2,6 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { formatDisplayDate } from "@/lib/display-datetime";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -202,13 +203,11 @@ export function MemberDetailsPage() {
                   </div>
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-muted-foreground">Start</span>
-                    <span>
-                      {new Date(detail.startDate).toLocaleDateString()}
-                    </span>
+                    <span>{formatDisplayDate(detail.startDate)}</span>
                   </div>
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-muted-foreground">End</span>
-                    <span>{new Date(detail.endDate).toLocaleDateString()}</span>
+                    <span>{formatDisplayDate(detail.endDate)}</span>
                   </div>
                 </div>
               </Card>

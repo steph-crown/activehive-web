@@ -5,6 +5,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import * as React from "react";
+import { formatDisplayDate } from "@/lib/display-datetime";
 import { membershipPlansApi } from "./api";
 import type {
   MembershipPlan,
@@ -109,14 +110,7 @@ export function usePromoCodesCatalogQuery() {
           usesDisplay:
             max != null ? `${uses} / ${max}` : String(uses),
           status: catalogStatus(promo),
-          expiresDisplay: new Date(promo.validUntil).toLocaleDateString(
-            "en-US",
-            {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            },
-          ),
+          expiresDisplay: formatDisplayDate(promo.validUntil),
           plan,
           promo,
         });

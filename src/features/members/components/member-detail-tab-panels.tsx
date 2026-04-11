@@ -16,6 +16,10 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TabsContent } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import {
+  formatDisplayDate,
+  formatDisplayDateTime,
+} from "@/lib/display-datetime";
 import type {
   GymMemberDetail,
   MemberAttendanceEntry,
@@ -26,19 +30,6 @@ function dash(v: string | null | undefined): string {
   if (v == null) return "—";
   const s = String(v).trim();
   return s.length ? s : "—";
-}
-
-function formatDisplayDate(iso: string | undefined): string {
-  if (!iso) return "—";
-  try {
-    return new Date(iso).toLocaleDateString(undefined, {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  } catch {
-    return iso;
-  }
 }
 
 function toValidDate(value: string | undefined): Date | null {
@@ -54,12 +45,7 @@ function formatAttendanceVisitDate(row: MemberAttendanceEntry): string {
   const primary = row.date?.trim() ? row.date : row.checkIn;
   const d = toValidDate(primary);
   if (!d) return "—";
-  return d.toLocaleDateString(undefined, {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return formatDisplayDate(d);
 }
 
 /** Check-in / check-out: full localized date + time (no raw ISO). */
@@ -69,27 +55,12 @@ function formatAttendanceDateTime(value: string | undefined): string {
   if (!s || s === "—") return "—";
   const d = toValidDate(s);
   if (!d) return s;
-  return d.toLocaleString(undefined, {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
+  return formatDisplayDateTime(d);
 }
 
 function formatDob(iso: string | undefined): string {
   if (!iso) return "—";
-  try {
-    return new Date(iso).toLocaleDateString(undefined, {
-      month: "2-digit",
-      day: "2-digit",
-      year: "numeric",
-    });
-  } catch {
-    return iso;
-  }
+  return formatDisplayDate(iso);
 }
 
 function fullName(m: GymMemberDetail["member"]): string {

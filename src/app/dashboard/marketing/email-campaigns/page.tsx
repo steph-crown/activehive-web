@@ -37,7 +37,7 @@ const campaigns: Campaign[] = [
   {
     id: "cmp-1",
     title: "March Newsletter",
-    date: "Mar 10, 2026",
+    date: "10th Mar, 2026",
     recipients: 272,
     openRate: "68%",
     status: "Sent",
@@ -46,7 +46,7 @@ const campaigns: Campaign[] = [
   {
     id: "cmp-2",
     title: "New Year Promo",
-    date: "Jan 2, 2026",
+    date: "2nd Jan, 2026",
     recipients: 250,
     openRate: "72%",
     status: "Sent",

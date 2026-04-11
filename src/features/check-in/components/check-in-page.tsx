@@ -20,21 +20,7 @@ import { SummaryMetricCard } from "@/features/dashboard/components/summary-metri
 import type { CheckInListItem } from "../types";
 import { useCheckInsQuery, useCheckInsStatsQuery } from "../services";
 import { QuickCheckInDialog } from "./quick-check-in-dialog";
-
-function formatCheckInDate(iso: string) {
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-function formatCheckInTime(iso: string) {
-  return new Date(iso).toLocaleTimeString(undefined, {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
+import { formatDisplayDate, formatDisplayTime } from "@/lib/display-datetime";
 
 function memberDisplayName(member: CheckInListItem["member"]) {
   if (member == null) return "—";
@@ -124,13 +110,13 @@ export function CheckInPage() {
         id: "date",
         accessorFn: (row) => row.checkInTime,
         header: "Date",
-        cell: ({ row }) => formatCheckInDate(row.original.checkInTime),
+        cell: ({ row }) => formatDisplayDate(row.original.checkInTime),
       },
       {
         id: "checkIn",
         accessorFn: (row) => row.checkInTime,
         header: "Check-In",
-        cell: ({ row }) => formatCheckInTime(row.original.checkInTime),
+        cell: ({ row }) => formatDisplayTime(row.original.checkInTime),
       },
       {
         id: "status",

@@ -28,7 +28,6 @@ import {
 import { AddClassAttendanceModal } from "./add-class-attendance-modal";
 import { ReuseClassModal } from "./reuse-class-modal";
 import { UpdateClassModal } from "./update-class-modal";
-import { IconUserCheck } from "@tabler/icons-react";
 import type { Class } from "../types";
 import {
   formatScheduleDateOnly,
@@ -340,7 +339,6 @@ export function ClassDetailsPage() {
                     : undefined
                 }
               >
-                <IconUserCheck className="h-4 w-4" />
                 Add attendance
               </Button>
               <Button

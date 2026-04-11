@@ -45,11 +45,11 @@ export type Role = {
   updatedAt?: string;
 };
 
+/** POST `/api/gym-owner/staff/roles` */
 export type CreateRolePayload = {
   name: string;
-  description?: string;
-  code?: string;
-  permissionIds: string[];
+  description: string;
+  permissionCodes: string[];
 };
 
 export type Permission = {

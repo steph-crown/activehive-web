@@ -27,10 +27,10 @@ import { PermissionsSelect } from "./permissions-select";
 const createRoleSchema = yup.object({
   name: yup.string().required("Name is required"),
   description: yup.string().optional(),
-  permissionIds: yup
+  permissionCodes: yup
     .array()
     .of(yup.string().required())
-    .min(0, "At least one permission is required")
+    .min(1, "Select at least one permission")
     .required(),
 });
 
@@ -55,18 +55,16 @@ export function CreateRoleModal({
     defaultValues: {
       name: "",
       description: "",
-      permissionIds: [],
+      permissionCodes: [],
     },
   });
 
   const onSubmit = async (data: CreateRoleFormValues) => {
     try {
       const payload = {
-        name: data.name,
-        ...(data.description?.trim() && {
-          description: data.description.trim(),
-        }),
-        permissionIds: data.permissionIds,
+        name: data.name.trim(),
+        description: data.description?.trim() ?? "",
+        permissionCodes: data.permissionCodes,
       };
       await createRole(payload);
       showSuccess("Success", "Role created successfully!");
@@ -127,7 +125,7 @@ export function CreateRoleModal({
 
             <FormField
               control={form.control}
-              name="permissionIds"
+              name="permissionCodes"
               render={() => (
                 <FormItem>
                   <FormLabel>Permissions</FormLabel>
@@ -138,8 +136,10 @@ export function CreateRoleModal({
                   <FormControl>
                     <PermissionsSelect
                       groups={PERMISSION_FEATURE_GROUPS}
-                      value={form.watch("permissionIds")}
-                      onChange={(next) => form.setValue("permissionIds", next)}
+                      value={form.watch("permissionCodes")}
+                      onChange={(next) =>
+                        form.setValue("permissionCodes", next)
+                      }
                       disabled={isPending}
                     />
                   </FormControl>

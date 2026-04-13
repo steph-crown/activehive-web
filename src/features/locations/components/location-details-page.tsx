@@ -17,6 +17,7 @@ import {
 import { UploadLocationImageModal } from "./upload-location-image-modal";
 import { UpdateCoverImageModal } from "./update-cover-image-modal";
 import { formatDisplayDate } from "@/lib/display-datetime";
+import { formatNgn } from "@/lib/format-ngn";
 
 export function LocationDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -179,7 +180,7 @@ export function LocationDetailsPage() {
             <CardContent className="space-y-3 p-0">
               <p className="text-sm text-muted-foreground">Monthly Revenue</p>
               <p className="font-bebas text-4xl leading-none">
-                ${(metrics.monthlyRevenue || 0).toLocaleString()}
+                {formatNgn(metrics.monthlyRevenue || 0)}
               </p>
               <p className="text-xs text-muted-foreground">This month</p>
             </CardContent>
@@ -296,7 +297,7 @@ export function LocationDetailsPage() {
                   { label: "Active Classes", value: metrics.activeClasses || 0 },
                   {
                     label: "Monthly Revenue",
-                    value: `$${(metrics.monthlyRevenue || 0).toLocaleString()}`,
+                    value: formatNgn(metrics.monthlyRevenue || 0),
                   },
                   { label: "Today's Check-ins", value: metrics.todaysCheckIns || 0 },
                   { label: "Average Attendance", value: metrics.averageAttendance || 0 },

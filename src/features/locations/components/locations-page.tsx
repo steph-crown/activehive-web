@@ -11,6 +11,7 @@ import {
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { IconPlus, IconDotsVertical } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
+import { formatNgn } from "@/lib/format-ngn";
 import * as React from "react";
 import type { OperatingHoursLocationState } from "../constants/operating-hours-nav";
 import { useLocationsQuery } from "../services";
@@ -205,7 +206,7 @@ export function LocationsPage() {
                             Monthly Revenue
                           </p>
                           <p className="font-bebas text-2xl leading-none">
-                            ${location.metrics.monthlyRevenue.toLocaleString()}
+                            {formatNgn(location.metrics.monthlyRevenue)}
                           </p>
                         </div>
                       </div>

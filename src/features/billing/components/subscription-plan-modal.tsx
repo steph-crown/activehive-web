@@ -17,6 +17,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatNgn } from "@/lib/format-ngn";
 import { cn } from "@/lib/utils";
 import type {
   GymOwnerSubscriptionPlan,
@@ -35,11 +36,7 @@ type SubscriptionPlanModalProps = {
 const FREE_TRIAL_ROW_ID = "__free_trial__";
 
 const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "NGN",
-    maximumFractionDigits: 0,
-  }).format(amount / 100 || amount);
+  formatNgn(amount / 100 || amount);
 
 const formatBillingPeriodLabel = (period: string) => period.replace(/_/g, " ");
 

@@ -51,7 +51,9 @@ function formatAttendanceCellDate(value: string): string {
   if (!value || value === "—") return "—";
   const t = Date.parse(value);
   if (Number.isNaN(t)) return value;
-  return value.includes("T") ? formatDisplayDateTime(value) : formatDisplayDate(value);
+  return value.includes("T")
+    ? formatDisplayDateTime(value)
+    : formatDisplayDate(value);
 }
 
 function patchAttendanceSearchParams(
@@ -66,7 +68,8 @@ function patchAttendanceSearchParams(
         else next.delete("classId");
       }
       if (patch.classScheduleId !== undefined) {
-        if (patch.classScheduleId) next.set("classScheduleId", patch.classScheduleId);
+        if (patch.classScheduleId)
+          next.set("classScheduleId", patch.classScheduleId);
         else next.delete("classScheduleId");
       }
       return next;
@@ -159,9 +162,8 @@ export function AttendancePage() {
   const effectiveLocationId =
     locationFilter === "all" ? undefined : locationFilter;
 
-  const { data: classes = [], isLoading: classesLoading } = useClassesQuery(
-    effectiveLocationId,
-  );
+  const { data: classes = [], isLoading: classesLoading } =
+    useClassesQuery(effectiveLocationId);
 
   const classIdForDetail = classFilter !== "all" ? classFilter : "";
   const { data: classDetail, isLoading: classDetailLoading } =
@@ -196,10 +198,11 @@ export function AttendancePage() {
 
   const memberOptions = useMemo(
     () => [
-      { value: "all", label: "All members" },
+      // { value: "all", label: "All members" },
       ...members.map((m) => ({
         value: m.memberId,
-        label: `${m.member.firstName} ${m.member.lastName}`.trim() || m.member.email,
+        label:
+          `${m.member.firstName} ${m.member.lastName}`.trim() || m.member.email,
       })),
     ],
     [members],
@@ -246,9 +249,7 @@ export function AttendancePage() {
       date: sessionDate || undefined,
       status: statusFilter === "all" ? undefined : statusFilter,
       hasCheckedIn:
-        hasCheckedInFilter === "all"
-          ? undefined
-          : hasCheckedInFilter === "yes",
+        hasCheckedInFilter === "all" ? undefined : hasCheckedInFilter === "yes",
       memberSearch: deferredMemberSearch || undefined,
     }),
     [
@@ -330,9 +331,7 @@ export function AttendancePage() {
       {
         accessorKey: "member",
         header: "Member",
-        cell: ({ row }) => (
-          <div className="text-sm">{row.original.member}</div>
-        ),
+        cell: ({ row }) => <div className="text-sm">{row.original.member}</div>,
       },
       {
         accessorKey: "date",

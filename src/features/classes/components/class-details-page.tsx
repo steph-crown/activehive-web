@@ -30,6 +30,7 @@ import { ReuseClassModal } from "./reuse-class-modal";
 import { UpdateClassModal } from "./update-class-modal";
 import type { Class } from "../types";
 import { formatDisplayDate } from "@/lib/display-datetime";
+import { formatNgn } from "@/lib/format-ngn";
 import {
   formatScheduleDateOnly,
   formatScheduleTimeRange12h,
@@ -189,7 +190,7 @@ function ClassReportCard({ classId }: { classId: string }) {
           />
           <LabeledRow
             label="Revenue"
-            value={`$${(report.revenue ?? 0).toLocaleString()}`}
+            value={formatNgn(report.revenue ?? 0)}
           />
         </div>
       )}

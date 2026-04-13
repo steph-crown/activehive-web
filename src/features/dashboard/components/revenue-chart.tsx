@@ -11,17 +11,11 @@ import {
   YAxis,
 } from "recharts";
 
+import { formatNgn } from "@/lib/format-ngn";
 import {
   useRevenueTrendChartQuery,
   type GymOwnerAnalyticsDashboardParams,
 } from "../services";
-
-const formatNgn = (n: number) =>
-  new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "NGN",
-    maximumFractionDigits: 0,
-  }).format(n);
 
 type RevenueChartProps = {
   filters: GymOwnerAnalyticsDashboardParams;

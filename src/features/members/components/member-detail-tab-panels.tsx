@@ -20,6 +20,7 @@ import {
   formatDisplayDate,
   formatDisplayDateTime,
 } from "@/lib/display-datetime";
+import { formatMoneyDisplayAsNgn } from "@/lib/format-ngn";
 import type {
   GymMemberDetail,
   MemberAttendanceEntry,
@@ -222,7 +223,9 @@ export function MemberDetailTabPanels({ detail }: PanelsProps) {
         accessorKey: "amount",
         header: "Amount",
         cell: ({ row }) => (
-          <span className="font-bold">{row.original.amount}</span>
+          <span className="font-bold">
+            {formatMoneyDisplayAsNgn(row.original.amount)}
+          </span>
         ),
       },
       {

@@ -6,6 +6,7 @@ import {
 } from "@tabler/icons-react";
 import { Layers3, UsersRound } from "lucide-react";
 import type { GymOwnerAnalyticsDashboard } from "../types";
+import { formatNgn } from "@/lib/format-ngn";
 import { SummaryMetricCard } from "./summary-metric-card";
 
 type MetricCardTheme = {
@@ -27,14 +28,6 @@ type MetricCardTheme = {
 
 function mergeCssVars(vars: Record<string, string>) {
   return vars as React.CSSProperties;
-}
-
-function formatNgn(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "NGN",
-    maximumFractionDigits: 0,
-  }).format(amount);
 }
 
 function formatInt(n: number): string {

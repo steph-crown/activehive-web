@@ -2,6 +2,7 @@ import {
   formatDisplayDate,
   formatDisplayDateTime,
 } from "@/lib/display-datetime";
+import { formatNgn } from "@/lib/format-ngn";
 
 export function formatBillingDate(dateString: string | null): string {
   if (!dateString) return "—";
@@ -15,10 +16,7 @@ export function formatBillingDateTime(dateString: string | null): string {
 
 export function formatMonthlyPriceNgn(amount: number | null): string {
   if (amount == null) return "—";
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "NGN",
-  }).format(amount);
+  return formatNgn(amount, { decimals: true });
 }
 
 export function getSubscriptionStatusBadgeVariant(

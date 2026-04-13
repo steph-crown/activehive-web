@@ -22,6 +22,7 @@ import { DashboardLayout } from "@/features/dashboard/components/dashboard-layou
 import { useLocationsQuery } from "@/features/locations/services";
 import { useMembershipPlansQuery } from "@/features/membership-plans/services";
 import { useToast } from "@/hooks/use-toast";
+import { formatNgn } from "@/lib/format-ngn";
 import { useCreateMemberMutation, useMembersQuery } from "../services";
 
 const STEPS = [
@@ -113,10 +114,10 @@ function addDurationToDate(startDate: string, duration: string) {
   return date.toISOString().split("T")[0];
 }
 
-function formatAmountWithCommas(value: string | number): string {
+function formatPlanPriceNgn(value: string | number): string {
   const n = typeof value === "string" ? Number.parseFloat(value) : value;
   if (Number.isNaN(n)) return String(value);
-  return n.toLocaleString("en-US");
+  return formatNgn(n, { decimals: true });
 }
 
 type AddMemberPageProps = {
@@ -425,7 +426,7 @@ export function AddMemberPage({
                         membershipPlans.map((plan) => (
                           <SelectItem key={plan.id} value={plan.id}>
                             {plan.name} - ₦
-                            {formatAmountWithCommas(plan.price)}
+                            {formatPlanPriceNgn(plan.price)}
                           </SelectItem>
                         ))
                       ) : (

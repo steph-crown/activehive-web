@@ -235,7 +235,6 @@ function SchedulesCard({ classItem }: { classItem: Class }) {
               <Button variant="outline" size="sm" className="border-[#F4F4F4]" asChild>
                 <Link
                   to={`/dashboard/classes/${classItem.id}?${new URLSearchParams({
-                    tab: "attendance",
                     classScheduleId: schedule.id,
                   }).toString()}`}
                 >

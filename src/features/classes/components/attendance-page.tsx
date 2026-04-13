@@ -13,6 +13,7 @@ import { DataTable } from "@/components/molecules/data-table";
 import { TableFilterBar } from "@/components/molecules/table-filter-bar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -129,8 +130,11 @@ export function AttendancePage({
   embedded = false,
 }: AttendancePageProps = {}) {
   const isClassLocked = Boolean(fixedClassId);
+  const simplifiedEmbed = Boolean(embedded && isClassLocked);
   const [searchParams, setSearchParams] = useSearchParams();
-  const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
+  const { data: locations, isLoading: locationsLoading } = useLocationsQuery({
+    enabled: !simplifiedEmbed,
+  });
 
   const [locationFilter, setLocationFilter] = useState("all");
   const [classFilter, setClassFilter] = useState(
@@ -189,8 +193,10 @@ export function AttendancePage({
   const { data: classDetail, isLoading: classDetailLoading } =
     useClassQuery(resolvedClassKey);
 
-  const { data: members = [], isLoading: membersLoading } =
-    useMembersQuery(effectiveLocationId);
+  const { data: members = [], isLoading: membersLoading } = useMembersQuery(
+    effectiveLocationId,
+    { enabled: !simplifiedEmbed },
+  );
 
   const scheduleView = scheduleFilter !== "all";
 
@@ -256,48 +262,61 @@ export function AttendancePage({
     isClassLocked,
   ]);
 
-  const listParams = useMemo(
-    () => ({
+  const listParams = useMemo(() => {
+    const core = {
       page,
       limit,
-      locationId: locationFilter === "all" ? undefined : locationFilter,
       classId: resolvedClassKey || undefined,
-      memberId: memberFilter === "all" ? undefined : memberFilter,
       dateFrom: dateFrom || undefined,
       dateTo: dateTo || undefined,
+    };
+    if (simplifiedEmbed) return core;
+    return {
+      ...core,
+      locationId: locationFilter === "all" ? undefined : locationFilter,
+      memberId: memberFilter === "all" ? undefined : memberFilter,
       status: statusFilter === "all" ? undefined : statusFilter,
-    }),
-    [
-      page,
-      limit,
-      locationFilter,
-      resolvedClassKey,
-      memberFilter,
-      dateFrom,
-      dateTo,
-      statusFilter,
-    ],
-  );
+    };
+  }, [
+    page,
+    limit,
+    resolvedClassKey,
+    dateFrom,
+    dateTo,
+    simplifiedEmbed,
+    locationFilter,
+    memberFilter,
+    statusFilter,
+  ]);
 
-  const scheduleParams = useMemo(
-    () => ({
-      page,
-      limit,
+  const scheduleParams = useMemo(() => {
+    const core = { page, limit };
+    if (simplifiedEmbed) {
+      return {
+        ...core,
+        dateFrom: dateFrom || undefined,
+        dateTo: dateTo || undefined,
+      };
+    }
+    return {
+      ...core,
       date: sessionDate || undefined,
       status: statusFilter === "all" ? undefined : statusFilter,
       hasCheckedIn:
         hasCheckedInFilter === "all" ? undefined : hasCheckedInFilter === "yes",
       memberSearch: deferredMemberSearch || undefined,
-    }),
-    [
-      page,
-      limit,
-      sessionDate,
-      statusFilter,
-      hasCheckedInFilter,
-      deferredMemberSearch,
-    ],
-  );
+    };
+  }, [
+    page,
+    limit,
+    simplifiedEmbed,
+    dateFrom,
+    dateTo,
+    sessionDate,
+    statusFilter,
+    hasCheckedInFilter,
+    deferredMemberSearch,
+  ]);
 
   const classNameFallback = classDetail?.name ?? "";
 
@@ -333,6 +352,7 @@ export function AttendancePage({
     sessionDate,
     deferredMemberSearch,
     scheduleView,
+    simplifiedEmbed,
   ]);
 
   const selectedSchedule = useMemo(() => {
@@ -371,13 +391,19 @@ export function AttendancePage({
 
   const columns = useMemo<ColumnDef<ClassAttendanceTableRow>[]>(() => {
     const base: ColumnDef<ClassAttendanceTableRow>[] = [
-      {
-        accessorKey: "className",
-        header: "Class",
-        cell: ({ row }) => (
-          <div className="text-sm font-medium">{row.original.className}</div>
-        ),
-      },
+      ...(!simplifiedEmbed
+        ? [
+            {
+              accessorKey: "className",
+              header: "Class",
+              cell: ({ row }) => (
+                <div className="text-sm font-medium">
+                  {row.original.className}
+                </div>
+              ),
+            } satisfies ColumnDef<ClassAttendanceTableRow>,
+          ]
+        : []),
       {
         accessorKey: "member",
         header: "Member",
@@ -407,30 +433,35 @@ export function AttendancePage({
           );
         },
       },
-      {
-        accessorKey: "location",
-        header: "Location",
-        cell: ({ row }) => (
-          <div className="text-sm">{row.original.location}</div>
-        ),
-      },
+      ...(!simplifiedEmbed
+        ? [
+            {
+              accessorKey: "location",
+              header: "Location",
+              cell: ({ row }) => (
+                <div className="text-sm">{row.original.location}</div>
+              ),
+            } satisfies ColumnDef<ClassAttendanceTableRow>,
+          ]
+        : []),
     ];
 
     if (scheduleView) {
-      base.splice(3, 0, {
+      const checkedInCol: ColumnDef<ClassAttendanceTableRow> = {
         id: "checkedIn",
         header: "Checked in",
         cell: ({ row }) => (
           <div className="text-sm">{row.original.checkedIn ?? "—"}</div>
         ),
-      });
+      };
+      base.splice(simplifiedEmbed ? 2 : 3, 0, checkedInCol);
     }
 
     return base;
-  }, [scheduleView]);
+  }, [scheduleView, simplifiedEmbed]);
 
   const contextBanner: ReactNode =
-    scheduleView && classDetail && selectedSchedule ? (
+    simplifiedEmbed ? null : scheduleView && classDetail && selectedSchedule ? (
       <Card className="rounded-md border-[#F4F4F4] bg-white shadow-none">
         <CardContent className="p-4">
           <p className="text-muted-foreground text-xs font-medium">
@@ -500,29 +531,55 @@ export function AttendancePage({
             options={scheduleOptions}
             widthClass="min-w-[280px]"
           />
-            <FilterSelect
-              label="Status"
-              value={statusFilter}
-              onChange={setStatusFilter}
-              options={STATUS_OPTIONS}
-            />
-            {scheduleView ? (
+          {simplifiedEmbed ? (
+            <>
+              <div className="flex flex-col gap-1">
+                <Label className="text-muted-foreground text-xs">From</Label>
+                <Input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                  className="h-10 w-[160px] border-[#F4F4F4] bg-white"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <Label className="text-muted-foreground text-xs">To</Label>
+                <Input
+                  type="date"
+                  value={dateTo}
+                  onChange={(e) => setDateTo(e.target.value)}
+                  className="h-10 w-[160px] border-[#F4F4F4] bg-white"
+                />
+              </div>
+            </>
+          ) : (
+            <>
               <FilterSelect
-                label="Checked in"
-                value={hasCheckedInFilter}
-                onChange={(v) =>
-                  setHasCheckedInFilter(v as "all" | "yes" | "no")
-                }
-                options={[
-                  { value: "all", label: "All" },
-                  { value: "yes", label: "Yes" },
-                  { value: "no", label: "No" },
-                ]}
+                label="Status"
+                value={statusFilter}
+                onChange={setStatusFilter}
+                options={STATUS_OPTIONS}
               />
-            ) : null}
-          </div>
+              {scheduleView ? (
+                <FilterSelect
+                  label="Checked in"
+                  value={hasCheckedInFilter}
+                  onChange={(v) =>
+                    setHasCheckedInFilter(v as "all" | "yes" | "no")
+                  }
+                  options={[
+                    { value: "all", label: "All" },
+                    { value: "yes", label: "Yes" },
+                    { value: "no", label: "No" },
+                  ]}
+                />
+              ) : null}
+            </>
+          )}
+        </div>
 
-          {scheduleView ? (
+        {!simplifiedEmbed ? (
+          scheduleView ? (
             <TableFilterBar
               showSearch
               searchValue={memberSearch}
@@ -560,7 +617,8 @@ export function AttendancePage({
               onDateToChange={setDateTo}
               showExportButton={false}
             />
-          )}
+          )
+        ) : null}
 
           {isError ? (
             <p className="text-destructive text-sm">

@@ -185,7 +185,11 @@ export type ClassAttendanceListQuery = {
 export type ScheduleAttendanceQuery = {
   page?: number;
   limit?: number;
+  /** Single session day (legacy / full-page filter). */
   date?: string;
+  /** Optional range; used by class detail attendance tab when a session is selected. */
+  dateFrom?: string;
+  dateTo?: string;
   status?: string;
   hasCheckedIn?: boolean;
   memberSearch?: string;

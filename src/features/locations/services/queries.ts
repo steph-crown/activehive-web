@@ -45,10 +45,11 @@ export const locationsQueryKeys = {
     [...locationsQueryKeys.all, "operating-hours", locationId] as const,
 };
 
-export const useLocationsQuery = () =>
+export const useLocationsQuery = (options?: { enabled?: boolean }) =>
   useQuery<GymLocation[]>({
     queryKey: locationsQueryKeys.list(),
     queryFn: () => locationsApi.getLocations(),
+    enabled: options?.enabled ?? true,
   });
 
 export const useLocationQuery = (id: string) =>

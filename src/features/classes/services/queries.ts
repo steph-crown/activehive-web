@@ -177,10 +177,14 @@ export const useScheduleAttendanceQuery = (
     enabled: (options?.enabled ?? true) && Boolean(classScheduleId),
   });
 
-export const useClassesQuery = (locationId?: string) =>
+export const useClassesQuery = (
+  locationId?: string,
+  options?: { enabled?: boolean },
+) =>
   useQuery<Class[]>({
     queryKey: classesQueryKeys.list(locationId),
     queryFn: () => classesApi.getClasses(locationId),
+    enabled: options?.enabled ?? true,
   });
 
 export const useClassQuery = (id: string) =>
@@ -319,18 +323,21 @@ export const useAddClassScheduleAttendanceMutation = () => {
       classScheduleId: string;
       payload: AddClassAttendancePayload;
     }) => classAttendanceApi.addAttendance(classScheduleId, payload),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({
         queryKey: classesQueryKeys.detail(variables.classId),
       });
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: classesQueryKeys.report(variables.classId),
       });
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: classesQueryKeys.all,
       });
-      queryClient.invalidateQueries({
-        queryKey: classAttendanceQueryKeys.all,
+      await queryClient.invalidateQueries({
+        predicate: (q) => q.queryKey[0] === classAttendanceQueryKeys.all[0],
+      });
+      await queryClient.refetchQueries({
+        predicate: (q) => q.queryKey[0] === classAttendanceQueryKeys.all[0],
       });
     },
   });

@@ -117,13 +117,25 @@ function FilterSelect({
   );
 }
 
-export function AttendancePage() {
+export type AttendancePageProps = {
+  /** Lock the table to one class (e.g. class detail tab). */
+  fixedClassId?: string;
+  /** Omit dashboard chrome and page title (embed under another screen). */
+  embedded?: boolean;
+};
+
+export function AttendancePage({
+  fixedClassId,
+  embedded = false,
+}: AttendancePageProps = {}) {
+  const isClassLocked = Boolean(fixedClassId);
   const [searchParams, setSearchParams] = useSearchParams();
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
 
   const [locationFilter, setLocationFilter] = useState("all");
   const [classFilter, setClassFilter] = useState(
-    () => searchParams.get("classId") ?? "all",
+    () =>
+      (isClassLocked ? fixedClassId : searchParams.get("classId")) ?? "all",
   );
   const [scheduleFilter, setScheduleFilter] = useState(() => {
     const sid = searchParams.get("classScheduleId");
@@ -147,6 +159,11 @@ export function AttendancePage() {
   const [limit, setLimit] = useState(20);
 
   useEffect(() => {
+    if (isClassLocked) {
+      const sid = searchParams.get("classScheduleId");
+      setScheduleFilter(sid && sid.length > 0 ? sid : "all");
+      return;
+    }
     const cid = searchParams.get("classId");
     const sid = searchParams.get("classScheduleId");
     if (sid && sid.length > 0 && (!cid || cid.length === 0)) {
@@ -157,17 +174,20 @@ export function AttendancePage() {
     }
     setClassFilter(cid && cid.length > 0 ? cid : "all");
     setScheduleFilter(sid && sid.length > 0 ? sid : "all");
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, setSearchParams, isClassLocked]);
 
   const effectiveLocationId =
     locationFilter === "all" ? undefined : locationFilter;
 
-  const { data: classes = [], isLoading: classesLoading } =
-    useClassesQuery(effectiveLocationId);
+  const { data: classes = [], isLoading: classesLoading } = useClassesQuery(
+    effectiveLocationId,
+    { enabled: !isClassLocked },
+  );
 
-  const classIdForDetail = classFilter !== "all" ? classFilter : "";
+  const resolvedClassKey =
+    fixedClassId ?? (classFilter !== "all" ? classFilter : "");
   const { data: classDetail, isLoading: classDetailLoading } =
-    useClassQuery(classIdForDetail);
+    useClassQuery(resolvedClassKey);
 
   const { data: members = [], isLoading: membersLoading } =
     useMembersQuery(effectiveLocationId);
@@ -183,7 +203,7 @@ export function AttendancePage() {
   );
 
   const scheduleOptions = useMemo(() => {
-    if (classFilter === "all") {
+    if (!resolvedClassKey) {
       return [{ value: "all", label: "Select a class first" }];
     }
     const schedules = classDetail?.schedules ?? [];
@@ -194,7 +214,7 @@ export function AttendancePage() {
         label: `${formatScheduleDateOnly(s.date)} · ${formatScheduleTimeRange12h(s.startTime, s.endTime)}`,
       })),
     ];
-  }, [classDetail?.schedules, classFilter]);
+  }, [classDetail?.schedules, resolvedClassKey]);
 
   const memberOptions = useMemo(
     () => [
@@ -213,18 +233,35 @@ export function AttendancePage() {
     const exists = classDetail.schedules.some((s) => s.id === scheduleFilter);
     if (!exists) {
       setScheduleFilter("all");
-      patchAttendanceSearchParams(setSearchParams, {
-        classScheduleId: null,
-      });
+      if (isClassLocked) {
+        setSearchParams(
+          (prev) => {
+            const next = new URLSearchParams(prev);
+            next.delete("classScheduleId");
+            return next;
+          },
+          { replace: true },
+        );
+      } else {
+        patchAttendanceSearchParams(setSearchParams, {
+          classScheduleId: null,
+        });
+      }
     }
-  }, [classDetail, scheduleFilter, scheduleView, setSearchParams]);
+  }, [
+    classDetail,
+    scheduleFilter,
+    scheduleView,
+    setSearchParams,
+    isClassLocked,
+  ]);
 
   const listParams = useMemo(
     () => ({
       page,
       limit,
       locationId: locationFilter === "all" ? undefined : locationFilter,
-      classId: classFilter === "all" ? undefined : classFilter,
+      classId: resolvedClassKey || undefined,
       memberId: memberFilter === "all" ? undefined : memberFilter,
       dateFrom: dateFrom || undefined,
       dateTo: dateTo || undefined,
@@ -234,7 +271,7 @@ export function AttendancePage() {
       page,
       limit,
       locationFilter,
-      classFilter,
+      resolvedClassKey,
       memberFilter,
       dateFrom,
       dateTo,
@@ -286,7 +323,7 @@ export function AttendancePage() {
     setPage(1);
   }, [
     locationFilter,
-    classFilter,
+    resolvedClassKey,
     scheduleFilter,
     memberFilter,
     statusFilter,
@@ -304,6 +341,7 @@ export function AttendancePage() {
   }, [classDetail, scheduleFilter]);
 
   const handleClassChange = (value: string) => {
+    if (isClassLocked) return;
     setClassFilter(value);
     setScheduleFilter("all");
     patchAttendanceSearchParams(setSearchParams, {
@@ -314,9 +352,21 @@ export function AttendancePage() {
 
   const handleScheduleChange = (value: string) => {
     setScheduleFilter(value);
-    patchAttendanceSearchParams(setSearchParams, {
-      classScheduleId: value !== "all" ? value : null,
-    });
+    if (isClassLocked) {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          if (value !== "all") next.set("classScheduleId", value);
+          else next.delete("classScheduleId");
+          return next;
+        },
+        { replace: true },
+      );
+    } else {
+      patchAttendanceSearchParams(setSearchParams, {
+        classScheduleId: value !== "all" ? value : null,
+      });
+    }
   };
 
   const columns = useMemo<ColumnDef<ClassAttendanceTableRow>[]>(() => {
@@ -396,7 +446,7 @@ export function AttendancePage() {
           </p>
         </CardContent>
       </Card>
-    ) : classFilter !== "all" && classDetail && !scheduleView ? (
+    ) : resolvedClassKey && classDetail && !scheduleView ? (
       <Card className="rounded-md border-[#F4F4F4] bg-white shadow-none">
         <CardContent className="p-4">
           <p className="text-muted-foreground text-xs font-medium">
@@ -411,20 +461,28 @@ export function AttendancePage() {
       </Card>
     ) : null;
 
-  return (
-    <DashboardLayout>
-      <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+  const body = (
+    <div
+      className={
+        embedded
+          ? "flex flex-col gap-4"
+          : "flex flex-col gap-4 py-4 md:gap-6 md:py-6"
+      }
+    >
+      {!embedded ? (
         <div className="px-4 lg:px-6">
           <h1 className="text-3xl font-medium">Attendance</h1>
           <p className="text-muted-foreground mt-1 text-sm">
             Class attendance across your gym or for a single scheduled session.
           </p>
         </div>
+      ) : null}
 
-        <div className="space-y-4 px-4 lg:px-6">
-          {contextBanner}
+      <div className={embedded ? "space-y-4" : "space-y-4 px-4 lg:px-6"}>
+        {contextBanner}
 
-          <div className="flex flex-wrap items-end gap-3">
+        <div className="flex flex-wrap items-end gap-3">
+          {!isClassLocked ? (
             <FilterSelect
               label="Class"
               value={classFilter}
@@ -433,16 +491,15 @@ export function AttendancePage() {
               options={classOptions}
               widthClass="min-w-[220px]"
             />
-            <FilterSelect
-              label="Schedule"
-              value={scheduleFilter}
-              onChange={handleScheduleChange}
-              disabled={
-                classFilter === "all" || classDetailLoading || !classDetail
-              }
-              options={scheduleOptions}
-              widthClass="min-w-[280px]"
-            />
+          ) : null}
+          <FilterSelect
+            label="Schedule"
+            value={scheduleFilter}
+            onChange={handleScheduleChange}
+            disabled={!resolvedClassKey || classDetailLoading || !classDetail}
+            options={scheduleOptions}
+            widthClass="min-w-[280px]"
+          />
             <FilterSelect
               label="Status"
               value={statusFilter}
@@ -533,8 +590,10 @@ export function AttendancePage() {
               },
             }}
           />
-        </div>
       </div>
-    </DashboardLayout>
+    </div>
   );
+
+  if (embedded) return body;
+  return <DashboardLayout>{body}</DashboardLayout>;
 }

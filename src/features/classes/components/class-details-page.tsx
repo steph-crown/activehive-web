@@ -11,10 +11,11 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/lib/get-api-error-message";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import * as React from "react";
 import {
   useClassQuery,
@@ -26,6 +27,7 @@ import {
   classHasAssignedTrainer,
 } from "./assign-trainer-modal";
 import { AddClassAttendanceModal } from "./add-class-attendance-modal";
+import { AttendancePage } from "./attendance-page";
 import { ReuseClassModal } from "./reuse-class-modal";
 import { UpdateClassModal } from "./update-class-modal";
 import type { Class } from "../types";
@@ -232,8 +234,8 @@ function SchedulesCard({ classItem }: { classItem: Class }) {
               </div>
               <Button variant="outline" size="sm" className="border-[#F4F4F4]" asChild>
                 <Link
-                  to={`/dashboard/classes/attendance?${new URLSearchParams({
-                    classId: classItem.id,
+                  to={`/dashboard/classes/${classItem.id}?${new URLSearchParams({
+                    tab: "attendance",
                     classScheduleId: schedule.id,
                   }).toString()}`}
                 >
@@ -248,9 +250,18 @@ function SchedulesCard({ classItem }: { classItem: Class }) {
   );
 }
 
+type DetailTab = "attendance" | "report" | "danger";
+
+function detailTabFromSearch(tabParam: string | null): DetailTab {
+  if (tabParam === "report" || tabParam === "danger") return tabParam;
+  return "attendance";
+}
+
 export function ClassDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeDetailTab = detailTabFromSearch(searchParams.get("tab"));
   const { showSuccess, showError } = useToast();
   const [isAssignTrainerOpen, setIsAssignTrainerOpen] = React.useState(false);
   const [isReuseOpen, setIsReuseOpen] = React.useState(false);
@@ -275,6 +286,25 @@ export function ClassDetailsPage() {
         getApiErrorMessage(error, "Failed to delete class."),
       );
     }
+  };
+
+  const handleDetailTabChange = (value: string) => {
+    const nextTab = detailTabFromSearch(value);
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (nextTab === "attendance") {
+          next.delete("tab");
+        } else {
+          next.set("tab", nextTab);
+        }
+        if (nextTab !== "attendance") {
+          next.delete("classScheduleId");
+        }
+        return next;
+      },
+      { replace: true },
+    );
   };
 
   if (isLoading) {
@@ -337,7 +367,7 @@ export function ClassDetailsPage() {
           <div>
             <h1 className="text-3xl font-medium">{classItem.name}</h1>
             <p className="text-muted-foreground mt-1 text-sm">
-              Class details, schedules, and report
+              Class details, schedules, attendance, and report
             </p>
           </div>
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
@@ -382,24 +412,47 @@ export function ClassDetailsPage() {
 
         <div className="space-y-4 px-4 lg:px-6">
           <ClassDetailsCards classItem={classItem} />
-          <ClassReportCard classId={classItem.id} />
-          <Card className="rounded-md border border-destructive/25 bg-white p-6 shadow-none">
-            <h2 className="text-lg font-semibold text-destructive">
-              Danger zone
-            </h2>
-            <p className="text-muted-foreground mt-1 max-w-xl text-sm">
-              Deleting removes this class and its schedules. Members and history
-              may still appear in other reports depending on your backend.
-            </p>
-            <Button
-              type="button"
-              variant="outline"
-              className="mt-4 border-destructive/40 text-destructive hover:bg-destructive/5"
-              onClick={() => setDeleteDialogOpen(true)}
-            >
-              Delete class
-            </Button>
-          </Card>
+          <Tabs
+            value={activeDetailTab}
+            onValueChange={handleDetailTabChange}
+            className="gap-4"
+          >
+            <TabsList className="w-full max-w-md justify-start sm:w-auto">
+              <TabsTrigger value="attendance">Attendance</TabsTrigger>
+              <TabsTrigger value="report">Class report</TabsTrigger>
+              <TabsTrigger value="danger">Danger zone</TabsTrigger>
+            </TabsList>
+            <TabsContent value="attendance" className="mt-4">
+              <AttendancePage
+                key={classItem.id}
+                fixedClassId={classItem.id}
+                embedded
+              />
+            </TabsContent>
+            <TabsContent value="report" className="mt-4">
+              <ClassReportCard classId={classItem.id} />
+            </TabsContent>
+            <TabsContent value="danger" className="mt-4">
+              <Card className="rounded-md border border-destructive/25 bg-white p-6 shadow-none">
+                <h2 className="text-lg font-semibold text-destructive">
+                  Danger zone
+                </h2>
+                <p className="text-muted-foreground mt-1 max-w-xl text-sm">
+                  Deleting removes this class and its schedules. Members and
+                  history may still appear in other reports depending on your
+                  backend.
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="mt-4 border-destructive/40 text-destructive hover:bg-destructive/5"
+                  onClick={() => setDeleteDialogOpen(true)}
+                >
+                  Delete class
+                </Button>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
 
@@ -472,6 +525,14 @@ export function ClassDetailsPage() {
         onSuccess={() => {
           void refetch();
           setIsAddAttendanceOpen(false);
+          setSearchParams(
+            (prev) => {
+              const next = new URLSearchParams(prev);
+              next.delete("tab");
+              return next;
+            },
+            { replace: true },
+          );
         }}
       />
     </DashboardLayout>

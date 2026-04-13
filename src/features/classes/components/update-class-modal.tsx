@@ -29,6 +29,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm, useFieldArray } from "react-hook-form";
 import * as yup from "yup";
 import { useUpdateClassMutation } from "../services";
+import { staffFullName } from "@/features/staff/lib/staff-display";
 import { useStaffQuery } from "@/features/staff/services";
 import type { Class } from "../types";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
@@ -334,7 +335,7 @@ export function UpdateClassModal({
                         <SelectItem value="none">No Trainer</SelectItem>
                         {staff?.map((member) => (
                           <SelectItem key={member.id} value={member.id}>
-                            {member.firstName} {member.lastName}
+                            {staffFullName(member)}
                           </SelectItem>
                         ))}
                       </SelectContent>

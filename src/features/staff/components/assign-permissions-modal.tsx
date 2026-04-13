@@ -33,6 +33,7 @@ import {
   useAvailableRolesQuery,
   useAvailablePermissionsQuery,
 } from "../services";
+import { staffFullName, staffPermissionIds } from "../lib/staff-display";
 import type { Staff } from "../types";
 import { CreateRoleModal } from "./create-role-modal";
 import { CreatePermissionModal } from "./create-permission-modal";
@@ -79,10 +80,18 @@ export function AssignPermissionsModal({
   const form = useForm<AssignPermissionsFormValues>({
     resolver: yupResolver(assignPermissionsSchema) as any,
     defaultValues: {
-      roleId: staff?.roleId || "",
-      permissionIds: staff?.permissionIds || [],
+      roleId: "",
+      permissionIds: [],
     },
   });
+
+  React.useEffect(() => {
+    if (!open || !staff) return;
+    form.reset({
+      roleId: staff.roleId || "",
+      permissionIds: staffPermissionIds(staff),
+    });
+  }, [open, staff, form]);
 
   const selectedRoleId = form.watch("roleId");
   const selectedPermissionIds = form.watch("permissionIds");
@@ -141,7 +150,7 @@ export function AssignPermissionsModal({
         <DialogHeader>
           <DialogTitle>Assign Permissions</DialogTitle>
           <DialogDescription>
-            Assign role and permissions to {staff.firstName} {staff.lastName}
+            Assign role and permissions to {staffFullName(staff)}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

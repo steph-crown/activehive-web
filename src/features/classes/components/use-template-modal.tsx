@@ -28,6 +28,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import * as yup from "yup";
 import { useUseTemplateMutation, useTemplatesQuery } from "../services";
 import { useLocationsQuery } from "@/features/locations/services";
+import { staffFullName } from "@/features/staff/lib/staff-display";
 import { useStaffQuery } from "@/features/staff/services";
 import type { ClassTemplate } from "../types";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
@@ -235,7 +236,7 @@ export function UseTemplateModal({
                         <SelectItem value="none">No Trainer</SelectItem>
                         {staff?.map((member) => (
                           <SelectItem key={member.id} value={member.id}>
-                            {member.firstName} {member.lastName}
+                            {staffFullName(member)}
                           </SelectItem>
                         ))}
                       </SelectContent>

@@ -7,6 +7,13 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import {
+  staffEmail,
+  staffFirstName,
+  staffFullName,
+  staffLastName,
+  staffPhone,
+} from "../lib/staff-display";
 import type { Staff } from "../types";
 import { formatDisplayDate } from "@/lib/display-datetime";
 
@@ -29,7 +36,7 @@ export function ViewStaffModal({
         <DialogHeader>
           <DialogTitle>Staff Details</DialogTitle>
           <DialogDescription>
-            View complete information for {staff.firstName} {staff.lastName}
+            View complete information for {staffFullName(staff)}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
@@ -38,13 +45,13 @@ export function ViewStaffModal({
               <p className="text-sm font-medium text-muted-foreground">
                 First Name
               </p>
-              <p className="text-sm">{staff.firstName}</p>
+              <p className="text-sm">{staffFirstName(staff) || "—"}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">
                 Last Name
               </p>
-              <p className="text-sm">{staff.lastName}</p>
+              <p className="text-sm">{staffLastName(staff) || "—"}</p>
             </div>
           </div>
 
@@ -55,17 +62,29 @@ export function ViewStaffModal({
               <p className="text-sm font-medium text-muted-foreground">
                 Email
               </p>
-              <p className="text-sm">{staff.email}</p>
+              <p className="text-sm">{staffEmail(staff) || "—"}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">
                 Phone
               </p>
-              <p className="text-sm">{staff.phone || "N/A"}</p>
+              <p className="text-sm">{staffPhone(staff) || "—"}</p>
             </div>
           </div>
 
           <Separator />
+
+          {staff.gym?.name ? (
+            <>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Gym
+                </p>
+                <p className="text-sm">{staff.gym.name}</p>
+              </div>
+              <Separator />
+            </>
+          ) : null}
 
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -138,19 +157,38 @@ export function ViewStaffModal({
             </div>
           </div>
 
-          {staff.permissionIds && staff.permissionIds.length > 0 && (
+          {(staff.permissions?.length || staff.permissionIds?.length) ? (
             <>
               <Separator />
               <div>
                 <p className="text-sm font-medium text-muted-foreground mb-2">
-                  Permissions ({staff.permissionIds.length})
+                  Permissions (
+                  {staff.permissions?.length ?? staff.permissionIds?.length ?? 0}
+                  )
                 </p>
-                <p className="text-sm text-muted-foreground">
-                  {staff.permissionIds.length} permission(s) assigned
-                </p>
+                {staff.permissions && staff.permissions.length > 0 ? (
+                  <ul className="max-h-48 space-y-2 overflow-y-auto text-sm">
+                    {staff.permissions.map((p) => (
+                      <li key={p.id}>
+                        <span className="font-medium">{p.name}</span>
+                        {p.description ? (
+                          <span className="text-muted-foreground">
+                            {" "}
+                            — {p.description}
+                          </span>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-muted-foreground text-sm">
+                    {staff.permissionIds?.length ?? 0} permission(s) assigned
+                    (details not loaded).
+                  </p>
+                )}
               </div>
             </>
-          )}
+          ) : null}
         </div>
       </DialogContent>
     </Dialog>

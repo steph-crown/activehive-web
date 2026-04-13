@@ -14,6 +14,12 @@ import { useLocationsQuery } from "@/features/locations/services";
 import { IconPlus, IconDotsVertical } from "@tabler/icons-react";
 import { type ColumnDef } from "@tanstack/react-table";
 import * as React from "react";
+import {
+  staffEmail,
+  staffFullName,
+  staffPhone,
+  staffSearchBlob,
+} from "../lib/staff-display";
 import { useStaffQuery } from "../services";
 import type { Staff } from "../types";
 import { CreateStaffModal } from "./create-staff-modal";
@@ -24,27 +30,25 @@ import { formatDisplayDate, localCalendarDateKey } from "@/lib/display-datetime"
 
 const staffColumns: ColumnDef<Staff>[] = [
   {
-    accessorKey: "firstName",
+    id: "name",
     header: "Name",
-    cell: ({ row }) => {
-      const firstName = row.getValue("firstName") as string;
-      const lastName = row.original.lastName;
-      return (
-        <div className="font-medium">
-          {firstName} {lastName}
-        </div>
-      );
-    },
+    cell: ({ row }) => (
+      <div className="font-medium">{staffFullName(row.original)}</div>
+    ),
   },
   {
-    accessorKey: "email",
+    id: "email",
     header: "Email",
-    cell: ({ row }) => <div className="text-sm">{row.getValue("email")}</div>,
+    cell: ({ row }) => (
+      <div className="text-sm">{staffEmail(row.original) || "—"}</div>
+    ),
   },
   {
-    accessorKey: "phone",
+    id: "phone",
     header: "Phone",
-    cell: ({ row }) => <div className="text-sm">{row.getValue("phone")}</div>,
+    cell: ({ row }) => (
+      <div className="text-sm">{staffPhone(row.original) || "—"}</div>
+    ),
   },
   {
     accessorKey: "department",
@@ -144,9 +148,7 @@ export function StaffPage() {
     const normalizedSearch = searchQuery.trim().toLowerCase();
     if (normalizedSearch) {
       rows = rows.filter((s) =>
-        `${s.firstName} ${s.lastName} ${s.email} ${s.phone}`
-          .toLowerCase()
-          .includes(normalizedSearch),
+        staffSearchBlob(s).includes(normalizedSearch),
       );
     }
 

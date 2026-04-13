@@ -19,7 +19,9 @@ import { useLocationsQuery } from "@/features/locations/services";
 import { useToast } from "@/hooks/use-toast";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
+import * as React from "react";
 import * as yup from "yup";
+import { staffFullName, staffLocationIds } from "../lib/staff-display";
 import { useAssignLocationsMutation } from "../services";
 import type { Staff } from "../types";
 
@@ -54,9 +56,16 @@ export function AssignLocationsModal({
   const form = useForm<AssignLocationsFormValues>({
     resolver: yupResolver(assignLocationsSchema),
     defaultValues: {
-      locationIds: staff?.locationIds || [],
+      locationIds: [],
     },
   });
+
+  React.useEffect(() => {
+    if (!open || !staff) return;
+    form.reset({
+      locationIds: staffLocationIds(staff),
+    });
+  }, [open, staff, form]);
 
   const selectedLocationIds = form.watch("locationIds");
 
@@ -95,8 +104,7 @@ export function AssignLocationsModal({
         <DialogHeader>
           <DialogTitle>Assign Locations</DialogTitle>
           <DialogDescription>
-            Assign or update location assignments for {staff.firstName}{" "}
-            {staff.lastName}
+            Assign or update location assignments for {staffFullName(staff)}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

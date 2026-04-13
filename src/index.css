@@ -124,7 +124,9 @@
   --font-hanken: "Hanken Grotesk";
   --font-satoshi: "Satoshi";
   --font-bebas: "Bebas Neue";
+  --font-inter: "Inter";
 
+  /* --font-body: var(--font-inter); */
   --font-body: var(--font-satoshi);
   --font-heading: var(--font-bebas);
   --main-font:

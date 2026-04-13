@@ -58,7 +58,8 @@ export function NavMainGrouped() {
     pathname === "/dashboard/membership-plans" ||
     pathname.startsWith("/dashboard/membership-plans/");
   const isAllTrainersActive = pathname === "/dashboard/trainers";
-  const isTrainerAssignmentsActive = pathname === "/dashboard/trainers/assignments";
+  const isTrainerAssignmentsActive =
+    pathname === "/dashboard/trainers/assignments";
   const isSubscriptionsActive =
     pathname === "/dashboard/subscriptions" ||
     pathname.startsWith("/dashboard/subscriptions/");
@@ -73,7 +74,8 @@ export function NavMainGrouped() {
 
   const isAllLocationsActive = pathname === "/dashboard/locations";
   const isAddLocationActive =
-    pathname === "/dashboard/lcations/new" || pathname === "/dashboard/locations/new";
+    pathname === "/dashboard/lcations/new" ||
+    pathname === "/dashboard/locations/new";
   const isMembersListActive = pathname === "/dashboard/members";
   const isAddMemberActive = pathname === "/dashboard/members/new";
   const isMemberDetailOrEditActive =
@@ -196,11 +198,11 @@ export function NavMainGrouped() {
           href: "/dashboard/marketing/email-campaigns",
           isActive: pathname === "/dashboard/marketing/email-campaigns",
         },
-        {
-          title: "SMS Campaigns",
-          href: "/dashboard/marketing/sms-campaigns",
-          isActive: pathname === "/dashboard/marketing/sms-campaigns",
-        },
+        // {
+        //   title: "SMS Campaigns",
+        //   href: "/dashboard/marketing/sms-campaigns",
+        //   isActive: pathname === "/dashboard/marketing/sms-campaigns",
+        // },
       ],
     },
     {
@@ -314,7 +316,6 @@ export function NavMainGrouped() {
               </SidebarMenuItem>
             </Collapsible>
           ))}
-
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

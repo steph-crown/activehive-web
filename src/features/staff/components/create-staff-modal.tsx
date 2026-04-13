@@ -50,10 +50,6 @@ const createStaffSchema = yup.object({
     .min(1, "At least one location is required")
     .required(),
   hireDate: yup.string().required("Hire date is required"),
-  status: yup
-    .string()
-    .oneOf(["active", "inactive"], "Invalid status")
-    .required("Status is required"),
   permissionIds: yup.array().of(yup.string().required()).default([]).required(),
 });
 
@@ -92,7 +88,6 @@ export function CreateStaffModal({
       roleId: "",
       locationIds: [],
       hireDate: new Date().toISOString().split("T")[0],
-      status: "active",
       permissionIds: [],
     },
   });
@@ -101,7 +96,7 @@ export function CreateStaffModal({
 
   const onSubmit = async (data: CreateStaffFormValues) => {
     try {
-      await createStaff(data);
+      await createStaff({ ...data, status: "active" });
       showSuccess("Success", "Staff member created successfully!");
       form.reset({
         firstName: "",
@@ -111,7 +106,6 @@ export function CreateStaffModal({
         roleId: "",
         locationIds: [],
         hireDate: new Date().toISOString().split("T")[0],
-        status: "active",
         permissionIds: [],
       });
       onSuccess();
@@ -311,43 +305,19 @@ export function CreateStaffModal({
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="hireDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Hire Date</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="!h-10 w-full">
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="active">Active</SelectItem>
-                        <SelectItem value="inactive">Inactive</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="hireDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Hire Date</FormLabel>
+                  <FormControl>
+                    <Input type="date" className="w-full" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <DialogFooter>
               <Button

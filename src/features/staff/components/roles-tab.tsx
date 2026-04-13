@@ -1,71 +1,117 @@
 import { DataTable } from "@/components/molecules/data-table";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { IconPlus } from "@tabler/icons-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { IconEye, IconPlus } from "@tabler/icons-react";
 import { type ColumnDef } from "@tanstack/react-table";
 import * as React from "react";
 import { useAvailableRolesQuery } from "../services";
 import type { Role } from "../types";
 import { CreateRoleModal } from "./create-role-modal";
+import { ViewRoleDetailsModal } from "./view-role-details-modal";
 
-const rolesColumns: ColumnDef<Role>[] = [
-  {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("name")}</div>
-    ),
-  },
-  {
-    accessorKey: "code",
-    header: "Code",
-    cell: ({ row }) => (
-      <div className="text-sm text-muted-foreground">
-        {row.getValue("code")}
+function PermissionNamesCell({ role }: { role: Role }) {
+  const perms = role.permissions ?? [];
+  if (perms.length === 0) {
+    const n = role.permissionIds?.length ?? 0;
+    return (
+      <span className="text-muted-foreground text-sm">
+        {n > 0 ? `${n} permission(s)` : "—"}
+      </span>
+    );
+  }
+  return (
+    <div className="max-w-xl min-w-0">
+      <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sm">
+        {perms.map((p, i) => (
+          <React.Fragment key={p.id}>
+            {i > 0 ? ", " : null}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="border-muted-foreground/50 cursor-default border-b border-dotted">
+                  {p.name}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-xs">
+                {p.description?.trim() || "No description"}
+              </TooltipContent>
+            </Tooltip>
+          </React.Fragment>
+        ))}
       </div>
-    ),
-  },
-  {
-    accessorKey: "description",
-    header: "Description",
-    cell: ({ row }) => {
-      const description = row.getValue("description") as string | undefined;
-      return (
-        <div className="text-sm">
-          {description || <span className="text-muted-foreground">N/A</span>}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "isSystem",
-    header: "Type",
-    cell: ({ row }) => {
-      const isSystem = row.getValue("isSystem") as boolean;
-      return (
-        <Badge variant={isSystem ? "default" : "secondary"}>
-          {isSystem ? "System" : "Custom"}
-        </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: "permissionIds",
-    header: "Permissions",
-    cell: ({ row }) => {
-      const permissionIds = row.getValue("permissionIds") as string[];
-      return (
-        <div className="text-sm">
-          {permissionIds?.length || 0} permission(s)
-        </div>
-      );
-    },
-  },
-];
+    </div>
+  );
+}
 
 export function RolesTab() {
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
+  const [viewingRole, setViewingRole] = React.useState<Role | null>(null);
+  const [detailsOpen, setDetailsOpen] = React.useState(false);
   const { data: roles, isLoading, refetch } = useAvailableRolesQuery();
+
+  const openDetails = React.useCallback((role: Role) => {
+    setViewingRole(role);
+    setDetailsOpen(true);
+  }, []);
+
+  const columns = React.useMemo<ColumnDef<Role>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Name",
+        cell: ({ row }) => (
+          <div className="font-medium">{row.getValue("name")}</div>
+        ),
+      },
+      {
+        accessorKey: "description",
+        header: "Description",
+        cell: ({ row }) => {
+          const description = row.original.description;
+          const text =
+            description != null && String(description).trim().length
+              ? String(description)
+              : null;
+          return (
+            <div
+              className="text-muted-foreground max-w-md truncate text-sm"
+              title={text ?? undefined}
+            >
+              {text ?? "—"}
+            </div>
+          );
+        },
+      },
+      {
+        id: "permissions",
+        header: "Permissions",
+        cell: ({ row }) => <PermissionNamesCell role={row.original} />,
+      },
+      {
+        id: "actions",
+        header: "",
+        enableSorting: false,
+        size: 48,
+        cell: ({ row }) => (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-8 shrink-0"
+            aria-label={`View ${row.original.name}`}
+            onClick={() => openDetails(row.original)}
+          >
+            <IconEye className="size-4" />
+          </Button>
+        ),
+      },
+    ],
+    [openDetails],
+  );
 
   const handleModalSuccess = () => {
     refetch();
@@ -73,34 +119,45 @@ export function RolesTab() {
   };
 
   return (
-    <>
-      <div className="flex items-center justify-between mb-4 ">
-        <div>
-          <h2 className="text-2xl font-semibold">Role List</h2>
-          <p className="text-muted-foreground text-sm mt-1">
-            Create and maintain role definitions for staff.
-          </p>
+    <TooltipProvider delayDuration={250}>
+      <>
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-semibold">Role List</h2>
+            <p className="text-muted-foreground mt-1 text-sm">
+              Create and maintain role definitions for staff.
+            </p>
+          </div>
+          <Button onClick={() => setIsCreateModalOpen(true)}>
+            <IconPlus className="h-4 w-4" />
+            Create Role
+          </Button>
         </div>
-        <Button onClick={() => setIsCreateModalOpen(true)}>
-          <IconPlus className="h-4 w-4 " />
-          Create Role
-        </Button>
-      </div>
 
-      <DataTable
-        data={roles || []}
-        columns={rolesColumns}
-        enableTabs={false}
-        getRowId={(row) => row.id}
-        emptyMessage="No roles found."
-        isLoading={isLoading}
-      />
+        <DataTable
+          data={roles || []}
+          columns={columns}
+          enableTabs={false}
+          getRowId={(row) => row.id}
+          emptyMessage="No roles found."
+          isLoading={isLoading}
+        />
 
-      <CreateRoleModal
-        open={isCreateModalOpen}
-        onOpenChange={setIsCreateModalOpen}
-        onSuccess={handleModalSuccess}
-      />
-    </>
+        <CreateRoleModal
+          open={isCreateModalOpen}
+          onOpenChange={setIsCreateModalOpen}
+          onSuccess={handleModalSuccess}
+        />
+
+        <ViewRoleDetailsModal
+          role={viewingRole}
+          open={detailsOpen}
+          onOpenChange={(open) => {
+            setDetailsOpen(open);
+            if (!open) setViewingRole(null);
+          }}
+        />
+      </>
+    </TooltipProvider>
   );
 }

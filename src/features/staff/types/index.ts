@@ -34,13 +34,31 @@ export type CreateStaffPayload = {
   permissionIds: string[];
 };
 
+/** Permission object as returned on role `GET .../roles/available`. */
+export type RolePermissionDetail = {
+  id: string;
+  name: string;
+  description?: string | null;
+  code: string;
+  type?: string;
+  createdById?: string | null;
+  gymId?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export type Role = {
   id: string;
   name: string;
-  description?: string;
+  description?: string | null;
   code: string;
-  permissionIds: string[];
-  isSystem: boolean;
+  /** Present on some API responses; prefer `permissions` when populated. */
+  permissionIds?: string[];
+  permissions?: RolePermissionDetail[];
+  isSystem?: boolean;
+  type?: string;
+  createdById?: string | null;
+  gymId?: string | null;
   createdAt?: string;
   updatedAt?: string;
 };

@@ -91,8 +91,12 @@ export function AssignPermissionsModal({
   React.useEffect(() => {
     if (selectedRoleId && roles) {
       const selectedRole = roles.find((r) => r.id === selectedRoleId);
-      if (selectedRole && selectedRole.permissionIds.length > 0) {
-        form.setValue("permissionIds", selectedRole.permissionIds);
+      const ids =
+        selectedRole.permissionIds?.length
+          ? selectedRole.permissionIds
+          : selectedRole.permissions?.map((p) => p.id) ?? [];
+      if (selectedRole && ids.length > 0) {
+        form.setValue("permissionIds", ids);
       }
     }
   }, [selectedRoleId, roles, form]);

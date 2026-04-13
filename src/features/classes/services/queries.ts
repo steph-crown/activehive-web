@@ -314,15 +314,15 @@ export const useAddClassScheduleAttendanceMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      classId,
-      classScheduleId,
-      payload,
-    }: {
+    mutationFn: (variables: {
       classId: string;
       classScheduleId: string;
       payload: AddClassAttendancePayload;
-    }) => classAttendanceApi.addAttendance(classScheduleId, payload),
+    }) =>
+      classAttendanceApi.addAttendance(
+        variables.classScheduleId,
+        variables.payload,
+      ),
     onSuccess: async (_, variables) => {
       await queryClient.invalidateQueries({
         queryKey: classesQueryKeys.detail(variables.classId),

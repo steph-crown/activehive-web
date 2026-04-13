@@ -23,7 +23,7 @@ import {
 import { useStaffQuery } from "../services";
 import type { Staff } from "../types";
 import { CreateStaffModal } from "./create-staff-modal";
-import { AssignPermissionsModal } from "./assign-permissions-modal";
+import { ChangeRoleModal } from "./change-role-modal";
 import { AssignLocationsModal } from "./assign-locations-modal";
 import { ViewStaffModal } from "./view-staff-modal";
 import { formatDisplayDate, localCalendarDateKey } from "@/lib/display-datetime";
@@ -121,8 +121,7 @@ const staffColumns: ColumnDef<Staff>[] = [
 export function StaffPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [selectedStaff, setSelectedStaff] = React.useState<Staff | null>(null);
-  const [isAssignPermissionsOpen, setIsAssignPermissionsOpen] =
-    React.useState(false);
+  const [isChangeRoleOpen, setIsChangeRoleOpen] = React.useState(false);
   const [isAssignLocationsOpen, setIsAssignLocationsOpen] =
     React.useState(false);
   const [isViewStaffOpen, setIsViewStaffOpen] = React.useState(false);
@@ -170,9 +169,9 @@ export function StaffPage() {
     setIsCreateModalOpen(false);
   };
 
-  const handleAssignPermissions = (staffMember: Staff) => {
+  const handleChangeRole = (staffMember: Staff) => {
     setSelectedStaff(staffMember);
-    setIsAssignPermissionsOpen(true);
+    setIsChangeRoleOpen(true);
   };
 
   const handleAssignLocations = (staffMember: Staff) => {
@@ -187,7 +186,7 @@ export function StaffPage() {
 
   const handleActionSuccess = () => {
     refetch();
-    setIsAssignPermissionsOpen(false);
+    setIsChangeRoleOpen(false);
     setIsAssignLocationsOpen(false);
   };
 
@@ -216,10 +215,8 @@ export function StaffPage() {
                 View Details
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => handleAssignPermissions(staffMember)}
-              >
-                Assign Permissions
+              <DropdownMenuItem onClick={() => handleChangeRole(staffMember)}>
+                Change role
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => handleAssignLocations(staffMember)}
@@ -291,9 +288,9 @@ export function StaffPage() {
         onSuccess={handleModalSuccess}
       />
 
-      <AssignPermissionsModal
-        open={isAssignPermissionsOpen}
-        onOpenChange={setIsAssignPermissionsOpen}
+      <ChangeRoleModal
+        open={isChangeRoleOpen}
+        onOpenChange={setIsChangeRoleOpen}
         staff={selectedStaff}
         onSuccess={handleActionSuccess}
       />

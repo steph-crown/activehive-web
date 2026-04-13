@@ -1,6 +1,6 @@
 export * from "./staff-page";
 export * from "./create-staff-modal";
-export * from "./assign-permissions-modal";
+export * from "./change-role-modal";
 export * from "./assign-locations-modal";
 export * from "./view-staff-modal";
 export * from "./roles-tab";

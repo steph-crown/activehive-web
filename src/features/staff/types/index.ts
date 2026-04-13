@@ -120,9 +120,9 @@ export type CreatePermissionPayload = {
   code: string;
 };
 
-export type AssignRolePermissionsPayload = {
-  roleId?: string;
-  permissionIds: string[];
+/** PATCH `/api/gym-owner/staff/{id}/role` */
+export type AssignStaffRolePayload = {
+  roleId: string;
 };
 
 export type AssignLocationsPayload = {

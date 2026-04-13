@@ -8,6 +8,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Form,
   FormControl,
   FormField,
@@ -74,7 +80,7 @@ export function AssignLocationsModal({
     const newIds = currentIds.includes(locationId)
       ? currentIds.filter((id) => id !== locationId)
       : [...currentIds, locationId];
-    form.setValue("locationIds", newIds);
+    form.setValue("locationIds", newIds, { shouldValidate: true });
   };
 
   const onSubmit = async (data: AssignLocationsFormValues) => {
@@ -102,9 +108,10 @@ export function AssignLocationsModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Assign Locations</DialogTitle>
+          <DialogTitle>Assign locations</DialogTitle>
           <DialogDescription>
-            Assign or update location assignments for {staffFullName(staff)}
+            Choose one or more locations for {staffFullName(staff)}. Open the
+            dropdown to add or remove assignments.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -119,44 +126,51 @@ export function AssignLocationsModal({
                 <FormItem>
                   <FormLabel>Locations</FormLabel>
                   <FormControl>
-                    <div className="border rounded-md p-4 max-h-64 overflow-y-auto">
-                      {locationsLoading ? (
-                        <div className="text-sm text-muted-foreground">
-                          Loading locations...
-                        </div>
-                      ) : locations && locations.length > 0 ? (
-                        <div className="space-y-2">
-                          {locations.map((location) => (
-                            <div
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="!h-10 w-full justify-between font-normal border-[#F4F4F4]"
+                          disabled={locationsLoading}
+                        >
+                          <span className="truncate">
+                            {selectedLocationIds.length > 0
+                              ? `${selectedLocationIds.length} location(s) selected`
+                              : "Select locations"}
+                          </span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="start"
+                        className="max-h-64 w-[var(--radix-dropdown-menu-trigger-width)] overflow-y-auto"
+                      >
+                        {locationsLoading ? (
+                          <div className="text-muted-foreground px-2 py-1.5 text-sm">
+                            Loading locations…
+                          </div>
+                        ) : locations && locations.length > 0 ? (
+                          locations.map((location) => (
+                            <DropdownMenuCheckboxItem
                               key={location.id}
-                              className="flex items-center space-x-2"
+                              checked={selectedLocationIds.includes(
+                                location.id,
+                              )}
+                              onCheckedChange={() =>
+                                handleLocationToggle(location.id)
+                              }
+                              onSelect={(e) => e.preventDefault()}
                             >
-                              <input
-                                type="checkbox"
-                                id={`location-${location.id}`}
-                                checked={selectedLocationIds.includes(
-                                  location.id
-                                )}
-                                onChange={() =>
-                                  handleLocationToggle(location.id)
-                                }
-                                className="h-4 w-4 rounded border-gray-300"
-                              />
-                              <label
-                                htmlFor={`location-${location.id}`}
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                              >
-                                {location.locationName}
-                              </label>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-sm text-muted-foreground">
-                          No locations available
-                        </div>
-                      )}
-                    </div>
+                              {location.locationName}
+                            </DropdownMenuCheckboxItem>
+                          ))
+                        ) : (
+                          <div className="text-muted-foreground px-2 py-1.5 text-sm">
+                            No locations available
+                          </div>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -171,8 +185,8 @@ export function AssignLocationsModal({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Assigning..." : "Assign Locations"}
+              <Button type="submit" loading={isPending}>
+                Save
               </Button>
             </DialogFooter>
           </form>

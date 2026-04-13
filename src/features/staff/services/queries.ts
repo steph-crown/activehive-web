@@ -7,7 +7,7 @@ import type {
   CreateRolePayload,
   Permission,
   CreatePermissionPayload,
-  AssignRolePermissionsPayload,
+  AssignStaffRolePayload,
   AssignLocationsPayload,
 } from "../types";
 
@@ -47,7 +47,7 @@ export const useCreateStaffMutation = () => {
   });
 };
 
-export const useAssignRolePermissionsMutation = () => {
+export const useAssignStaffRoleMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -56,8 +56,8 @@ export const useAssignRolePermissionsMutation = () => {
       payload,
     }: {
       staffId: string;
-      payload: AssignRolePermissionsPayload;
-    }) => staffApi.assignRolePermissions(staffId, payload),
+      payload: AssignStaffRolePayload;
+    }) => staffApi.assignStaffRole(staffId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: staffQueryKeys.all,

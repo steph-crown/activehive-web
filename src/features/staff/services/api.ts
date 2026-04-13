@@ -6,7 +6,7 @@ import type {
   CreateRolePayload,
   Permission,
   CreatePermissionPayload,
-  AssignRolePermissionsPayload,
+  AssignStaffRolePayload,
   AssignLocationsPayload,
 } from "../types";
 
@@ -19,14 +19,11 @@ export const staffApi = {
     apiClient.get<Staff[]>(staffPath),
   createStaff: (payload: CreateStaffPayload): Promise<Staff> =>
     apiClient.post<Staff>(staffPath, payload),
-  assignRolePermissions: (
+  assignStaffRole: (
     staffId: string,
-    payload: AssignRolePermissionsPayload
+    payload: AssignStaffRolePayload,
   ): Promise<Staff> =>
-    apiClient.patch<Staff>(
-      `${staffPath}/${staffId}/role-permissions`,
-      payload
-    ),
+    apiClient.patch<Staff>(`${staffPath}/${staffId}/role`, payload),
   assignLocations: (
     staffId: string,
     payload: AssignLocationsPayload

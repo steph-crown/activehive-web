@@ -44,13 +44,18 @@ const createStaffSchema = yup.object({
   email: yup.string().email("Invalid email").required("Email is required"),
   phone: yup.string().required("Phone number is required"),
   roleId: yup.string().required("Role is required"),
+  department: yup.string().required("Department is required"),
   locationIds: yup
     .array()
     .of(yup.string().required())
     .min(1, "At least one location is required")
     .required(),
   hireDate: yup.string().required("Hire date is required"),
-  permissionIds: yup.array().of(yup.string().required()).default([]).required(),
+  permissionCodes: yup
+    .array()
+    .of(yup.string().required())
+    .default([])
+    .required(),
 });
 
 type CreateStaffFormValues = yup.InferType<typeof createStaffSchema>;
@@ -86,13 +91,23 @@ export function CreateStaffModal({
       email: "",
       phone: "",
       roleId: "",
+      department: "",
       locationIds: [],
       hireDate: new Date().toISOString().split("T")[0],
-      permissionIds: [],
+      permissionCodes: [],
     },
   });
 
   const selectedLocationIds = form.watch("locationIds");
+  const selectedRoleId = form.watch("roleId");
+
+  React.useEffect(() => {
+    if (!selectedRoleId || !roles?.length) return;
+    const role = roles.find((r) => r.id === selectedRoleId);
+    const codes =
+      role?.permissions?.map((p) => p.code).filter((c) => c && c.trim()) ?? [];
+    form.setValue("permissionCodes", codes);
+  }, [selectedRoleId, roles, form]);
 
   const onSubmit = async (data: CreateStaffFormValues) => {
     try {
@@ -104,9 +119,10 @@ export function CreateStaffModal({
         email: "",
         phone: "",
         roleId: "",
+        department: "",
         locationIds: [],
         hireDate: new Date().toISOString().split("T")[0],
-        permissionIds: [],
+        permissionCodes: [],
       });
       onSuccess();
     } catch (error) {
@@ -255,6 +271,24 @@ export function CreateStaffModal({
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="department"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Department</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g. Front Desk"
+                      className="w-full"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}

@@ -28,10 +28,11 @@ export type CreateStaffPayload = {
   email: string;
   phone: string;
   roleId: string;
+  department: string;
   locationIds: string[];
   hireDate: string;
   status: "active" | "inactive";
-  permissionIds: string[];
+  permissionCodes: string[];
 };
 
 /** Permission object as returned on role `GET .../roles/available`. */

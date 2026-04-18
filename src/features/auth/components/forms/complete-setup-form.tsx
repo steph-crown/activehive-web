@@ -15,6 +15,7 @@ import { useAuthStore } from "@/store";
 import type { AuthResponse } from "../../types";
 import { cn } from "@/lib/utils";
 import { formatDisplayDate } from "@/lib/display-datetime";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 
 const resolveSession = (response: AuthResponse) => {
   const token =
@@ -98,11 +99,13 @@ export function CompleteSetupForm({
       navigate("/dashboard");
     } catch (error) {
       setIsLoading(false);
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Unable to complete setup. Please try again.";
-      showError("Error", message);
+      showError(
+        "Something went wrong",
+        getApiErrorMessage(
+          error,
+          "Unable to complete setup. Please try again.",
+        ),
+      );
       // Reset all steps to pending
       setLoadingSteps((prev) =>
         prev.map((step) => ({ ...step, status: "pending" as const }))

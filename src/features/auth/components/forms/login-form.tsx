@@ -14,6 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { useToast } from "@/hooks/use-toast";
 import { useLoginMutation } from "../../services";
 import { useAuthStore } from "@/store";
@@ -85,9 +86,10 @@ export function LoginForm({
       navigate("/dashboard");
       form.reset();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Unable to login. Try again.";
-      showError("Error", message);
+      showError(
+        "Unable to sign in",
+        getApiErrorMessage(error, "Unable to sign in. Please try again."),
+      );
     }
   };
 

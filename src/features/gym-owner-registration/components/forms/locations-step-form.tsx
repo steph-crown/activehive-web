@@ -32,6 +32,7 @@ import {
   locationsSchema,
   type LocationsFormValues,
 } from "@/features/gym-owner-registration/schema";
+import type { LocationPayload } from "@/features/gym-owner-registration/types";
 import { useUpload } from "@/hooks/use-upload";
 import { NIGERIA_STATES } from "@/features/gym-owner-registration/constants/nigeria-states";
 import {
@@ -47,7 +48,7 @@ export function LocationsStepForm({
   const { showSuccess, showError } = useToast();
   const sessionId = useGymOwnerRegistrationStore((state) => state.sessionId);
   const setStepStatus = useGymOwnerRegistrationStore(
-    (state) => state.setStepStatus
+    (state) => state.setStepStatus,
   );
   const { mutateAsync: submitLocations, isPending } =
     useLocationsStepMutation();
@@ -70,6 +71,7 @@ export function LocationsStepForm({
           email: "",
           isHeadquarters: true,
           coverImageFile: undefined,
+          zipCode: "00000",
         },
       ],
     },
@@ -87,36 +89,37 @@ export function LocationsStepForm({
   const onSubmit = async (data: LocationsFormValues) => {
     try {
       const mappedLocations = [];
-
       for (const location of data.locations) {
         let coverImage: string | undefined;
         if (location.coverImageFile) {
           coverImage = await upload(location.coverImageFile, "gym-locations");
         }
-
-        const { coverImageFile, ...rest } = location;
-
-        mappedLocations.push({
-          ...rest,
-          zipCode: "",
+        const payload: LocationPayload = {
+          locationName: location.locationName,
+          address: location.address,
+          city: location.city,
+          state: location.state,
+          country: location.country,
+          phone: location.phone,
+          email: location.email,
+          isHeadquarters: location.isHeadquarters,
+          zipCode: location.zipCode ?? "",
           coverImage,
-        });
+        };
+        mappedLocations.push(payload);
       }
-
       await submitLocations({
         sessionId,
         hasMultipleLocations: data.locations.length > 1,
         locations: mappedLocations,
       });
       setStepStatus(4, "completed");
-
       // Immediately call step 6 to complete registration
       await completeRegistration({ sessionId });
       setStepStatus(6, "completed");
-
       showSuccess(
         "Registration complete",
-        "Your application is being reviewed. You'll receive an email once approved."
+        "Your application is being reviewed. You'll receive an email once approved.",
       );
       navigate("/pending-approval");
     } catch (error) {
@@ -140,7 +143,7 @@ export function LocationsStepForm({
 
       showSuccess(
         "Registration complete",
-        "Your application is being reviewed. You'll receive an email once approved."
+        "Your application is being reviewed. You'll receive an email once approved.",
       );
       navigate("/pending-approval");
     } catch (error) {
@@ -162,9 +165,7 @@ export function LocationsStepForm({
         {...props}
       >
         <div className="flex flex-col items-center gap-2 text-center">
-          <h1 className="text-2xl font-bold">
-            Step 4 · Gym locations
-          </h1>
+          <h1 className="text-2xl font-bold">Step 4 · Gym locations</h1>
           <p className="text-muted-foreground text-sm text-balance">
             Add each address you operate from. You can always come back to add
             more later.
@@ -235,10 +236,7 @@ export function LocationsStepForm({
                           </SelectTrigger>
                           <SelectContent>
                             {NIGERIA_STATES.map((state) => (
-                              <SelectItem
-                                key={state.value}
-                                value={state.value}
-                              >
+                              <SelectItem key={state.value} value={state.value}>
                                 {state.label}
                               </SelectItem>
                             ))}
@@ -332,17 +330,19 @@ export function LocationsStepForm({
               <FormField
                 control={form.control}
                 name={`locations.${index}.coverImageFile`}
-                render={({ field: { value, onChange, ...field } }) => (
+                render={({ field: { onChange, onBlur, name, ref } }) => (
                   <FormItem>
                     <FormLabel>Cover image (optional)</FormLabel>
                     <FormControl>
                       <Input
+                        ref={ref}
+                        name={name}
+                        onBlur={onBlur}
                         type="file"
                         accept="image/jpeg,image/png,image/gif,image/webp"
-                        {...field}
                         onChange={(e) => {
                           const file = e.target.files?.[0];
-                          onChange(file);
+                          onChange(file ?? undefined);
                         }}
                       />
                     </FormControl>
@@ -365,7 +365,7 @@ export function LocationsStepForm({
                           locations.forEach((_, i) => {
                             form.setValue(
                               `locations.${i}.isHeadquarters`,
-                              i === index ? isChecked : false
+                              i === index ? isChecked : false,
                             );
                           });
                         }}
@@ -374,7 +374,8 @@ export function LocationsStepForm({
                     <div className="space-y-1 leading-none">
                       <FormLabel>Set as headquarters</FormLabel>
                       <p className="text-sm text-muted-foreground">
-                        Only one location can be marked as headquarters at a time.
+                        Only one location can be marked as headquarters at a
+                        time.
                       </p>
                     </div>
                     <FormMessage />

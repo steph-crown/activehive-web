@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { useGymOwnerRegistrationStore } from "./gym-owner-registration.store";
 
 export type AuthUser = {
   id: string;
@@ -35,6 +36,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   isAuthenticated: false,
   setSession: ({ user, token }) => {
     persistToken(token);
+    useGymOwnerRegistrationStore.getState().reset();
 
     set({
       user,
@@ -44,6 +46,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   },
   logout: () => {
     persistToken(null);
+    useGymOwnerRegistrationStore.getState().reset();
     set({
       user: null,
       token: null,

@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+import { getVerifyEmailOtpErrorMessage } from "@/lib/get-api-error-message";
 import {
   useResendVerificationMutation,
   useVerifyEmailMutation,
@@ -63,9 +64,10 @@ export function OtpForm({ className, ...props }: React.ComponentProps<"form">) {
       navigate("/gym-branding");
       form.reset();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Unable to verify OTP.";
-      showError("Error", message);
+      showError(
+        "Verification failed",
+        getVerifyEmailOtpErrorMessage(error),
+      );
     }
   };
 

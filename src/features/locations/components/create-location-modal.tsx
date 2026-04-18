@@ -79,7 +79,7 @@ export function CreateLocationModal({
       address: "",
       city: "",
       state: "",
-      zipCode: "",
+      zipCode: "00000",
       country: "United States",
       phone: "",
       email: "",

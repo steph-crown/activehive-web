@@ -1,6 +1,11 @@
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 export type RegistrationStepStatus = "pending" | "completed" | "skipped";
+
+/** localStorage key for persisted registration draft (sessionId, email, password, step progress). */
+export const GYM_OWNER_REGISTRATION_STORAGE_KEY =
+  "activehive:gym-owner-registration";
 
 const createDefaultStatuses = (): Record<number, RegistrationStepStatus> => ({
   1: "pending",
@@ -25,30 +30,44 @@ type GymOwnerRegistrationStore = {
 };
 
 export const useGymOwnerRegistrationStore =
-  create<GymOwnerRegistrationStore>((set) => ({
-    sessionId: null,
-    email: null,
-    password: null,
-    stepStatuses: createDefaultStatuses(),
-    setSession: ({ sessionId, email, password }) =>
-      set({
-        sessionId,
-        email,
-        password,
-        stepStatuses: { ...createDefaultStatuses(), 1: "completed" },
-      }),
-    setStepStatus: (step, status) =>
-      set((state) => ({
-        stepStatuses: {
-          ...state.stepStatuses,
-          [step]: status,
-        },
-      })),
-    reset: () =>
-      set({
+  create<GymOwnerRegistrationStore>()(
+    persist(
+      (set) => ({
         sessionId: null,
         email: null,
         password: null,
         stepStatuses: createDefaultStatuses(),
+        setSession: ({ sessionId, email, password }) =>
+          set({
+            sessionId,
+            email,
+            password,
+            stepStatuses: { ...createDefaultStatuses(), 1: "completed" },
+          }),
+        setStepStatus: (step, status) =>
+          set((state) => ({
+            stepStatuses: {
+              ...state.stepStatuses,
+              [step]: status,
+            },
+          })),
+        reset: () =>
+          set({
+            sessionId: null,
+            email: null,
+            password: null,
+            stepStatuses: createDefaultStatuses(),
+          }),
       }),
-  }));
+      {
+        name: GYM_OWNER_REGISTRATION_STORAGE_KEY,
+        storage: createJSONStorage(() => localStorage),
+        partialize: (state) => ({
+          sessionId: state.sessionId,
+          email: state.email,
+          password: state.password,
+          stepStatuses: state.stepStatuses,
+        }),
+      },
+    ),
+  );

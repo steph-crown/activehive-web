@@ -1,7 +1,5 @@
 import * as yup from "yup";
-import {
-  NIGERIA_GOVERNMENT_ID_TYPE_VALUES,
-} from "./constants/nigeria-government-id-types";
+import { NIGERIA_GOVERNMENT_ID_TYPE_VALUES } from "./constants/nigeria-government-id-types";
 
 // Step 1: Signup schema
 export const signupSchema = yup.object({
@@ -18,7 +16,7 @@ export const signupSchema = yup.object({
     .min(8, "Password must be at least 8 characters")
     .matches(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+      "Password must contain at least one uppercase letter, one lowercase letter, and one number",
     ),
   confirmPassword: yup
     .string()
@@ -60,7 +58,9 @@ export const brandingSchema = yup.object({
 
 // Step 3: Documents schema
 export const documentsSchema = yup.object({
-  companyRegNo: yup.string().required("Company registration number is required"),
+  companyRegNo: yup
+    .string()
+    .required("Company registration number is required"),
   governmentId: yup
     .mixed<File>()
     .required("Government ID is required")
@@ -124,7 +124,7 @@ export const documentsSchema = yup.object({
             "application/msword",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
           ].includes(value.type);
-        })
+        }),
     )
     .optional(),
 });
@@ -152,6 +152,7 @@ export const locationSchema = yup.object({
         return /^(?:\+234|0)[789]\d{9}$/.test(normalized);
       },
     ),
+  zipCode: yup.string(),
   email: yup
     .string()
     .email("Please enter a valid email address")
@@ -170,9 +171,13 @@ export const locationSchema = yup.object({
       "Cover image must be a valid image",
       (value) =>
         !value ||
-        ["image/png", "image/jpeg", "image/jpg", "image/gif", "image/webp"].includes(
-          value.type,
-        ),
+        [
+          "image/png",
+          "image/jpeg",
+          "image/jpg",
+          "image/gif",
+          "image/webp",
+        ].includes(value.type),
     ),
 });
 

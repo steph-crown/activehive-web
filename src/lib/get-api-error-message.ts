@@ -9,6 +9,9 @@ type ApiErrorBody = {
 const INVALID_CREDENTIALS_USER_MESSAGE =
   "The email or password you entered is incorrect. Please try again.";
 
+const INVALID_VERIFY_EMAIL_OTP_MESSAGE =
+  "That verification code is incorrect or has expired. Check the code and try again, or request a new one.";
+
 function normalizeApiMessage(data: ApiErrorBody | undefined): string {
   const raw = data?.message;
   if (typeof raw === "string") return raw.trim();
@@ -54,4 +57,27 @@ export function getApiErrorMessage(
     return error.message;
   }
   return fallback;
+}
+
+/**
+ * Maps `/api/gym-owner-registration/verify-email` failures to readable copy.
+ * 400 without a useful API message is treated as invalid or expired OTP.
+ */
+export function getVerifyEmailOtpErrorMessage(error: unknown): string {
+  if (!isAxiosError(error)) {
+    return getApiErrorMessage(error, "Unable to verify OTP.");
+  }
+
+  const data = error.response?.data as ApiErrorBody | undefined;
+  const status = error.response?.status ?? data?.statusCode;
+  const normalized = normalizeApiMessage(data);
+
+  if (status === 400) {
+    if (normalized && !/^bad request$/i.test(normalized)) {
+      return normalized;
+    }
+    return INVALID_VERIFY_EMAIL_OTP_MESSAGE;
+  }
+
+  return getApiErrorMessage(error, "Unable to verify OTP.");
 }

@@ -1,3 +1,5 @@
+import type { ComponentProps } from "react";
+import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -13,6 +15,8 @@ import {
 } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
+import { useForgotPasswordMutation } from "../../services";
 
 const forgotPasswordSchema = yup.object({
   email: yup
@@ -26,8 +30,9 @@ type ForgotPasswordFormValues = yup.InferType<typeof forgotPasswordSchema>;
 export function ForgotPasswordForm({
   className,
   ...props
-}: React.ComponentProps<"form">) {
-  const { showSuccess } = useToast();
+}: ComponentProps<"form">) {
+  const { showSuccess, showError } = useToast();
+  const { mutateAsync: requestReset, isPending } = useForgotPasswordMutation();
 
   const form = useForm<ForgotPasswordFormValues>({
     resolver: yupResolver(forgotPasswordSchema),
@@ -36,13 +41,23 @@ export function ForgotPasswordForm({
     },
   });
 
-  const onSubmit = (data: ForgotPasswordFormValues) => {
-    void data
-    showSuccess(
-      "Success",
-      "If an account exists, we'll email instructions."
-    );
-    form.reset();
+  const onSubmit = async (data: ForgotPasswordFormValues) => {
+    try {
+      await requestReset({ email: data.email.trim() });
+      showSuccess(
+        "Check your email",
+        "If an account exists for that address, we sent a link to reset your password.",
+      );
+      form.reset();
+    } catch (error) {
+      showError(
+        "Request failed",
+        getApiErrorMessage(
+          error,
+          "Could not send reset email. Please try again.",
+        ),
+      );
+    }
   };
 
   return (
@@ -55,7 +70,8 @@ export function ForgotPasswordForm({
         <div className="flex flex-col items-center gap-2 text-center">
           <h1 className="text-2xl font-bold">Request password reset</h1>
           <p className="text-muted-foreground text-sm text-balance">
-            Enter your email and we'll send you password reset instructions
+            Enter your email and we&apos;ll send you a link to choose a new
+            password
           </p>
         </div>
 
@@ -77,10 +93,20 @@ export function ForgotPasswordForm({
           <Button
             type="submit"
             className="w-full hover:scale-105"
-            size={"lg"}
+            size="lg"
+            loading={isPending}
           >
-            Request reset
+            Send reset link
           </Button>
+        </div>
+
+        <div className="text-center text-sm">
+          <Link
+            to="/login"
+            className="text-muted-foreground underline underline-offset-4 hover:text-foreground"
+          >
+            Back to login
+          </Link>
         </div>
       </form>
     </Form>

@@ -12,6 +12,7 @@ const Login = lazy(() => import("@/app/(auth)/login/page"));
 const SignUp = lazy(() => import("@/app/(auth)/signup/page"));
 const Otp = lazy(() => import("@/app/(auth)/otp/page"));
 const ForgotPassword = lazy(() => import("@/app/(auth)/forgot-password/page"));
+const ResetPassword = lazy(() => import("@/app/(auth)/reset-password/page"));
 const Branding = lazy(() => import("@/app/(auth)/gym-branding/page"));
 const Documents = lazy(() => import("@/app/(auth)/compliance-documents/page"));
 const GymLocations = lazy(() => import("@/app/(auth)/gym-locations/page"));
@@ -89,6 +90,7 @@ function App() {
           <Route path="/pending-approval" element={<PendingApproval />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/gym-branding" element={<Branding />} />
           <Route path="/compliance-documents" element={<Documents />} />
           <Route path="/gym-locations" element={<GymLocations />} />

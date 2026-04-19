@@ -73,9 +73,7 @@ export function NavMainGrouped() {
   const isStaffRolesActive = pathname === "/dashboard/staff/roles";
 
   const isAllLocationsActive = pathname === "/dashboard/locations";
-  const isAddLocationActive =
-    pathname === "/dashboard/lcations/new" ||
-    pathname === "/dashboard/locations/new";
+  const isAddLocationActive = pathname === "/dashboard/locations/new";
   const isMembersListActive = pathname === "/dashboard/members";
   const isAddMemberActive = pathname === "/dashboard/members/new";
   const isMemberDetailOrEditActive =
@@ -234,7 +232,7 @@ export function NavMainGrouped() {
         },
         {
           title: "Add Location",
-          href: "/dashboard/lcations/new",
+          href: "/dashboard/locations/new",
           isActive: isAddLocationActive,
         },
       ],

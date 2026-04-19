@@ -16,6 +16,10 @@ type MultiUploadResponse = {
   images: UploadedImage[];
 };
 
+type VideoUploadResponse = {
+  url: string;
+};
+
 type UseUploadResult = {
   url: string | null;
   urls: string[];
@@ -23,6 +27,7 @@ type UseUploadResult = {
   error: string | null;
   upload: (file: File, folder?: string) => Promise<string>;
   uploadMany: (files: File[], folder?: string) => Promise<string[]>;
+  uploadVideo: (file: File, folder?: string) => Promise<string>;
   reset: () => void;
 };
 
@@ -106,6 +111,39 @@ export function useUpload(): UseUploadResult {
     }
   };
 
+  const uploadVideo = async (file: File, folder?: string): Promise<string> => {
+    setIsUploading(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("video", file);
+      if (folder) {
+        formData.append("folder", folder);
+      }
+
+      const response = await apiClient.post<VideoUploadResponse>(
+        "/api/upload/video",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+
+      setUrl(response.url);
+      return response.url;
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to upload video.";
+      setError(message);
+      throw err;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const reset = () => {
     setUrl(null);
     setUrls([]);
@@ -119,6 +157,7 @@ export function useUpload(): UseUploadResult {
     error,
     upload,
     uploadMany,
+    uploadVideo,
     reset,
   };
 }

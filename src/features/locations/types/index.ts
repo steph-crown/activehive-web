@@ -110,17 +110,35 @@ export type PaymentAccount = {
   accountType: "checking" | "savings";
 };
 
-export type CreateLocationPayload = {
-  locationName: string;
-  address: string;
+/** Matches `GymLocation.address` / backend create DTO (nested address, not flat fields). */
+export type LocationAddressPayload = {
+  street: string;
   city: string;
   state: string;
   zipCode: string;
   country: string;
+};
+
+/** URLs returned from `useUpload` — sent as JSON on create location (no raw files). */
+export type CreateLocationMediaPayload = {
+  coverImageUrl?: string;
+  galleryImageUrls?: string[];
+  galleryVideoUrls?: string[];
+};
+
+/**
+ * Single JSON body for `POST /api/gym-owner/locations` (axios serializes the object; do not stringify).
+ */
+export type CreateLocationPayload = {
+  locationName: string;
+  address: LocationAddressPayload;
   phone: string;
   email: string;
   isHeadquarters: boolean;
   paymentAccount: PaymentAccount;
+  facilities: string[];
+  /** Present when the user added cover / gallery / video; values are CDN URLs from `/api/upload/*`. */
+  media?: CreateLocationMediaPayload;
 };
 
 export type Facility = {

@@ -27,8 +27,8 @@ export const locationsApi = {
     apiClient.get<GymLocation[]>(locationsPath),
   getLocationById: (id: string): Promise<LocationDetailsResponse> =>
     apiClient.get<LocationDetailsResponse>(`${locationsPath}/${id}`),
-  createLocation: (payload: CreateLocationPayload): Promise<GymLocation> =>
-    apiClient.post<GymLocation>(locationsPath, payload),
+  createLocation: (body: CreateLocationPayload): Promise<GymLocation> =>
+    apiClient.post<GymLocation>(locationsPath, body),
   getFacilities: (locationId: string): Promise<Facility[]> =>
     apiClient.get<Facility[]>(`${locationsPath}/${locationId}/facilities`),
   createFacility: (
@@ -89,6 +89,22 @@ export const locationsApi = {
     formData.append("image", image);
     return apiClient.post<{ imageUrl: string }>(
       `${locationsPath}/${locationId}/cover-image`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+  },
+  uploadLocationVideo: (
+    locationId: string,
+    video: File,
+  ): Promise<{ imageUrl?: string; videoUrl?: string; url?: string }> => {
+    const formData = new FormData();
+    formData.append("video", video);
+    return apiClient.post<{ imageUrl?: string; videoUrl?: string; url?: string }>(
+      `${locationsPath}/${locationId}/videos`,
       formData,
       {
         headers: {

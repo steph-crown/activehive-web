@@ -14,7 +14,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === "/dashboard/trainers") return "All Trainers";
   if (pathname === "/dashboard/trainers/assignments") return "Trainer Assignments";
   if (pathname === "/dashboard/locations") return "Locations";
-  if (pathname === "/dashboard/locations/new" || pathname === "/dashboard/lcations/new") return "Add Location";
+  if (pathname === "/dashboard/locations/new") return "Add Location";
   if (pathname === "/dashboard/gym-profile") return "Gym Profile";
   if (pathname === "/dashboard/staff") return "Staff";
   if (pathname === "/dashboard/subscriptions") return "Subscriptions";

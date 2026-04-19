@@ -12,7 +12,12 @@ import { locationsQueryKeys, useCreateLocationMutation } from "../../services";
 import type { CreateLocationPayload } from "../../types";
 
 import { BasicInformationStep } from "./basic-information-step";
-import { DEFAULT_FACILITIES, LOCATION_MEDIA_UPLOAD_FOLDER, STEPS } from "./constants";
+import {
+  DEFAULT_FACILITIES,
+  isAllowedGalleryImageFile,
+  LOCATION_MEDIA_UPLOAD_FOLDER,
+  STEPS,
+} from "./constants";
 import { FacilitiesStep } from "./facilities-step";
 import { GalleryStep } from "./gallery-step";
 import { PaymentStep } from "./payment-step";
@@ -23,7 +28,7 @@ export function AddLocationPage() {
   const queryClient = useQueryClient();
   const { showError, showSuccess } = useToast();
   const { mutateAsync: createLocation } = useCreateLocationMutation();
-  const { upload, uploadMany, uploadVideo, isUploading } = useUpload();
+  const { upload, uploadMany, isUploading } = useUpload();
   const [isSaving, setIsSaving] = useState(false);
 
   const [step, setStep] = useState(0);
@@ -115,13 +120,11 @@ export function AddLocationPage() {
     async (files: File[]) => {
       if (!files.length) return;
 
-      const queue: { file: File; kind: "image" | "video" }[] = [];
+      const queue: File[] = [];
       let skipped = 0;
       for (const file of files) {
-        if (file.type.startsWith("image/")) {
-          queue.push({ file, kind: "image" });
-        } else if (file.type.startsWith("video/")) {
-          queue.push({ file, kind: "video" });
+        if (isAllowedGalleryImageFile(file)) {
+          queue.push(file);
         } else {
           skipped += 1;
         }
@@ -130,62 +133,37 @@ export function AddLocationPage() {
       if (skipped > 0) {
         showError(
           "Some files skipped",
-          "Only image and video files can be added to the gallery.",
+          "Only JPG, PNG, GIF, or WebP images can be added to the gallery.",
         );
       }
       if (!queue.length) {
         if (skipped === files.length) {
-          showError("Invalid files", "Please add image or video files.");
+          showError(
+            "Invalid files",
+            "Please add JPG, PNG, GIF, or WebP images.",
+          );
         }
         return;
       }
 
       setIsGalleryUploading(true);
       try {
-        const newItems: GalleryItem[] = [];
-        let i = 0;
-        while (i < queue.length) {
-          if (queue[i].kind === "image") {
-            const batch: File[] = [];
-            while (i < queue.length && queue[i].kind === "image") {
-              batch.push(queue[i].file);
-              i += 1;
-            }
-            const urls = await uploadMany(
-              batch,
-              LOCATION_MEDIA_UPLOAD_FOLDER,
-            );
-            for (const url of urls) {
-              newItems.push({
-                id: crypto.randomUUID(),
-                url,
-                kind: "image",
-              });
-            }
-          } else {
-            const url = await uploadVideo(
-              queue[i].file,
-              LOCATION_MEDIA_UPLOAD_FOLDER,
-            );
-            newItems.push({
-              id: crypto.randomUUID(),
-              url,
-              kind: "video",
-            });
-            i += 1;
-          }
-        }
+        const urls = await uploadMany(queue, LOCATION_MEDIA_UPLOAD_FOLDER);
+        const newItems: GalleryItem[] = urls.map((url) => ({
+          id: crypto.randomUUID(),
+          url,
+        }));
         setGalleryItems((prev) => [...prev, ...newItems]);
       } catch (error) {
         showError(
           "Upload failed",
-          getApiErrorMessage(error, "Failed to upload media."),
+          getApiErrorMessage(error, "Failed to upload images."),
         );
       } finally {
         setIsGalleryUploading(false);
       }
     },
-    [showError, uploadMany, uploadVideo],
+    [showError, uploadMany],
   );
 
   const removeGalleryItem = useCallback((id: string) => {
@@ -203,18 +181,10 @@ export function AddLocationPage() {
         );
       }
 
-      const galleryImageUrls = galleryItems
-        .filter((item) => item.kind === "image")
-        .map((item) => item.url);
-
-      const galleryVideoUrls = galleryItems
-        .filter((item) => item.kind === "video")
-        .map((item) => item.url);
+      const galleryImageUrls = galleryItems.map((item) => item.url);
 
       const hasMedia =
-        coverImageUrl ||
-        galleryImageUrls.length > 0 ||
-        galleryVideoUrls.length > 0;
+        coverImageUrl || galleryImageUrls.length > 0;
 
       const payload: CreateLocationPayload = {
         locationName: form.locationName.trim(),
@@ -240,7 +210,6 @@ export function AddLocationPage() {
           media: {
             ...(coverImageUrl !== undefined && { coverImageUrl }),
             ...(galleryImageUrls.length > 0 && { galleryImageUrls }),
-            ...(galleryVideoUrls.length > 0 && { galleryVideoUrls }),
           },
         }),
       };

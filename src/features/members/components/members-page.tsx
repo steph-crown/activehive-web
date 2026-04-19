@@ -250,6 +250,7 @@ export function MembersPage() {
             locationDisabled={locationsLoading}
             dateValue={dateFilter}
             onDateChange={setDateFilter}
+            showExportButton={false}
           />
 
           <DataTable

@@ -1,15 +1,12 @@
 import type { RefObject } from "react";
 
-import {
-  IconCloudUpload,
-  IconPlayerPlay,
-  IconTrash,
-} from "@tabler/icons-react";
+import { IconCloudUpload, IconTrash } from "@tabler/icons-react";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
+import { GALLERY_IMAGE_ACCEPT } from "./constants";
 import type { GalleryItem } from "./types";
 
 type GalleryStepProps = {
@@ -35,14 +32,14 @@ export function GalleryStep({
     <div className="grid gap-4 rounded-md border border-[#F4F4F4] bg-white p-6">
       <h2 className="text-lg font-semibold">Gallery</h2>
       <p className="text-muted-foreground text-sm">
-        Add photos and videos for this location. Files upload right away; you can
-        remove any item before you finish.
+        Add photos for this location. Files upload right away; you can remove any
+        image before you finish.
       </p>
 
       <input
         ref={galleryInputRef}
         type="file"
-        accept="image/*,video/*"
+        accept={GALLERY_IMAGE_ACCEPT}
         multiple
         className="sr-only"
         onChange={(event) => {
@@ -112,7 +109,7 @@ export function GalleryStep({
               <span className="text-muted-foreground">or drag and drop</span>
             </p>
             <p className="text-muted-foreground text-xs">
-              Images and videos — multiple files supported
+              JPG, PNG, GIF, or WebP — multiple files supported
             </p>
           </div>
         </div>
@@ -126,34 +123,18 @@ export function GalleryStep({
 
       {galleryItems.length > 0 && (
         <div className="grid gap-3">
-          <Label className="text-foreground">Uploaded media</Label>
+          <Label className="text-foreground">Uploaded images</Label>
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
             {galleryItems.map((item) => (
               <li
                 key={item.id}
                 className="border-border group relative aspect-square overflow-hidden rounded-lg border bg-muted"
               >
-                {item.kind === "image" ? (
-                  <img
-                    src={item.url}
-                    alt=""
-                    className="size-full object-cover"
-                  />
-                ) : (
-                  <>
-                    <video
-                      src={item.url}
-                      className="size-full object-cover"
-                      muted
-                      playsInline
-                      preload="metadata"
-                    />
-                    <div className="pointer-events-none absolute bottom-1.5 left-1.5 flex items-center gap-1 rounded bg-black/55 px-1.5 py-0.5 text-[10px] font-medium text-white">
-                      <IconPlayerPlay className="size-3 shrink-0" aria-hidden />
-                      Video
-                    </div>
-                  </>
-                )}
+                <img
+                  src={item.url}
+                  alt=""
+                  className="size-full object-cover"
+                />
                 <Button
                   type="button"
                   variant="secondary"

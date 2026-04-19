@@ -1,5 +1,6 @@
 import axios, {
   type AxiosError,
+  type AxiosRequestConfig,
   type AxiosResponse,
   type InternalAxiosRequestConfig,
 } from "axios";
@@ -40,6 +41,9 @@ const handleApiErrorResponse = (error: AxiosError) => {
 export const apiClient = {
   get: <T>(url: string, config = {}): Promise<T> =>
     axiosInstance.get(url, config),
+  /** CSV / binary downloads; response body is returned as a `Blob` (auth headers apply). */
+  getBlob: (url: string, config: AxiosRequestConfig = {}): Promise<Blob> =>
+    axiosInstance.get(url, { ...config, responseType: "blob" }) as Promise<Blob>,
   post: <T>(url: string, data = {}, config = {}): Promise<T> =>
     axiosInstance.post(url, data, config),
   put: <T>(url: string, data = {}, config = {}): Promise<T> =>

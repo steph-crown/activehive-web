@@ -20,6 +20,8 @@ const revenueTrendChartPath =
 const weeklyAttendanceChartPath =
   "/api/gym-owner/analytics/weekly-attendance";
 const memberMixChartPath = "/api/gym-owner/analytics/member-mix";
+const exportAnalyticsCsvPath =
+  "/api/gym-owner/analytics/export/analytics";
 
 export type GymOwnerAnalyticsDashboardParams = {
   /** Only when a branch is selected in the header location filter (omit for "Global"). */
@@ -72,6 +74,14 @@ export const dashboardApi = {
     params: GymOwnerAnalyticsDashboardParams = {},
   ): Promise<MemberMixChartResponse> =>
     apiClient.get<MemberMixChartResponse>(memberMixChartPath, {
+      params: analyticsQueryParams(params),
+    }),
+
+  /** GET CSV — dashboard analytics summary. */
+  exportAnalyticsCsv: (
+    params: GymOwnerAnalyticsDashboardParams = {},
+  ): Promise<Blob> =>
+    apiClient.getBlob(exportAnalyticsCsvPath, {
       params: analyticsQueryParams(params),
     }),
 

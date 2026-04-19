@@ -10,6 +10,7 @@ import { MembersChart } from "./members-chart";
 import { WeeklyAttendanceChart } from "./weekly-attendance-chart";
 import { MembershipMixChart } from "./membership-mix-chart";
 import {
+  dashboardApi,
   useGymOwnerAnalyticsDashboardQuery,
 } from "@/features/dashboard/services";
 import { useMembersQuery } from "@/features/members/services";
@@ -17,6 +18,9 @@ import { useLocationStore } from "@/store";
 import { type ColumnDef } from "@tanstack/react-table";
 import type { MemberSubscription } from "@/features/members/types";
 import { useMemo, useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
+import { downloadBlobFile } from "@/lib/download-blob-file";
 import { MembersTableSkeleton, SectionCardsSkeleton } from "./dashboard-skeleton";
 import { formatDisplayDate } from "@/lib/display-datetime";
 
@@ -92,9 +96,11 @@ const membersColumns: ColumnDef<MemberSubscription>[] = [
 
 export function DashboardPage() {
   const { selectedLocationId } = useLocationStore();
+  const { showError } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [rangeStart, setRangeStart] = useState("");
   const [rangeEnd, setRangeEnd] = useState("");
+  const [isExportingAnalytics, setIsExportingAnalytics] = useState(false);
 
   const analyticsParams = useMemo(
     () => ({
@@ -112,6 +118,21 @@ export function DashboardPage() {
   );
   const tableMembers = membersList ?? [];
 
+  const handleExportAnalytics = async () => {
+    setIsExportingAnalytics(true);
+    try {
+      const blob = await dashboardApi.exportAnalyticsCsv(analyticsParams);
+      downloadBlobFile(blob, "analytics-export.csv");
+    } catch (error) {
+      showError(
+        "Export failed",
+        getApiErrorMessage(error, "Could not download analytics export."),
+      );
+    } finally {
+      setIsExportingAnalytics(false);
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
@@ -127,6 +148,8 @@ export function DashboardPage() {
                   setRangeStart("");
                   setRangeEnd("");
                 }}
+                onExportClick={() => void handleExportAnalytics()}
+                exportLoading={isExportingAnalytics}
               />
             }
           />

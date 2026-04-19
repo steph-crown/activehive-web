@@ -1,7 +1,6 @@
 export type GalleryItem = {
   id: string;
   url: string;
-  kind: "image" | "video";
 };
 
 export type FormState = {

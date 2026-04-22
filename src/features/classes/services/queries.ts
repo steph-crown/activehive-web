@@ -104,6 +104,8 @@ function normalizeAttendanceRow(
       : dateRaw instanceof Date
         ? dateRaw.toISOString()
         : "—";
+  const time =
+    typeof r.time === "string" && r.time.trim() ? r.time.trim() : undefined;
   const status = String(
     r.status ?? r.bookingStatus ?? r.attendanceStatus ?? "—",
   );
@@ -118,7 +120,7 @@ function normalizeAttendanceRow(
   else if (typeof r.checkedIn === "boolean")
     checkedIn = r.checkedIn ? "Yes" : "No";
 
-  return { id, className, member, date, status, location, checkedIn };
+  return { id, className, member, date, time, status, location, checkedIn };
 }
 
 function normalizeClassAttendanceListResponse(

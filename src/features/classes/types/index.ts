@@ -201,6 +201,8 @@ export type ClassAttendanceTableRow = {
   className: string;
   member: string;
   date: string;
+  /** Clock string from API, e.g. `"05:50:00"` — displayed beside the date. */
+  time?: string;
   status: string;
   location: string;
   checkedIn?: string;

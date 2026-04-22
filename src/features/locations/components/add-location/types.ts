@@ -3,6 +3,11 @@ export type GalleryItem = {
   url: string;
 };
 
+export type FacilityItem = {
+  name: string;
+  description: string;
+};
+
 export type FormState = {
   locationName: string;
   address: string;
@@ -17,9 +22,8 @@ export type FormState = {
   paymentAccount: {
     accountName: string;
     accountNumber: string;
-    routingNumber: string;
     bankName: string;
-    accountType: "checking" | "savings";
+    bankCode: string;
   };
 };
 
@@ -29,7 +33,7 @@ export const initialForm: FormState = {
   city: "",
   state: "",
   zipCode: "",
-  country: "United States",
+  country: "Nigeria",
   phone: "",
   email: "",
   isHeadquarters: false,
@@ -37,8 +41,7 @@ export const initialForm: FormState = {
   paymentAccount: {
     accountName: "",
     accountNumber: "",
-    routingNumber: "",
     bankName: "",
-    accountType: "checking",
+    bankCode: "",
   },
 };

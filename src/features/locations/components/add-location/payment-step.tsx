@@ -1,12 +1,5 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 import type { FormState } from "./types";
 
@@ -33,7 +26,7 @@ export function PaymentStep({
           onChange={(event) =>
             setPaymentField("accountName", event.target.value)
           }
-          placeholder="My Gym Account"
+          placeholder="Gym Location Account"
         />
       </div>
 
@@ -49,43 +42,24 @@ export function PaymentStep({
           />
         </div>
         <div className="grid gap-2">
-          <Label>Routing Number *</Label>
+          <Label>Bank Code *</Label>
           <Input
-            value={paymentAccount.routingNumber}
+            value={paymentAccount.bankCode}
             onChange={(event) =>
-              setPaymentField("routingNumber", event.target.value)
+              setPaymentField("bankCode", event.target.value)
             }
-            placeholder="123456789"
+            placeholder="011"
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div className="grid gap-2">
-          <Label>Bank Name *</Label>
-          <Input
-            value={paymentAccount.bankName}
-            onChange={(event) => setPaymentField("bankName", event.target.value)}
-            placeholder="Chase Bank"
-          />
-        </div>
-        <div className="grid gap-2">
-          <Label>Account Type *</Label>
-          <Select
-            value={paymentAccount.accountType}
-            onValueChange={(value) =>
-              setPaymentField("accountType", value as "checking" | "savings")
-            }
-          >
-            <SelectTrigger className="h-10 w-full">
-              <SelectValue placeholder="Select account type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="checking">Checking</SelectItem>
-              <SelectItem value="savings">Savings</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="grid gap-2">
+        <Label>Bank Name *</Label>
+        <Input
+          value={paymentAccount.bankName}
+          onChange={(event) => setPaymentField("bankName", event.target.value)}
+          placeholder="First Bank"
+        />
       </div>
     </div>
   );

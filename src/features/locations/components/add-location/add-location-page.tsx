@@ -21,7 +21,7 @@ import {
 import { FacilitiesStep } from "./facilities-step";
 import { GalleryStep } from "./gallery-step";
 import { PaymentStep } from "./payment-step";
-import { initialForm, type FormState, type GalleryItem } from "./types";
+import { initialForm, type FacilityItem, type FormState, type GalleryItem } from "./types";
 
 export function AddLocationPage() {
   const navigate = useNavigate();
@@ -33,9 +33,8 @@ export function AddLocationPage() {
 
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormState>(initialForm);
-  const [selectedFacilities, setSelectedFacilities] = useState<string[]>([]);
-  const [customFacility, setCustomFacility] = useState("");
-  const [customFacilities, setCustomFacilities] = useState<string[]>([]);
+  const [selectedFacilities, setSelectedFacilities] = useState<FacilityItem[]>([]);
+  const [customFacilities, setCustomFacilities] = useState<FacilityItem[]>([]);
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [isGalleryDragging, setIsGalleryDragging] = useState(false);
   const [isGalleryUploading, setIsGalleryUploading] = useState(false);
@@ -93,27 +92,36 @@ export function AddLocationPage() {
           showError("Missing field", "Account number is required."),
           false
         );
-      if (!form.paymentAccount.routingNumber.trim())
-        return (
-          showError("Missing field", "Routing number is required."),
-          false
-        );
+      if (!form.paymentAccount.bankCode.trim())
+        return (showError("Missing field", "Bank code is required."), false);
       if (!form.paymentAccount.bankName.trim())
         return (showError("Missing field", "Bank name is required."), false);
     }
     return true;
   };
 
-  const handleAddCustomFacility = () => {
-    const value = customFacility.trim();
-    if (!value) return;
-    if (!allFacilities.includes(value)) {
-      setCustomFacilities((prev) => [...prev, value]);
+  const handleAddCustomFacility = (facility: FacilityItem) => {
+    const name = facility.name.trim();
+    if (!name) return;
+    if (!customFacilities.some((f) => f.name === name)) {
+      setCustomFacilities((prev) => [...prev, facility]);
     }
-    if (!selectedFacilities.includes(value)) {
-      setSelectedFacilities((prev) => [...prev, value]);
+    if (!selectedFacilities.some((f) => f.name === name)) {
+      setSelectedFacilities((prev) => [...prev, facility]);
     }
-    setCustomFacility("");
+  };
+
+  const handleRemoveCustomFacility = (name: string) => {
+    setCustomFacilities((prev) => prev.filter((f) => f.name !== name));
+    setSelectedFacilities((prev) => prev.filter((f) => f.name !== name));
+  };
+
+  const handleToggleFacility = (facility: FacilityItem) => {
+    setSelectedFacilities((prev) =>
+      prev.some((f) => f.name === facility.name)
+        ? prev.filter((f) => f.name !== facility.name)
+        : [...prev, facility],
+    );
   };
 
   const handleAddGalleryFiles = useCallback(
@@ -183,35 +191,24 @@ export function AddLocationPage() {
 
       const galleryImageUrls = galleryItems.map((item) => item.url);
 
-      const hasMedia =
-        coverImageUrl || galleryImageUrls.length > 0;
-
       const payload: CreateLocationPayload = {
         locationName: form.locationName.trim(),
-        address: {
-          street: form.address.trim(),
-          city: form.city.trim(),
-          state: form.state.trim(),
-          zipCode: form.zipCode.trim(),
-          country: form.country.trim(),
-        },
+        address: form.address.trim(),
+        city: form.city.trim(),
+        state: form.state.trim(),
+        zipCode: form.zipCode.trim(),
+        country: form.country.trim(),
         phone: form.phone.trim(),
         email: form.email.trim(),
         isHeadquarters: form.isHeadquarters,
         paymentAccount: {
           accountName: form.paymentAccount.accountName.trim(),
           accountNumber: form.paymentAccount.accountNumber.trim(),
-          routingNumber: form.paymentAccount.routingNumber.trim(),
           bankName: form.paymentAccount.bankName.trim(),
-          accountType: form.paymentAccount.accountType,
+          bankCode: form.paymentAccount.bankCode.trim(),
         },
-        facilities: [...selectedFacilities],
-        ...(hasMedia && {
-          media: {
-            ...(coverImageUrl !== undefined && { coverImageUrl }),
-            ...(galleryImageUrls.length > 0 && { galleryImageUrls }),
-          },
-        }),
+        facilities: selectedFacilities,
+        ...(galleryImageUrls.length > 0 && { galleryImages: galleryImageUrls }),
       };
 
       await createLocation(payload);
@@ -263,16 +260,10 @@ export function AddLocationPage() {
               <FacilitiesStep
                 allFacilities={allFacilities}
                 selectedFacilities={selectedFacilities}
-                onToggleFacility={(facility) =>
-                  setSelectedFacilities((prev) =>
-                    prev.includes(facility)
-                      ? prev.filter((item) => item !== facility)
-                      : [...prev, facility],
-                  )
-                }
-                customFacility={customFacility}
-                onCustomFacilityChange={setCustomFacility}
+                onToggleFacility={handleToggleFacility}
                 onAddCustomFacility={handleAddCustomFacility}
+                onRemoveCustomFacility={handleRemoveCustomFacility}
+                customFacilities={customFacilities}
               />
             )}
 

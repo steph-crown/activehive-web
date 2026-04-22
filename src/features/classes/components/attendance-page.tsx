@@ -26,6 +26,7 @@ import { DashboardLayout } from "@/features/dashboard/components/dashboard-layou
 import { useLocationsQuery } from "@/features/locations/services";
 import { useMembersQuery } from "@/features/members/services";
 import {
+  formatClockString12h,
   formatDisplayDate,
   formatDisplayDateTime,
 } from "@/lib/display-datetime";
@@ -412,11 +413,20 @@ export function AttendancePage({
       {
         accessorKey: "date",
         header: "Date",
-        cell: ({ row }) => (
-          <div className="text-sm">
-            {formatAttendanceCellDate(row.original.date)}
-          </div>
-        ),
+        cell: ({ row }) => {
+          const dateStr = formatAttendanceCellDate(row.original.date);
+          const timeStr = row.original.time
+            ? formatClockString12h(row.original.time)
+            : null;
+          return (
+            <div className="text-sm">
+              <span>{dateStr}</span>
+              {timeStr && (
+                <span className="text-muted-foreground ml-1.5">[{timeStr}]</span>
+              )}
+            </div>
+          );
+        },
       },
       {
         accessorKey: "status",

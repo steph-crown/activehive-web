@@ -193,4 +193,8 @@
   [data-slot="card-title"] {
     font-family: var(--heading-font);
   }
+
+  code {
+    font-family: var(--main-font) !important;
+  }
 }

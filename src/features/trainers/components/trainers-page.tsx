@@ -266,7 +266,7 @@ export function TrainersPage() {
                   <button
                     key={trainer.id}
                     type="button"
-                    className="cursor-pointer rounded-md border border-[#F4F4F4] bg-white p-5 text-left shadow-none transition hover:shadow-sm"
+                    className="cursor-pointer rounded-md border border-[#F4F4F4] bg-white p-5 text-left shadow-none transition hover:border-primary hover:shadow-sm"
                     onClick={() => {
                       setSelectedTrainer(trainer);
                       setIsViewOpen(true);

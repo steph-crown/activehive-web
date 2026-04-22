@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
+import { IconChevronLeft } from "@tabler/icons-react";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -95,8 +96,17 @@ export function MemberDetailsPage() {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-        <div className="flex items-center justify-between gap-4 px-4 lg:px-6">
-          <div>
+        <div className="flex items-start justify-between gap-4 px-4 lg:px-6">
+          <div className="flex flex-col gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="-ml-2 w-fit text-muted-foreground"
+              onClick={() => navigate("/dashboard/members")}
+            >
+              <IconChevronLeft className="h-4 w-4" />
+              Members
+            </Button>
             <h1 className="text-3xl font-medium">{pageTitle}</h1>
             <p className="text-muted-foreground mt-1 text-sm">
               {isLoading

@@ -20,12 +20,19 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { useLocationsQuery } from "@/features/locations/services";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { IconDotsVertical } from "@tabler/icons-react";
 import { type ColumnDef } from "@tanstack/react-table";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { useClassesQuery, useDeleteClassMutation } from "../services";
 import type { Class } from "../types";
+import { formatScheduleSessionLabel } from "../utils/format-schedule-display";
 import {
   AssignTrainerModal,
   classHasAssignedTrainer,
@@ -87,6 +94,31 @@ const createClassesColumns = (
             ? `${trainer.firstName} ${trainer.lastName}`
             : "Not assigned"}
         </div>
+      );
+    },
+  },
+  {
+    id: "schedules",
+    header: "Schedules",
+    cell: ({ row }) => {
+      const active = row.original.schedules.filter((s) => s.isActive);
+      if (active.length === 0) {
+        return <span className="text-muted-foreground text-sm">—</span>;
+      }
+      const text = active.map((s) => formatScheduleSessionLabel(s)).join(", ");
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <code className="bg-muted max-w-[13rem] cursor-default truncate rounded px-1.5 py-0.5 font-mono text-xs block">
+                {text}
+              </code>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs whitespace-normal">
+              {text}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       );
     },
   },

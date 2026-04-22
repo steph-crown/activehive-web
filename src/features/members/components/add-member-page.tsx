@@ -21,7 +21,9 @@ import {
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useLocationsQuery } from "@/features/locations/services";
 import { useMembershipPlansQuery } from "@/features/membership-plans/services";
+import { useTrainersQuery } from "@/features/trainers/services";
 import { useToast } from "@/hooks/use-toast";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { formatNgn } from "@/lib/format-ngn";
 import { useCreateMemberMutation, useMembersQuery } from "../services";
 
@@ -141,6 +143,9 @@ export function AddMemberPage({
   const { data: members } = useMembersQuery();
   const { data: membershipPlans, isLoading: plansLoading } =
     useMembershipPlansQuery(form.locationId || undefined);
+  const { data: trainers = [], isLoading: trainersLoading } = useTrainersQuery(
+    form.locationId ? { locationId: form.locationId } : {},
+  );
   const { mutateAsync: createMember, isPending } = useCreateMemberMutation();
 
   const selectedMember = useMemo(
@@ -157,6 +162,11 @@ export function AddMemberPage({
     () => membershipPlans?.find((plan) => plan.id === form.membershipPlanId),
     [membershipPlans, form.membershipPlanId],
   );
+
+  const trainerDisplayName = (t: (typeof trainers)[number]) => {
+    const name = `${t.firstName} ${t.lastName}`.trim();
+    return name || t.email;
+  };
 
   useEffect(() => {
     if (!selectedPlan || !form.startDate) {
@@ -285,9 +295,7 @@ export function AddMemberPage({
       showSuccess("Success", "Member created successfully.");
       navigate("/dashboard/members");
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to create member.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Failed to create member."));
     }
   };
 
@@ -507,14 +515,18 @@ export function AddMemberPage({
                   <Select
                     value={form.trainer || undefined}
                     onValueChange={(value) => setField("trainer", value)}
+                    disabled={trainersLoading}
                   >
                     <SelectTrigger className="h-10 w-full shadow-xs">
                       <SelectValue placeholder="Select trainer" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">No Trainer</SelectItem>
-                      <SelectItem value="trainer-a">Trainer A</SelectItem>
-                      <SelectItem value="trainer-b">Trainer B</SelectItem>
+                      {trainers.map((trainer) => (
+                        <SelectItem key={trainer.id} value={trainer.id}>
+                          {trainerDisplayName(trainer)}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>

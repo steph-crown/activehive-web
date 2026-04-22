@@ -28,7 +28,7 @@ export function AddLocationPage() {
   const queryClient = useQueryClient();
   const { showError, showSuccess } = useToast();
   const { mutateAsync: createLocation } = useCreateLocationMutation();
-  const { upload, uploadMany, isUploading } = useUpload();
+  const { uploadMany, isUploading } = useUpload();
   const [isSaving, setIsSaving] = useState(false);
 
   const [step, setStep] = useState(0);
@@ -181,14 +181,6 @@ export function AddLocationPage() {
   const handleCreateLocation = async () => {
     setIsSaving(true);
     try {
-      let coverImageUrl: string | undefined;
-      if (form.coverImage) {
-        coverImageUrl = await upload(
-          form.coverImage,
-          LOCATION_MEDIA_UPLOAD_FOLDER,
-        );
-      }
-
       const galleryImageUrls = galleryItems.map((item) => item.url);
 
       const payload: CreateLocationPayload = {

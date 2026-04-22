@@ -146,7 +146,9 @@ export function AddMemberPage({
   const selectedMember = useMemo(
     () =>
       mode === "edit"
-        ? members?.find((item) => item.id === memberId || item.memberId === memberId)
+        ? members?.find(
+            (item) => item.id === memberId || item.memberId === memberId,
+          )
         : undefined,
     [memberId, members, mode],
   );
@@ -258,7 +260,9 @@ export function AddMemberPage({
     try {
       if (mode === "edit") {
         showSuccess("Saved", "Member profile update is currently UI-only.");
-        navigate(memberId ? `/dashboard/members/${memberId}` : "/dashboard/members");
+        navigate(
+          memberId ? `/dashboard/members/${memberId}` : "/dashboard/members",
+        );
         return;
       }
 
@@ -425,8 +429,8 @@ export function AddMemberPage({
                       ) : membershipPlans && membershipPlans.length > 0 ? (
                         membershipPlans.map((plan) => (
                           <SelectItem key={plan.id} value={plan.id}>
-                            {plan.name} - ₦
-                            {formatPlanPriceNgn(plan.price)}
+                            {plan.name} - {formatPlanPriceNgn(plan.price)} [
+                            {plan.duration}]
                           </SelectItem>
                         ))
                       ) : (
@@ -449,10 +453,7 @@ export function AddMemberPage({
                               e.stopPropagation();
                               const params = new URLSearchParams();
                               params.set("createPlan", "1");
-                              params.set(
-                                "returnTo",
-                                "/dashboard/members/new",
-                              );
+                              params.set("returnTo", "/dashboard/members/new");
                               navigate(
                                 `/dashboard/membership-plans?${params.toString()}`,
                               );

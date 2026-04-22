@@ -165,6 +165,11 @@ export default function Page() {
                   <SelectItem value="expiring">Expiring Soon</SelectItem>
                 </SelectContent>
               </Select>
+              <p className="text-muted-foreground text-xs">
+                Active members have an active subscription. Expiring soon means
+                memberships that are close to their end date. All members
+                includes both groups.
+              </p>
             </div>
             <div className="space-y-1.5">
               <Label>Message *</Label>

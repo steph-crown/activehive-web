@@ -124,7 +124,7 @@ export function AssignLocationsModal({
               name="locationIds"
               render={() => (
                 <FormItem>
-                  <FormLabel>Locations</FormLabel>
+                  <FormLabel>Locations *</FormLabel>
                   <FormControl>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

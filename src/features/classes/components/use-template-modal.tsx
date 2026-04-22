@@ -169,7 +169,7 @@ export function UseTemplateModal({
               name="templateClassId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Template</FormLabel>
+                  <FormLabel>Template *</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
@@ -195,7 +195,7 @@ export function UseTemplateModal({
                 name="locationId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Location</FormLabel>
+                    <FormLabel>Location *</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -249,7 +249,7 @@ export function UseTemplateModal({
 
             <div>
               <div className="flex items-center justify-between mb-2">
-                <FormLabel>Schedules</FormLabel>
+                <FormLabel>Schedules *</FormLabel>
                 <Button
                   type="button"
                   variant="outline"
@@ -277,7 +277,7 @@ export function UseTemplateModal({
                     name={`schedules.${index}.date`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-xs">Date</FormLabel>
+                        <FormLabel className="text-xs">Date *</FormLabel>
                         <FormControl>
                           <Input type="date" {...field} />
                         </FormControl>
@@ -290,7 +290,7 @@ export function UseTemplateModal({
                     name={`schedules.${index}.startTime`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-xs">Start Time</FormLabel>
+                        <FormLabel className="text-xs">Start Time *</FormLabel>
                         <FormControl>
                           <Input type="time" {...field} />
                         </FormControl>
@@ -303,7 +303,7 @@ export function UseTemplateModal({
                     name={`schedules.${index}.endTime`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-xs">End Time</FormLabel>
+                        <FormLabel className="text-xs">End Time *</FormLabel>
                         <FormControl>
                           <Input type="time" {...field} />
                         </FormControl>

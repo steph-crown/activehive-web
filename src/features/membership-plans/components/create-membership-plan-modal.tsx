@@ -166,7 +166,7 @@ export function CreateMembershipPlanModal({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Plan Name</FormLabel>
+                  <FormLabel>Plan Name *</FormLabel>
                   <FormControl>
                     <Input placeholder="Basic Monthly Plan" {...field} />
                   </FormControl>
@@ -180,7 +180,7 @@ export function CreateMembershipPlanModal({
               name="locationId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Location</FormLabel>
+                  <FormLabel>Location *</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     value={field.value}
@@ -209,7 +209,7 @@ export function CreateMembershipPlanModal({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>Description *</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Access to all gym facilities, group classes, and locker room"
@@ -227,7 +227,7 @@ export function CreateMembershipPlanModal({
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price</FormLabel>
+                    <FormLabel>Price *</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -259,7 +259,7 @@ export function CreateMembershipPlanModal({
                 name="duration"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Duration</FormLabel>
+                    <FormLabel>Duration *</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="!h-10 w-full">
@@ -283,7 +283,7 @@ export function CreateMembershipPlanModal({
               name="features.0"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Benefits (comma-separated)</FormLabel>
+                  <FormLabel>Benefits (comma-separated) *</FormLabel>
                   <FormControl>
                     <textarea
                       rows={3}
@@ -304,7 +304,7 @@ export function CreateMembershipPlanModal({
                 name="gracePeriodDays"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Grace Period (Days)</FormLabel>
+                    <FormLabel>Grace Period (Days) *</FormLabel>
                     <FormControl>
                       <Input
                         type="number"

@@ -163,7 +163,7 @@ export function CreateStaffModal({
                 name="firstName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>First Name</FormLabel>
+                    <FormLabel>First Name *</FormLabel>
                     <FormControl>
                       <Input placeholder="John" {...field} />
                     </FormControl>
@@ -177,7 +177,7 @@ export function CreateStaffModal({
                 name="lastName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Last Name</FormLabel>
+                    <FormLabel>Last Name *</FormLabel>
                     <FormControl>
                       <Input placeholder="Doe" {...field} />
                     </FormControl>
@@ -193,7 +193,7 @@ export function CreateStaffModal({
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>Email *</FormLabel>
                     <FormControl>
                       <Input
                         type="email"
@@ -211,7 +211,7 @@ export function CreateStaffModal({
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone</FormLabel>
+                    <FormLabel>Phone *</FormLabel>
                     <FormControl>
                       <Input placeholder="+1 (555) 123-4567" {...field} />
                     </FormControl>
@@ -227,7 +227,7 @@ export function CreateStaffModal({
                 name="roleId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Role</FormLabel>
+                    <FormLabel>Role *</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
@@ -277,7 +277,7 @@ export function CreateStaffModal({
               name="department"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Department</FormLabel>
+                  <FormLabel>Department *</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="e.g. Front Desk"
@@ -295,7 +295,7 @@ export function CreateStaffModal({
               name="locationIds"
               render={() => (
                 <FormItem>
-                  <FormLabel>Locations</FormLabel>
+                  <FormLabel>Locations *</FormLabel>
                   <FormControl>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -344,7 +344,7 @@ export function CreateStaffModal({
               name="hireDate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Hire Date</FormLabel>
+                  <FormLabel>Hire Date *</FormLabel>
                   <FormControl>
                     <Input type="date" className="w-full" {...field} />
                   </FormControl>

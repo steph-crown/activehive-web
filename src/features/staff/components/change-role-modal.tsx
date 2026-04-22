@@ -104,7 +104,7 @@ export function ChangeRoleModal({
               name="roleId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Role</FormLabel>
+                  <FormLabel>Role *</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     value={field.value}

@@ -34,6 +34,35 @@ import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 import * as React from "react";
 
+function localDateKey(d: Date): string {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function localTimeKey(d: Date): string {
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return `${hh}:${mm}`;
+}
+
+function parseLocalDateTime(dateKey: string, timeKey: string): Date | null {
+  if (!dateKey || !timeKey) return null;
+  const [yyyy, mm, dd] = dateKey.split("-").map(Number);
+  const [hh, min] = timeKey.split(":").map(Number);
+  if (
+    !Number.isFinite(yyyy) ||
+    !Number.isFinite(mm) ||
+    !Number.isFinite(dd) ||
+    !Number.isFinite(hh) ||
+    !Number.isFinite(min)
+  ) {
+    return null;
+  }
+  return new Date(yyyy, mm - 1, dd, hh, min, 0, 0);
+}
+
 const createClassSchema = yup.object({
   name: yup.string().required("Name is required"),
   description: yup.string().optional(),
@@ -44,8 +73,31 @@ const createClassSchema = yup.object({
     .array()
     .of(
       yup.object({
-        date: yup.string().required("Date is required"),
-        startTime: yup.string().required("Start time is required"),
+        date: yup
+          .string()
+          .required("Date is required")
+          .test("not-in-past", "Date cannot be in the past", (value) => {
+            if (!value) return false;
+            const today = localDateKey(new Date());
+            return value >= today;
+          }),
+        startTime: yup
+          .string()
+          .required("Start time is required")
+          .test(
+            "future-if-today",
+            "Start time must be in the future",
+            function (value) {
+              const { date } = this.parent as { date?: string };
+              if (!date || !value) return false;
+              const now = new Date();
+              const today = localDateKey(now);
+              if (date !== today) return true;
+              const start = parseLocalDateTime(date, value);
+              if (!start) return false;
+              return start.getTime() > now.getTime();
+            },
+          ),
         notes: yup.string().optional(),
       }),
     )
@@ -108,6 +160,11 @@ export function CreateClassModal({
   });
 
   const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "schedules",
+  });
+
+  const watchedSchedules = useWatch({
     control: form.control,
     name: "schedules",
   });
@@ -221,6 +278,7 @@ export function CreateClassModal({
   ];
 
   const difficulties = ["Beginner", "Intermediate", "Advanced", "All Levels"];
+  const todayKey = localDateKey(new Date());
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -241,7 +299,7 @@ export function CreateClassModal({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Name *</FormLabel>
                   <FormControl>
                     <Input placeholder="Morning Yoga" {...field} />
                   </FormControl>
@@ -274,7 +332,7 @@ export function CreateClassModal({
                 name="capacity"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Capacity</FormLabel>
+                    <FormLabel>Capacity *</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -293,7 +351,7 @@ export function CreateClassModal({
                 name="duration"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Duration (minutes)</FormLabel>
+                    <FormLabel>Duration (minutes) *</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -314,7 +372,7 @@ export function CreateClassModal({
                 name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel>Category *</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="!h-10 w-full">
@@ -379,7 +437,7 @@ export function CreateClassModal({
                 name="difficulty"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Difficulty</FormLabel>
+                    <FormLabel>Difficulty *</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="!h-10 w-full">
@@ -433,7 +491,7 @@ export function CreateClassModal({
 
             <div>
               <div className="flex items-center justify-between mb-2">
-                <FormLabel>Schedules</FormLabel>
+                <FormLabel>Schedules *</FormLabel>
                 <Button
                   type="button"
                   variant="outline"
@@ -451,6 +509,7 @@ export function CreateClassModal({
                 </Button>
               </div>
               {fields.map((field, index) => (
+                // Use the watched values for dynamic input constraints.
                 <div
                   key={field.id}
                   className="mb-2 flex w-full items-end gap-2"
@@ -460,9 +519,30 @@ export function CreateClassModal({
                     name={`schedules.${index}.date`}
                     render={({ field }) => (
                       <FormItem className="flex-1">
-                        <FormLabel className="text-xs">Date</FormLabel>
+                        <FormLabel className="text-xs">Date *</FormLabel>
                         <FormControl>
-                          <Input type="date" {...field} />
+                          <Input
+                            type="date"
+                            min={todayKey}
+                            {...field}
+                            onChange={(event) => {
+                              const nextDate = event.target.value;
+                              field.onChange(nextDate);
+                              const currentStartTime =
+                                watchedSchedules?.[index]?.startTime ?? "";
+                              if (!currentStartTime) return;
+                              const now = new Date();
+                              const nowMinTime = localTimeKey(now);
+                              if (nextDate === localDateKey(now)) {
+                                if (currentStartTime <= nowMinTime) {
+                                  form.setValue(
+                                    `schedules.${index}.startTime`,
+                                    "",
+                                  );
+                                }
+                              }
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -473,9 +553,17 @@ export function CreateClassModal({
                     name={`schedules.${index}.startTime`}
                     render={({ field }) => (
                       <FormItem className="flex-1">
-                        <FormLabel className="text-xs">Start Time</FormLabel>
+                        <FormLabel className="text-xs">Start Time *</FormLabel>
                         <FormControl>
-                          <Input type="time" {...field} />
+                          <Input
+                            type="time"
+                            min={
+                              watchedSchedules?.[index]?.date === todayKey
+                                ? localTimeKey(new Date())
+                                : undefined
+                            }
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

@@ -96,7 +96,7 @@ export function CreateRoleModal({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Name *</FormLabel>
                   <FormControl>
                     <Input placeholder="Front Desk Staff" {...field} />
                   </FormControl>
@@ -128,7 +128,7 @@ export function CreateRoleModal({
               name="permissionCodes"
               render={() => (
                 <FormItem>
-                  <FormLabel>Permissions</FormLabel>
+                  <FormLabel>Permissions *</FormLabel>
                   <p className="text-muted-foreground mb-2 text-xs">
                     Select entire features quickly, or expand each feature to
                     pick specific permissions.

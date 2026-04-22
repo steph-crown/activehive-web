@@ -147,7 +147,7 @@ export function AddClassAttendanceModal({
               name="classScheduleId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Session</FormLabel>
+                  <FormLabel>Session *</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     value={field.value}
@@ -182,7 +182,7 @@ export function AddClassAttendanceModal({
               name="memberIds"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Members who attended</FormLabel>
+                  <FormLabel>Members who attended *</FormLabel>
                   <FormControl>
                     <MultiSelect
                       options={memberOptions}

@@ -32,30 +32,6 @@ export const classAttendanceQueryKeys = {
     [...classAttendanceQueryKeys.all, "schedule", scheduleId, params] as const,
 };
 
-function extractPaginatedPayload(raw: unknown): {
-  items: unknown[];
-  total: number;
-  totalPages: number;
-} {
-  if (raw == null || typeof raw !== "object") {
-    return { items: [], total: 0, totalPages: 0 };
-  }
-  const r = raw as Record<string, unknown>;
-  const items = (Array.isArray(r.data)
-    ? r.data
-    : Array.isArray(r.items)
-      ? r.items
-      : Array.isArray(r.results)
-        ? r.results
-        : []) as unknown[];
-  const total = Number(r.total ?? r.count ?? items.length) || 0;
-  const limit = Number(r.limit ?? 20) || 20;
-  const totalPages =
-    Number(r.totalPages) ||
-    (total > 0 ? Math.max(1, Math.ceil(total / limit)) : 1);
-  return { items, total, totalPages };
-}
-
 function memberNameFromUnknown(m: unknown): string {
   if (m == null) return "—";
   if (typeof m === "string") return m;
@@ -70,82 +46,54 @@ function memberNameFromUnknown(m: unknown): string {
   return "—";
 }
 
-function normalizeAttendanceRow(
+/**
+ * Normalizes the attendance response shape:
+ * { schedule: { class, date, startTime, location }, attendance: [...], pagination: { total, totalPages } }
+ */
+function normalizeAttendanceResponse(
   raw: unknown,
-  rowIndex: number,
-  fallbackClassName = "",
-): ClassAttendanceTableRow {
+  classNameFallback = "",
+): ClassAttendancePaginated {
   if (raw == null || typeof raw !== "object") {
-    return {
-      id: `row-${rowIndex}`,
-      className: "—",
-      member: "—",
-      date: "—",
-      status: "—",
-      location: "—",
-    };
+    return { rows: [], total: 0, totalPages: 1 };
   }
+
   const r = raw as Record<string, unknown>;
-  const id = String(r.id ?? r.bookingId ?? `row-${rowIndex}`);
+  const schedule = r.schedule as Record<string, unknown> | undefined;
+  const attendance = Array.isArray(r.attendance) ? r.attendance : [];
+  const pagination = r.pagination as Record<string, unknown> | undefined;
+
+  const total = Number(pagination?.total ?? attendance.length) || 0;
+  const totalPages = Number(pagination?.totalPages ?? 1) || 1;
+
+  const scheduleClass = schedule?.class as Record<string, unknown> | undefined;
+  const scheduleLocation = schedule?.location as
+    | Record<string, unknown>
+    | undefined;
+
   const className = String(
-    r.className ??
-      (r.class as { name?: string } | undefined)?.name ??
-      fallbackClassName ??
-      "—",
+    (scheduleClass?.name ?? classNameFallback) || "—",
   );
-  const member =
-    typeof r.memberName === "string"
-      ? r.memberName
-      : memberNameFromUnknown(r.member);
-  const dateRaw = r.date ?? r.sessionDate ?? r.attendanceDate ?? r.checkInTime;
-  const date =
-    typeof dateRaw === "string"
-      ? dateRaw
-      : dateRaw instanceof Date
-        ? dateRaw.toISOString()
-        : "—";
+  const location = String(scheduleLocation?.name ?? "—");
+  const date = typeof schedule?.date === "string" ? schedule.date : "—";
   const time =
-    typeof r.time === "string" && r.time.trim() ? r.time.trim() : undefined;
-  const status = String(
-    r.status ?? r.bookingStatus ?? r.attendanceStatus ?? "—",
-  );
-  const loc =
-    r.locationName ??
-    (r.location as { locationName?: string } | undefined)?.locationName ??
-    (typeof r.location === "string" ? r.location : undefined);
-  const location = String(loc ?? "—");
-  let checkedIn: string | undefined;
-  if (r.hasCheckedIn === true) checkedIn = "Yes";
-  else if (r.hasCheckedIn === false) checkedIn = "No";
-  else if (typeof r.checkedIn === "boolean")
-    checkedIn = r.checkedIn ? "Yes" : "No";
+    typeof schedule?.startTime === "string" && schedule.startTime
+      ? schedule.startTime
+      : undefined;
 
-  return { id, className, member, date, time, status, location, checkedIn };
-}
+  const rows: ClassAttendanceTableRow[] = attendance.map((item, i) => {
+    if (item == null || typeof item !== "object") {
+      return { id: `row-${i}`, className, member: "—", date, time, status: "—", location };
+    }
+    const a = item as Record<string, unknown>;
+    const id = String(a.id ?? `row-${i}`);
+    const member = memberNameFromUnknown(a.member);
+    const status = String(a.status ?? "—");
+    const checkedIn = a.checkedInAt != null ? "Yes" : "No";
+    return { id, className, member, date, time, status, location, checkedIn };
+  });
 
-function normalizeClassAttendanceListResponse(
-  raw: unknown,
-): ClassAttendancePaginated {
-  const { items, total, totalPages } = extractPaginatedPayload(raw);
-  return {
-    rows: items.map((item, i) => normalizeAttendanceRow(item, i)),
-    total,
-    totalPages,
-  };
-}
-
-function normalizeScheduleAttendanceResponse(
-  raw: unknown,
-  classNameFallback: string,
-): ClassAttendancePaginated {
-  const { items, total, totalPages } = extractPaginatedPayload(raw);
-  return {
-    rows: items.map((item, i) =>
-      normalizeAttendanceRow(item, i, classNameFallback),
-    ),
-    total,
-    totalPages,
-  };
+  return { rows, total, totalPages };
 }
 
 export const useClassAttendanceListQuery = (
@@ -156,7 +104,7 @@ export const useClassAttendanceListQuery = (
     queryKey: classAttendanceQueryKeys.list(params),
     queryFn: async () => {
       const raw = await classAttendanceApi.listAttendance(params);
-      return normalizeClassAttendanceListResponse(raw);
+      return normalizeAttendanceResponse(raw);
     },
     enabled: options?.enabled ?? true,
   });
@@ -174,7 +122,7 @@ export const useScheduleAttendanceQuery = (
         classScheduleId,
         params,
       );
-      return normalizeScheduleAttendanceResponse(raw, classNameFallback);
+      return normalizeAttendanceResponse(raw, classNameFallback);
     },
     enabled: (options?.enabled ?? true) && Boolean(classScheduleId),
   });

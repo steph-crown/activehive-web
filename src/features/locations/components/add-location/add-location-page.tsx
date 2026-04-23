@@ -49,19 +49,6 @@ export function AddLocationPage() {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const setPaymentField = <K extends keyof FormState["paymentAccount"]>(
-    key: K,
-    value: FormState["paymentAccount"][K],
-  ) => {
-    setForm((prev) => ({
-      ...prev,
-      paymentAccount: {
-        ...prev.paymentAccount,
-        [key]: value,
-      },
-    }));
-  };
-
   const validateStep = () => {
     if (step === 0) {
       if (!form.locationName.trim())
@@ -273,8 +260,8 @@ export function AddLocationPage() {
 
             {step === 3 && (
               <PaymentStep
-                paymentAccount={form.paymentAccount}
-                setPaymentField={setPaymentField}
+                value={form.paymentAccount}
+                onChange={(next) => setField("paymentAccount", next)}
               />
             )}
 

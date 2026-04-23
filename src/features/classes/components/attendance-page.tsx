@@ -44,9 +44,10 @@ import {
 
 const STATUS_OPTIONS = [
   { value: "all", label: "All statuses" },
-  { value: "present", label: "Present" },
-  { value: "absent", label: "Absent" },
-  { value: "late", label: "Late" },
+  { value: "completed", label: "Completed" },
+  { value: "cancelled", label: "Cancelled" },
+  { value: "no_show", label: "No Show" },
+  { value: "booked", label: "Booked" },
 ];
 
 function formatAttendanceCellDate(value: string): string {
@@ -434,11 +435,12 @@ export function AttendancePage({
         cell: ({ row }) => {
           const status = row.original.status.toLowerCase();
           let variant: "default" | "secondary" | "destructive" = "secondary";
-          if (status === "present") variant = "default";
-          else if (status === "absent") variant = "destructive";
+          if (status === "completed") variant = "default";
+          else if (status === "cancelled" || status === "no_show") variant = "destructive";
+          const label = row.original.status.replace(/_/g, " ");
           return (
             <Badge variant={variant} className="capitalize">
-              {row.original.status}
+              {label}
             </Badge>
           );
         },

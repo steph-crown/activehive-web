@@ -36,26 +36,22 @@ function mapAttendanceApi(
       row.checkOut == null || String(row.checkOut).trim() === ""
         ? "—"
         : String(row.checkOut),
-    processedBy: row.processedBy?.trim() ? row.processedBy : "—",
+    processedBy: row.processedBy?.name?.trim() ?? "—",
     branch: row.branch?.trim() ? row.branch : "—",
   }));
 }
 
 /** Fallback when only `checkIns` is returned — aligns with attendance / visit history. */
-function mapCheckIns(checkIns: GymMemberCheckInApi[] | undefined): MemberAttendanceEntry[] {
+function mapCheckIns(
+  checkIns: GymMemberCheckInApi[] | undefined,
+): MemberAttendanceEntry[] {
   if (!checkIns?.length) return [];
   return checkIns.map((c, i) => {
-    const dateRaw =
-      c.checkInTime ??
-      c.createdAt ??
-      "";
+    const dateRaw = c.checkInTime ?? c.createdAt ?? "";
     const checkIn = c.checkInTime ?? c.createdAt ?? "—";
     const checkOut = "—";
-    const processedBy = c.checkedInBy?.trim() ? c.checkedInBy : "—";
-    const branch =
-      c.location?.locationName?.trim() ||
-      c.locationId ||
-      "—";
+    const processedBy = c.checkedInBy?.name?.trim() ?? "—";
+    const branch = c.location?.locationName?.trim() || c.locationId || "—";
     return {
       id: c.id ?? `checkin-${i}`,
       date: dateRaw,

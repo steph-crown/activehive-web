@@ -129,7 +129,7 @@ export type GymMemberCheckInApi = {
   gymId?: string;
   status?: string;
   checkInTime?: string;
-  checkedInBy?: string;
+  checkedInBy?: { id: string; name: string };
   createdAt?: string;
   updatedAt?: string;
 };
@@ -140,7 +140,7 @@ export type GymMemberAttendanceApi = {
   date: string;
   checkIn: string;
   checkOut?: string | null;
-  processedBy?: string;
+  processedBy?: { name: string; id: string };
   branch?: string;
 };
 

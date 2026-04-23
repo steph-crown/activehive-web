@@ -64,4 +64,12 @@ export const membershipPlansApi = {
       `${membershipPlansPath}/${id}/promo-codes/${promoCodePath(code)}/toggle`,
       payload
     ),
+  validatePromoCode: (
+    planId: string,
+    promoCode: string
+  ): Promise<{ valid: boolean; message: string }> =>
+    apiClient.post<{ valid: boolean; message: string }>(
+      `${membershipPlansPath}/${planId}/promo-codes/validate`,
+      { promoCode }
+    ),
 };

@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useLocationsQuery } from "@/features/locations/services";
-import { useMembershipPlansQuery } from "@/features/membership-plans/services";
+import { membershipPlansApi, useMembershipPlansQuery } from "@/features/membership-plans/services";
 import { useTrainersQuery } from "@/features/trainers/services";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/lib/get-api-error-message";
@@ -147,6 +147,8 @@ export function AddMemberPage({
     form.locationId ? { locationId: form.locationId } : {},
   );
   const { mutateAsync: createMember, isPending } = useCreateMemberMutation();
+  const [promoValidation, setPromoValidation] = useState<{ valid: boolean; message: string } | null>(null);
+  const [isValidatingPromo, setIsValidatingPromo] = useState(false);
 
   const selectedMember = useMemo(
     () =>
@@ -178,6 +180,30 @@ export function AddMemberPage({
       endDate: addDurationToDate(prev.startDate, selectedPlan.duration),
     }));
   }, [form.startDate, selectedPlan]);
+
+  useEffect(() => {
+    const promoCode = form.promoCode.trim();
+    const planId = form.membershipPlanId;
+
+    if (!promoCode || !planId) {
+      setPromoValidation(null);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsValidatingPromo(true);
+      try {
+        const result = await membershipPlansApi.validatePromoCode(planId, promoCode);
+        setPromoValidation(result);
+      } catch {
+        setPromoValidation({ valid: false, message: "Failed to validate promo code." });
+      } finally {
+        setIsValidatingPromo(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [form.promoCode, form.membershipPlanId]);
 
   useEffect(() => {
     if (mode !== "edit" || !selectedMember) return;
@@ -416,7 +442,7 @@ export function AddMemberPage({
           {step === 1 && (
             <div className="grid gap-4 rounded-md border border-[#F4F4F4] bg-white p-6">
               <h2 className="text-lg font-semibold">Membership Assignment</h2>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
                 <div className="grid gap-2">
                   <Label>Membership Plan *</Label>
                   <Select
@@ -485,6 +511,15 @@ export function AddMemberPage({
                     placeholder="SUMMER2024"
                     disabled={mode === "edit"}
                   />
+                  {isValidatingPromo && (
+                    <p className="text-muted-foreground text-xs">Validating…</p>
+                  )}
+                  {!isValidatingPromo && promoValidation && !promoValidation.valid && (
+                    <p className="text-destructive text-sm">{promoValidation.message}</p>
+                  )}
+                  {!isValidatingPromo && promoValidation?.valid && (
+                    <p className="text-sm text-green-600">{promoValidation.message}</p>
+                  )}
                 </div>
 
                 <div className="grid gap-2">

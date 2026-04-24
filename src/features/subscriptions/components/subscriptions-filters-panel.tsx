@@ -15,6 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { DatePicker } from "@/components/ui/date-picker";
+import { MemberSearchDropdown } from "@/components/molecules/member-search-dropdown";
 import { IconFilter, IconX } from "@tabler/icons-react";
 import * as React from "react";
 import {
@@ -23,7 +24,6 @@ import {
   type SubscriptionsFilters,
 } from "../types";
 import type { MembershipPlan } from "@/features/membership-plans/types";
-import { useMembersQuery } from "@/features/members/services";
 import type { ReactNode } from "react";
 
 interface SubscriptionsFiltersPanelProps {
@@ -42,7 +42,6 @@ export function SubscriptionsFiltersPanel({
   const [isOpen, setIsOpen] = React.useState(false);
   const [localFilters, setLocalFilters] =
     React.useState<SubscriptionsFilters>(filters);
-  const { data: members, isLoading: membersLoading } = useMembersQuery();
 
   React.useEffect(() => {
     setLocalFilters(filters);
@@ -189,29 +188,16 @@ export function SubscriptionsFiltersPanel({
 
           <div className="w-full min-w-0">
             <label className="text-sm font-medium mb-2 block">Member</label>
-            <Select
-              value={localFilters.memberId || "all"}
-              onValueChange={(value) =>
+            <MemberSearchDropdown
+              value={localFilters.memberId ?? ""}
+              onValueChange={(id) =>
                 setLocalFilters((prev) => ({
                   ...prev,
-                  memberId: value === "all" ? undefined : value,
+                  memberId: id || undefined,
                 }))
               }
-              disabled={membersLoading}
-            >
-              <SelectTrigger className="h-10 w-full">
-                <SelectValue placeholder="All members" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Members</SelectItem>
-                {members?.map((member) => (
-                  <SelectItem key={member.member.id} value={member.member.id}>
-                    {member.member.firstName} {member.member.lastName} (
-                    {member.member.email})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              placeholder="All members"
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">

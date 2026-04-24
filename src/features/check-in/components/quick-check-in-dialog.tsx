@@ -18,8 +18,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { MemberSearchDropdown } from "@/components/molecules/member-search-dropdown";
 import { useLocationsQuery } from "@/features/locations/services";
-import { useMembersQuery } from "@/features/members/services";
 import { useToast } from "@/hooks/use-toast";
 import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { useLocationStore } from "@/store";
@@ -37,7 +37,6 @@ export function QuickCheckInDialog({
   const { showSuccess, showError } = useToast();
   const { selectedLocationId } = useLocationStore();
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
-  const { data: members, isLoading: membersLoading } = useMembersQuery();
   const { mutateAsync: createCheckIn, isPending } = useCreateCheckInMutation();
 
   const [memberId, setMemberId] = useState("");
@@ -99,32 +98,11 @@ export function QuickCheckInDialog({
             <label className="text-sm font-medium" htmlFor="quick-checkin-member">
               Member *
             </label>
-            <Select
-              value={memberId || undefined}
+            <MemberSearchDropdown
+              value={memberId}
               onValueChange={setMemberId}
-              disabled={membersLoading}
-            >
-              <SelectTrigger
-                id="quick-checkin-member"
-                className="w-full min-w-0 overflow-hidden [&_[data-slot=select-value]]:min-w-0 [&_[data-slot=select-value]]:flex-1 [&_[data-slot=select-value]]:truncate [&_[data-slot=select-value]]:text-left"
-              >
-                <SelectValue placeholder="Select member" />
-              </SelectTrigger>
-              <SelectContent className="max-w-[min(100vw-2rem,var(--radix-select-trigger-width))]">
-                {(members ?? []).map((sub) => (
-                  <SelectItem
-                    key={sub.memberId}
-                    value={sub.memberId}
-                    className="min-w-0 max-w-full"
-                  >
-                    <span className="block min-w-0 truncate">
-                      {sub.member.firstName} {sub.member.lastName} ·{" "}
-                      {sub.member.email}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              placeholder="Search member…"
+            />
           </div>
 
           <div className="grid gap-2">

@@ -10,6 +10,7 @@ import { IconFilter } from "@tabler/icons-react";
 import { useSearchParams } from "react-router-dom";
 
 import { DataTable } from "@/components/molecules/data-table";
+import { MemberSearchDropdown } from "@/components/molecules/member-search-dropdown";
 import { TableFilterBar } from "@/components/molecules/table-filter-bar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,7 +25,6 @@ import {
 } from "@/components/ui/select";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useLocationsQuery } from "@/features/locations/services";
-import { useMembersQuery } from "@/features/members/services";
 import {
   formatClockString12h,
   formatDisplayDate,
@@ -148,7 +148,7 @@ export function AttendancePage({
     return sid && sid.length > 0 ? sid : "all";
   });
 
-  const [memberFilter, setMemberFilter] = useState("all");
+  const [memberFilter, setMemberFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [hasCheckedInFilter, setHasCheckedInFilter] = useState<
     "all" | "yes" | "no"
@@ -195,11 +195,6 @@ export function AttendancePage({
   const { data: classDetail, isLoading: classDetailLoading } =
     useClassQuery(resolvedClassKey);
 
-  const { data: members = [], isLoading: membersLoading } = useMembersQuery(
-    effectiveLocationId,
-    { enabled: !simplifiedEmbed },
-  );
-
   const scheduleView = scheduleFilter !== "all";
 
   const classOptions = useMemo(
@@ -223,18 +218,6 @@ export function AttendancePage({
       })),
     ];
   }, [classDetail?.schedules, resolvedClassKey]);
-
-  const memberOptions = useMemo(
-    () => [
-      // { value: "all", label: "All members" },
-      ...members.map((m) => ({
-        value: m.memberId,
-        label:
-          `${m.member.firstName} ${m.member.lastName}`.trim() || m.member.email,
-      })),
-    ],
-    [members],
-  );
 
   useEffect(() => {
     if (!scheduleView || !classDetail) return;
@@ -276,7 +259,7 @@ export function AttendancePage({
     return {
       ...core,
       locationId: locationFilter === "all" ? undefined : locationFilter,
-      memberId: memberFilter === "all" ? undefined : memberFilter,
+      memberId: memberFilter || undefined,
       status: statusFilter === "all" ? undefined : statusFilter,
     };
   }, [
@@ -618,16 +601,20 @@ export function AttendancePage({
                 label: loc.locationName,
               }))}
               locationDisabled={locationsLoading}
-              showMemberFilter
-              memberValue={memberFilter}
-              onMemberChange={setMemberFilter}
-              memberOptions={memberOptions}
-              memberDisabled={membersLoading}
               dateValue={dateFrom}
               onDateChange={setDateFrom}
               dateToValue={dateTo}
               onDateToChange={setDateTo}
               showExportButton={false}
+              actionNode={
+                <MemberSearchDropdown
+                  value={memberFilter}
+                  onValueChange={(id) => { setMemberFilter(id); setPage(1); }}
+                  placeholder="All members"
+                  locationId={effectiveLocationId}
+                  className="h-10 w-[180px] border-[#F4F4F4] bg-white"
+                />
+              }
             />
           )
         ) : null}

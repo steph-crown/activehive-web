@@ -8,19 +8,19 @@ import type {
 
 export const membersQueryKeys = {
   all: ["members"] as const,
-  list: (locationId?: string) =>
-    [...membersQueryKeys.all, "list", locationId] as const,
+  list: (locationId?: string, search?: string) =>
+    [...membersQueryKeys.all, "list", locationId ?? null, search ?? null] as const,
   detail: (memberId: string) =>
     [...membersQueryKeys.all, "detail", memberId] as const,
 };
 
 export const useMembersQuery = (
   locationId?: string,
-  options?: { enabled?: boolean },
+  options?: { enabled?: boolean; search?: string },
 ) =>
   useQuery<MemberSubscription[]>({
-    queryKey: membersQueryKeys.list(locationId),
-    queryFn: () => membersApi.getMembers(locationId),
+    queryKey: membersQueryKeys.list(locationId, options?.search),
+    queryFn: () => membersApi.getMembers({ locationId, search: options?.search }),
     enabled: options?.enabled ?? true,
   });
 

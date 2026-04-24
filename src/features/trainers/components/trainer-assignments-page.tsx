@@ -1,4 +1,5 @@
 import { TableFilterBar } from "@/components/molecules/table-filter-bar";
+import { MemberSearchDropdown } from "@/components/molecules/member-search-dropdown";
 import { DataTable } from "@/components/molecules/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,8 +31,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useLocationsQuery } from "@/features/locations/services";
-import { useMembersQuery } from "@/features/members/services";
-import type { MemberSubscription } from "@/features/members/types";
 import { useToast } from "@/hooks/use-toast";
 import { formatDisplayDateTime } from "@/lib/display-datetime";
 import { getApiErrorMessage } from "@/lib/get-api-error-message";
@@ -45,23 +44,9 @@ import {
 } from "../services";
 import type { TrainerAssignment, TrainerListItem } from "../types";
 
-function memberDisplayName(m: MemberSubscription): string {
-  const name =
-    `${m.member.firstName} ${m.member.lastName}`.trim() || m.member.email;
-  return name;
-}
-
 function trainerDisplayName(t: TrainerListItem): string {
   const name = `${t.firstName} ${t.lastName}`.trim();
   return name || t.email;
-}
-
-function uniqueMembersByMemberId(rows: MemberSubscription[]): MemberSubscription[] {
-  const map = new Map<string, MemberSubscription>();
-  for (const row of rows) {
-    if (!map.has(row.memberId)) map.set(row.memberId, row);
-  }
-  return [...map.values()];
 }
 
 function formatMemberCell(a: TrainerAssignment): string {
@@ -132,13 +117,13 @@ export function TrainerAssignmentsPage() {
 
   const [filterLocationId, setFilterLocationId] = React.useState("all");
   const [filterTrainerId, setFilterTrainerId] = React.useState("all");
-  const [filterMemberId, setFilterMemberId] = React.useState("all");
+  const [filterMemberId, setFilterMemberId] = React.useState("");
 
   const listParams = React.useMemo(
     () => ({
       ...(filterLocationId !== "all" ? { locationId: filterLocationId } : {}),
       ...(filterTrainerId !== "all" ? { trainerId: filterTrainerId } : {}),
-      ...(filterMemberId !== "all" ? { memberId: filterMemberId } : {}),
+      ...(filterMemberId ? { memberId: filterMemberId } : {}),
     }),
     [filterLocationId, filterTrainerId, filterMemberId],
   );
@@ -152,8 +137,6 @@ export function TrainerAssignmentsPage() {
 
   const { data: filterTrainers = [], isLoading: filterTrainersLoading } =
     useTrainersQuery();
-  const { data: filterMemberSubs = [], isLoading: filterMembersLoading } =
-    useMembersQuery();
 
   const trainerFilterOptions = React.useMemo(
     () =>
@@ -164,13 +147,6 @@ export function TrainerAssignmentsPage() {
     [filterTrainers],
   );
 
-  const memberFilterOptions = React.useMemo(() => {
-    return uniqueMembersByMemberId(filterMemberSubs).map((m) => ({
-      value: m.memberId,
-      label: memberDisplayName(m),
-    }));
-  }, [filterMemberSubs]);
-
   const [isAssignOpen, setIsAssignOpen] = React.useState(false);
   const [assignLocationId, setAssignLocationId] = React.useState("");
   const [assignMemberId, setAssignMemberId] = React.useState("");
@@ -180,21 +156,11 @@ export function TrainerAssignmentsPage() {
   const { mutateAsync: assignTrainer, isPending: isAssigning } =
     useAssignTrainerToMemberMutation();
 
-  const { data: assignMembers = [], isLoading: assignMembersLoading } =
-    useMembersQuery(assignLocationId || undefined, {
-      enabled: Boolean(assignLocationId),
-    });
-
   const { data: assignTrainers = [], isLoading: assignTrainersLoading } =
     useTrainersQuery(
       assignLocationId ? { locationId: assignLocationId } : {},
       { enabled: Boolean(assignLocationId) },
     );
-
-  const assignMemberOptions = React.useMemo(
-    () => uniqueMembersByMemberId(assignMembers),
-    [assignMembers],
-  );
 
   React.useEffect(() => {
     if (isAssignOpen) {
@@ -295,7 +261,6 @@ export function TrainerAssignmentsPage() {
     !assignMemberId ||
     !assignTrainerId ||
     isAssigning ||
-    assignMembersLoading ||
     assignTrainersLoading;
 
   return (
@@ -330,12 +295,15 @@ export function TrainerAssignmentsPage() {
             onTrainerChange={setFilterTrainerId}
             trainerOptions={trainerFilterOptions}
             trainerDisabled={filterTrainersLoading}
-            showMemberFilter
-            memberValue={filterMemberId}
-            onMemberChange={setFilterMemberId}
-            memberOptions={memberFilterOptions}
-            memberDisabled={filterMembersLoading}
           />
+          <div className="mb-4 -mt-2">
+            <MemberSearchDropdown
+              value={filterMemberId}
+              onValueChange={setFilterMemberId}
+              placeholder="All members"
+              className="h-10 w-[180px] border-[#F4F4F4] bg-white"
+            />
+          </div>
 
           {assignmentsLoading ? (
             <AssignmentsTableSkeleton />
@@ -389,38 +357,16 @@ export function TrainerAssignmentsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="assign-member">Member</Label>
-              <Select
-                value={assignMemberId || undefined}
+              <Label>Member</Label>
+              <MemberSearchDropdown
+                value={assignMemberId}
                 onValueChange={setAssignMemberId}
-                disabled={!assignLocationId || assignMembersLoading}
-              >
-                <SelectTrigger id="assign-member" className="!h-10 w-full">
-                  <SelectValue
-                    placeholder={
-                      !assignLocationId
-                        ? "Select a location first"
-                        : assignMembersLoading
-                          ? "Loading members…"
-                          : "Select member"
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {assignMemberOptions.map((m) => (
-                    <SelectItem key={m.memberId} value={m.memberId}>
-                      {memberDisplayName(m)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {assignLocationId &&
-              !assignMembersLoading &&
-              assignMemberOptions.length === 0 ? (
-                <p className="text-muted-foreground text-xs">
-                  No members with subscriptions at this location.
-                </p>
-              ) : null}
+                locationId={assignLocationId || undefined}
+                disabled={!assignLocationId}
+                placeholder={
+                  !assignLocationId ? "Select a location first" : "Search members…"
+                }
+              />
             </div>
 
             <div className="space-y-2">

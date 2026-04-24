@@ -12,11 +12,11 @@ const membersPath = "/api/gym-owner/dashboard/members";
 const subscriptionsMembersPath = "/api/gym-owner/subscriptions/members";
 
 export const membersApi = {
-  getMembers: (locationId?: string): Promise<MemberSubscription[]> => {
-    const params = locationId ? { locationId } : {};
-    return apiClient.get<MemberSubscription[]>(subscriptionsMembersPath, {
-      params,
-    });
+  getMembers: (params?: { locationId?: string; search?: string }): Promise<MemberSubscription[]> => {
+    const q: Record<string, string> = {};
+    if (params?.locationId) q.locationId = params.locationId;
+    if (params?.search?.trim()) q.search = params.search.trim();
+    return apiClient.get<MemberSubscription[]>(subscriptionsMembersPath, { params: q });
   },
   getMemberById: async (
     routeId: string,

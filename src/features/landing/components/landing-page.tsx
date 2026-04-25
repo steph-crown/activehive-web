@@ -1,5 +1,12 @@
-import { Link, useNavigate } from "react-router-dom";
-import { HOME_URL } from "@/lib/urls";
+import dashboardImage from "@/assets/dashboard.png";
+import gymHeroImage from "@/assets/gym-assets/gym-1-min.jpg";
+import { Logo } from "@/components/icons/logo";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,26 +15,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Logo } from "@/components/icons/logo";
+import { HOME_URL } from "@/lib/urls";
 import {
   IconBarbell,
-  IconUsers,
   IconCalendar,
   IconChartBar,
+  IconChevronRight,
   IconMapPin,
   IconShield,
-  IconChevronRight,
+  IconUsers,
 } from "@tabler/icons-react";
-import { Check } from "lucide-react";
 import { motion } from "framer-motion";
-import gymHeroImage from "@/assets/gym-assets/gym-1-min.jpg";
-import dashboardImage from "@/assets/dashboard.png";
+import { Check } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const features = [
   {
@@ -185,9 +185,7 @@ export function LandingPage() {
               <Button variant="ghost" onClick={() => navigate("/login")}>
                 Login
               </Button>
-              <Button onClick={() => navigate("/signup")}>
-                Get Started
-              </Button>
+              <Button onClick={() => navigate("/signup")}>Get Started</Button>
             </div>
           </div>
         </div>
@@ -366,7 +364,11 @@ export function LandingPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Button size="lg" className="w-full" onClick={() => navigate("/signup")}>
+                  <Button
+                    size="lg"
+                    className="w-full"
+                    onClick={() => navigate("/signup")}
+                  >
                     Create Free Account
                     <IconChevronRight className="ml-2 h-4 w-4" />
                   </Button>

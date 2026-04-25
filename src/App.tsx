@@ -75,7 +75,8 @@ const SmsCampaigns = lazy(
 const StaffRoles = lazy(() => import("@/app/dashboard/staff/roles/page"));
 const Billing = lazy(() => import("@/app/billing/page"));
 const Profile = lazy(() => import("@/app/profile/page"));
-const Landing = lazy(() => import("@/app/landing/page"));
+const OldLanding = lazy(() => import("@/app/landing/page"));
+const Landing = lazy(() => import("@/app/new-landing/page"));
 
 function App() {
   return (
@@ -84,6 +85,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/landing" element={<Landing />} />
+          <Route path="/old-landing" element={<OldLanding />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/otp" element={<Otp />} />
           <Route path="/complete-setup" element={<CompleteSetup />} />

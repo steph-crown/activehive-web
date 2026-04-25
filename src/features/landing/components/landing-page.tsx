@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
+import { HOME_URL } from "@/lib/urls";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -179,7 +180,7 @@ export function LandingPage() {
       <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Logo path="/" />
+            <Logo />
             <div className="flex items-center gap-4">
               <Button variant="ghost" onClick={() => navigate("/login")}>
                 Login
@@ -537,7 +538,7 @@ export function LandingPage() {
         <div className="container mx-auto px-4">
           <div className="grid gap-8 md:grid-cols-4">
             <div>
-              <Logo path="/" />
+              <Logo />
               <p className="mt-4 text-sm text-muted-foreground">
                 The all-in-one platform for gym management.
               </p>
@@ -546,28 +547,28 @@ export function LandingPage() {
               <h3 className="font-semibold">Product</h3>
               <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
                 <li>
-                  <Link
-                    to="/"
+                  <a
+                    href={HOME_URL}
                     className="hover:text-foreground transition-colors"
                   >
                     Features
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link
-                    to="/"
+                  <a
+                    href={HOME_URL}
                     className="hover:text-foreground transition-colors"
                   >
                     Pricing
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link
-                    to="/"
+                  <a
+                    href={HOME_URL}
                     className="hover:text-foreground transition-colors"
                   >
                     Updates
-                  </Link>
+                  </a>
                 </li>
               </ul>
             </div>
@@ -575,28 +576,28 @@ export function LandingPage() {
               <h3 className="font-semibold">Company</h3>
               <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
                 <li>
-                  <Link
-                    to="/"
+                  <a
+                    href={HOME_URL}
                     className="hover:text-foreground transition-colors"
                   >
                     About
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link
-                    to="/"
+                  <a
+                    href={HOME_URL}
                     className="hover:text-foreground transition-colors"
                   >
                     Blog
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link
-                    to="/"
+                  <a
+                    href={HOME_URL}
                     className="hover:text-foreground transition-colors"
                   >
                     Careers
-                  </Link>
+                  </a>
                 </li>
               </ul>
             </div>
@@ -604,20 +605,20 @@ export function LandingPage() {
               <h3 className="font-semibold">Support</h3>
               <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
                 <li>
-                  <Link
-                    to="/"
+                  <a
+                    href={HOME_URL}
                     className="hover:text-foreground transition-colors"
                   >
                     Help Center
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link
-                    to="/"
+                  <a
+                    href={HOME_URL}
                     className="hover:text-foreground transition-colors"
                   >
                     Contact
-                  </Link>
+                  </a>
                 </li>
                 <li>
                   <a

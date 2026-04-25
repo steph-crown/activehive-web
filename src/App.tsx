@@ -1,5 +1,5 @@
 import { BlockLoader } from "@/components/loader/block-loader";
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import {
   Navigate,
   Route,
@@ -7,6 +7,14 @@ import {
   Routes,
 } from "react-router-dom";
 import "./App.css";
+import { HOME_URL } from "@/lib/urls";
+
+function ExternalRedirect({ to }: { to: string }) {
+  useEffect(() => {
+    window.location.replace(to);
+  }, [to]);
+  return null;
+}
 
 const Login = lazy(() => import("@/app/(auth)/login/page"));
 const SignUp = lazy(() => import("@/app/(auth)/signup/page"));
@@ -76,15 +84,14 @@ const StaffRoles = lazy(() => import("@/app/dashboard/staff/roles/page"));
 const Billing = lazy(() => import("@/app/billing/page"));
 const Profile = lazy(() => import("@/app/profile/page"));
 const OldLanding = lazy(() => import("@/app/landing/page"));
-const Landing = lazy(() => import("@/app/new-landing/page"));
 
 function App() {
   return (
     <Router>
       <Suspense fallback={<BlockLoader />}>
         <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/landing" element={<Landing />} />
+          <Route path="/" element={<ExternalRedirect to={HOME_URL} />} />
+          <Route path="/landing" element={<ExternalRedirect to={HOME_URL} />} />
           <Route path="/old-landing" element={<OldLanding />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/otp" element={<Otp />} />

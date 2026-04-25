@@ -53,23 +53,18 @@ export function CheckInPage() {
       sortBy: "checkInTime",
       sortOrder,
     }),
-    [
-      locationFilter,
-      dateFrom,
-      dateTo,
-      deferredSearch,
-      page,
-      limit,
-      sortOrder,
-    ],
+    [locationFilter, dateFrom, dateTo, deferredSearch, page, limit, sortOrder],
   );
 
   useEffect(() => {
     setPage(1);
   }, [locationFilter, dateFrom, dateTo, deferredSearch, sortOrder]);
 
-  const { data: checkInsResponse, isLoading, isError } =
-    useCheckInsQuery(listParams);
+  const {
+    data: checkInsResponse,
+    isLoading,
+    isError,
+  } = useCheckInsQuery(listParams);
 
   const statsParams = useMemo(
     () => ({
@@ -95,7 +90,8 @@ export function CheckInPage() {
           const member = row.original.member;
           const incomplete =
             member != null &&
-            (member.onboardingCompleted === false || member.status === "pending");
+            (member.onboardingCompleted === false ||
+              member.status === "pending");
           return (
             <div className="flex items-center gap-1.5 font-medium">
               <span>{memberDisplayName(member)}</span>
@@ -125,9 +121,7 @@ export function CheckInPage() {
         cell: ({ row }) => {
           const raw = row.original.status;
           const label =
-            raw === "checked_in"
-              ? "Checked in"
-              : raw.replace(/_/g, " ");
+            raw === "checked_in" ? "Checked in" : raw.replace(/_/g, " ");
           return (
             <Badge
               variant="secondary"
@@ -142,7 +136,7 @@ export function CheckInPage() {
         id: "staff",
         accessorKey: "checkedInBy",
         header: "Staff",
-        cell: () => "—",
+        cell: ({ row }) => row.original?.checkedInBy?.name,
       },
       {
         id: "location",

@@ -65,7 +65,7 @@ export type CheckInListItem = {
   checkInTime: string;
   checkOutTime: string | null;
   notes: string | null;
-  checkedInBy?: string | null;
+  checkedInBy?: { id: string; name: string };
   checkedOutBy?: string | null;
   /** API may omit nested member until hydrated. */
   member: CheckInListMember | null;

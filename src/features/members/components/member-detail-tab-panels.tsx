@@ -189,15 +189,15 @@ export function MemberDetailTabPanels({ detail }: PanelsProps) {
           </span>
         ),
       },
-      {
-        accessorKey: "checkOut",
-        header: "Check-out",
-        cell: ({ row }) => (
-          <span className="tabular-nums">
-            {formatAttendanceDateTime(row.original.checkOut)}
-          </span>
-        ),
-      },
+      // {
+      //   accessorKey: "checkOut",
+      //   header: "Check-out",
+      //   cell: ({ row }) => (
+      //     <span className="tabular-nums">
+      //       {formatAttendanceDateTime(row.original.checkOut)}
+      //     </span>
+      //   ),
+      // },
       {
         accessorKey: "processedBy",
         header: "Processed by",

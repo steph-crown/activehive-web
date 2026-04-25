@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
 import { useLocationsQuery } from "@/features/locations/services";
 import { membershipPlansApi, useMembershipPlansQuery } from "@/features/membership-plans/services";
@@ -57,6 +58,8 @@ type FormState = {
   startDate: string;
   endDate: string;
   promoCode: string;
+  paymentMethod: "online" | "offline";
+  paymentNotes: string;
   trainer: string;
   locationId: string;
   emergencyContactName: string;
@@ -79,6 +82,8 @@ const initialFormState: FormState = {
   startDate: new Date().toISOString().split("T")[0],
   endDate: "",
   promoCode: "",
+  paymentMethod: "online",
+  paymentNotes: "",
   trainer: "",
   locationId: "",
   emergencyContactName: "",
@@ -316,6 +321,11 @@ export function AddMemberPage({
         ...(form.locationId.trim() && { locationId: form.locationId.trim() }),
         ...(form.startDate.trim() && { startDate: form.startDate.trim() }),
         ...(form.promoCode.trim() && { promoCode: form.promoCode.trim() }),
+        payment: {
+          paymentMethod: form.paymentMethod,
+          amount: selectedPlan ? (Number(selectedPlan.price) || 0) : 0,
+          ...(form.paymentNotes.trim() && { notes: form.paymentNotes.trim() }),
+        },
       });
 
       showSuccess("Success", "Member created successfully.");
@@ -537,6 +547,49 @@ export function AddMemberPage({
                   <Label>End Date</Label>
                   <Input type="date" value={form.endDate} disabled />
                 </div>
+
+                <div className="grid gap-2">
+                  <Label>Payment Method *</Label>
+                  <Select
+                    value={form.paymentMethod}
+                    onValueChange={(value) =>
+                      setField("paymentMethod", value as "online" | "offline")
+                    }
+                    disabled={mode === "edit"}
+                  >
+                    <SelectTrigger className="h-10 w-full shadow-xs">
+                      <SelectValue placeholder="Select payment method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="online">Online</SelectItem>
+                      <SelectItem value="offline">Offline</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid gap-2">
+                  <Label>Amount</Label>
+                  <Input
+                    value={
+                      selectedPlan
+                        ? formatPlanPriceNgn(selectedPlan.price)
+                        : "—"
+                    }
+                    disabled
+                    className="bg-muted/50"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-2">
+                <Label>Payment Notes</Label>
+                <Textarea
+                  rows={3}
+                  placeholder="e.g. Paid via bank transfer, ref: ABC123"
+                  value={form.paymentNotes}
+                  onChange={(e) => setField("paymentNotes", e.target.value)}
+                  disabled={mode === "edit"}
+                />
               </div>
             </div>
           )}

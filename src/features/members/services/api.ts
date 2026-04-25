@@ -8,7 +8,7 @@ import type {
   MemberSubscription,
 } from "../types";
 
-const membersPath = "/api/gym-owner/dashboard/members";
+const membersPath = "/api/gym-owner/dashboard/members/with-payment";
 const subscriptionsMembersPath = "/api/gym-owner/subscriptions/members";
 
 export const membersApi = {

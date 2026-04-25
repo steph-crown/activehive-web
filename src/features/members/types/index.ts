@@ -271,4 +271,9 @@ export type CreateMemberPayload = {
   locationId?: string;
   startDate?: string;
   promoCode?: string;
+  payment: {
+    paymentMethod: "online" | "offline";
+    amount: number;
+    notes?: string;
+  };
 };

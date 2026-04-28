@@ -482,24 +482,26 @@ export function MemberDetailTabPanels({ detail }: PanelsProps) {
         <Card className="rounded-md border-[#F4F4F4] bg-white p-6 shadow-none">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <SectionHeading>Check-in history</SectionHeading>
-            <Button
-              className="shrink-0 gap-2 bg-[#FFC107] text-black hover:bg-[#e6ae06]"
-              disabled={isCheckingIn}
-              onClick={() =>
-                void executeCheckIn({
-                  memberId: detail.memberId,
-                  locationId: detail.location.id,
-                  rowId: detail.memberId,
-                })
-              }
-            >
-              {isCheckingIn ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <IconQrcode className="size-4" />
-              )}
-              Manual check-in
-            </Button>
+            {detail.status.toLowerCase() === "active" && (
+              <Button
+                className="shrink-0 gap-2 bg-[#FFC107] text-black hover:bg-[#e6ae06]"
+                disabled={isCheckingIn}
+                onClick={() =>
+                  void executeCheckIn({
+                    memberId: detail.memberId,
+                    locationId: detail.location.id,
+                    rowId: detail.memberId,
+                  })
+                }
+              >
+                {isCheckingIn ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <IconQrcode className="size-4" />
+                )}
+                Manual check-in
+              </Button>
+            )}
           </div>
           {attendance.length === 0 ? (
             <p className="text-muted-foreground mt-6 text-sm">

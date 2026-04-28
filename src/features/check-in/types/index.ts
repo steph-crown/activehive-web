@@ -25,7 +25,7 @@ export type CheckInsListParams = {
 
 export type CheckInListLocation = {
   id: string;
-  locationName: string;
+  name: string;
 };
 
 export type CheckInListMember = {

@@ -6,12 +6,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { IconEye, IconPlus } from "@tabler/icons-react";
+import { IconEdit, IconEye, IconPlus } from "@tabler/icons-react";
 import { type ColumnDef } from "@tanstack/react-table";
 import * as React from "react";
 import { useAvailableRolesQuery } from "../services";
 import type { Role } from "../types";
 import { CreateRoleModal } from "./create-role-modal";
+import { EditRoleModal } from "./edit-role-modal";
 import { ViewRoleDetailsModal } from "./view-role-details-modal";
 
 function PermissionNamesCell({ role }: { role: Role }) {
@@ -51,11 +52,18 @@ export function RolesTab() {
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [viewingRole, setViewingRole] = React.useState<Role | null>(null);
   const [detailsOpen, setDetailsOpen] = React.useState(false);
+  const [editingRole, setEditingRole] = React.useState<Role | null>(null);
+  const [editOpen, setEditOpen] = React.useState(false);
   const { data: roles, isLoading, refetch } = useAvailableRolesQuery();
 
   const openDetails = React.useCallback((role: Role) => {
     setViewingRole(role);
     setDetailsOpen(true);
+  }, []);
+
+  const openEdit = React.useCallback((role: Role) => {
+    setEditingRole(role);
+    setEditOpen(true);
   }, []);
 
   const columns = React.useMemo<ColumnDef<Role>[]>(
@@ -95,22 +103,34 @@ export function RolesTab() {
         id: "actions",
         header: "",
         enableSorting: false,
-        size: 48,
+        size: 96,
         cell: ({ row }) => (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="size-8 shrink-0"
-            aria-label={`View ${row.original.name}`}
-            onClick={() => openDetails(row.original)}
-          >
-            <IconEye className="size-4" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-8 shrink-0"
+              aria-label={`Edit ${row.original.name}`}
+              onClick={() => openEdit(row.original)}
+            >
+              <IconEdit className="size-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-8 shrink-0"
+              aria-label={`View ${row.original.name}`}
+              onClick={() => openDetails(row.original)}
+            >
+              <IconEye className="size-4" />
+            </Button>
+          </div>
         ),
       },
     ],
-    [openDetails],
+    [openDetails, openEdit],
   );
 
   const handleModalSuccess = () => {
@@ -156,6 +176,16 @@ export function RolesTab() {
             setDetailsOpen(open);
             if (!open) setViewingRole(null);
           }}
+        />
+
+        <EditRoleModal
+          role={editingRole}
+          open={editOpen}
+          onOpenChange={(open) => {
+            setEditOpen(open);
+            if (!open) setEditingRole(null);
+          }}
+          onSuccess={refetch}
         />
       </>
     </TooltipProvider>

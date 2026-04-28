@@ -5,6 +5,7 @@ import type {
   CreateStaffPayload,
   Role,
   CreateRolePayload,
+  UpdateRolePayload,
   Permission,
   CreatePermissionPayload,
   AssignStaffRolePayload,
@@ -101,6 +102,18 @@ export const useCreateRoleMutation = () => {
       queryClient.invalidateQueries({
         queryKey: rolesQueryKeys.all,
       });
+    },
+  });
+};
+
+export const useUpdateRoleMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateRolePayload }) =>
+      rolesApi.updateRole(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: rolesQueryKeys.all });
     },
   });
 };

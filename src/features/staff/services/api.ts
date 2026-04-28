@@ -4,6 +4,7 @@ import type {
   CreateStaffPayload,
   Role,
   CreateRolePayload,
+  UpdateRolePayload,
   Permission,
   CreatePermissionPayload,
   AssignStaffRolePayload,
@@ -36,6 +37,8 @@ export const rolesApi = {
     apiClient.get<Role[]>(`${rolesPath}/available`),
   createRole: (payload: CreateRolePayload): Promise<Role> =>
     apiClient.post<Role>(rolesPath, payload),
+  updateRole: (id: string, payload: UpdateRolePayload): Promise<Role> =>
+    apiClient.patch<Role>(`${rolesPath}/${id}`, payload),
 };
 
 export const permissionsApi = {

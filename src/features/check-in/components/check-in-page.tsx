@@ -140,9 +140,9 @@ export function CheckInPage() {
       },
       {
         id: "location",
-        accessorFn: (row) => row.location?.locationName ?? "",
+        accessorFn: (row) => row.location?.name ?? "",
         header: "Location",
-        cell: ({ row }) => row.original.location?.locationName ?? "—",
+        cell: ({ row }) => row.original.location?.name ?? "—",
       },
     ],
     [],

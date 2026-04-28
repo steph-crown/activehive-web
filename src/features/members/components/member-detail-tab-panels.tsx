@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 import {
   IconCircleCheckFilled,
   IconClock,
@@ -12,9 +12,10 @@ import { type ColumnDef } from "@tanstack/react-table";
 
 import { DataTable } from "@/components/molecules/data-table";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TabsContent } from "@/components/ui/tabs";
+import { useInstantCheckIn } from "@/features/check-in/hooks/use-instant-check-in";
 import { cn } from "@/lib/utils";
 import {
   formatDisplayDate,
@@ -155,6 +156,9 @@ function LegalTile({ label, value }: { label: string; value: string }) {
 type PanelsProps = { detail: GymMemberDetail };
 
 export function MemberDetailTabPanels({ detail }: PanelsProps) {
+  const { executeCheckIn, loadingRowId } = useInstantCheckIn();
+  const isCheckingIn = loadingRowId === detail.memberId;
+
   const m = detail.member;
   const c = detail.compliance;
   const activityLog = detail.activityLog ?? [];
@@ -478,18 +482,24 @@ export function MemberDetailTabPanels({ detail }: PanelsProps) {
         <Card className="rounded-md border-[#F4F4F4] bg-white p-6 shadow-none">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <SectionHeading>Check-in history</SectionHeading>
-            <Link
-              to="/dashboard/check-in"
-              className={cn(
-                buttonVariants({
-                  className:
-                    "shrink-0 gap-2 bg-[#FFC107] text-black hover:bg-[#e6ae06]",
-                }),
-              )}
+            <Button
+              className="shrink-0 gap-2 bg-[#FFC107] text-black hover:bg-[#e6ae06]"
+              disabled={isCheckingIn}
+              onClick={() =>
+                void executeCheckIn({
+                  memberId: detail.memberId,
+                  locationId: detail.location.id,
+                  rowId: detail.memberId,
+                })
+              }
             >
-              <IconQrcode className="size-4" />
+              {isCheckingIn ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <IconQrcode className="size-4" />
+              )}
               Manual check-in
-            </Link>
+            </Button>
           </div>
           {attendance.length === 0 ? (
             <p className="text-muted-foreground mt-6 text-sm">

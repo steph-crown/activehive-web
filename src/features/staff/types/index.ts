@@ -104,6 +104,13 @@ export type CreateRolePayload = {
   permissionCodes: string[];
 };
 
+/** PATCH `/api/gym-owner/staff/roles/{id}` */
+export type UpdateRolePayload = {
+  name: string;
+  description?: string;
+  permissionCodes: string[];
+};
+
 export type Permission = {
   id: string;
   name: string;

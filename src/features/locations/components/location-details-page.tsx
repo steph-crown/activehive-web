@@ -145,7 +145,7 @@ export function LocationDetailsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 px-4 md:grid-cols-2 xl:grid-cols-4 lg:px-6">
+        <div className="grid items-start grid-cols-1 gap-4 px-4 md:grid-cols-2 xl:grid-cols-4 lg:px-6">
           <Card
             className="cursor-pointer rounded-md border border-[#F4F4F4] bg-white p-5 shadow-none transition-colors hover:bg-accent/30"
             onClick={() => navigate(`/dashboard/locations/${id}/facilities`)}
@@ -198,7 +198,7 @@ export function LocationDetailsPage() {
             </TabsList>
 
             <TabsContent value="overview" className="mt-5">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid items-start grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="rounded-md border border-[#F4F4F4] bg-white p-4">
                   <p className="text-xs text-muted-foreground">Location Name</p>
                   <p className="mt-1 text-sm">{locationData.locationName}</p>
@@ -233,7 +233,7 @@ export function LocationDetailsPage() {
             </TabsContent>
 
             <TabsContent value="contact" className="mt-5">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid items-start grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="rounded-md border border-[#F4F4F4] bg-white p-4">
                   <p className="text-xs text-muted-foreground">Email</p>
                   <p className="mt-1 text-sm">{locationData.email}</p>
@@ -262,7 +262,7 @@ export function LocationDetailsPage() {
             </TabsContent>
 
             <TabsContent value="payment" className="mt-5">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid items-start grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="rounded-md border border-[#F4F4F4] bg-white p-4">
                   <p className="text-xs text-muted-foreground">Account Name</p>
                   <p className="mt-1 text-sm">{locationData.paymentAccount.accountName}</p>
@@ -287,7 +287,7 @@ export function LocationDetailsPage() {
             </TabsContent>
 
             <TabsContent value="metrics" className="mt-5">
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+              <div className="grid items-start grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
                 {[
                   { label: "Total Members", value: metrics.totalMembers || 0 },
                   { label: "Active Members", value: metrics.activeMembers || 0 },
@@ -326,7 +326,7 @@ export function LocationDetailsPage() {
                   </Button>
                 </div>
                 {locationData.images && locationData.images.length > 0 ? (
-                  <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                  <div className="grid items-start grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
                     {locationData.images.map((imageUrl, index) => (
                       <div
                         key={index}

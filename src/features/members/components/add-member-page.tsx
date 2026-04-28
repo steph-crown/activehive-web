@@ -371,7 +371,7 @@ export function AddMemberPage({
           {step === 0 && (
             <div className="grid gap-4 rounded-md border border-[#F4F4F4] bg-white p-6">
               <h2 className="text-lg font-semibold">Personal Details</h2>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid items-start grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="grid gap-2">
                   <Label>First Name *</Label>
                   <Input
@@ -452,7 +452,7 @@ export function AddMemberPage({
           {step === 1 && (
             <div className="grid gap-4 rounded-md border border-[#F4F4F4] bg-white p-6">
               <h2 className="text-lg font-semibold">Membership Assignment</h2>
-              <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
+              <div className="grid items-start grid-cols-1 items-start gap-4 md:grid-cols-2">
                 <div className="grid gap-2">
                   <Label>Membership Plan *</Label>
                   <Select
@@ -597,7 +597,7 @@ export function AddMemberPage({
           {step === 2 && (
             <div className="grid gap-4 rounded-md border border-[#F4F4F4] bg-white p-6">
               <h2 className="text-lg font-semibold">Gym Assignment</h2>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid items-start grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="grid gap-2">
                   <Label>Assigned Trainer</Label>
                   <Select
@@ -645,7 +645,7 @@ export function AddMemberPage({
           {step === 3 && (
             <div className="grid gap-4">
               {mode === "create" && !profileOption && (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="grid items-start grid-cols-1 gap-4 md:grid-cols-2">
                   <button
                     type="button"
                     onClick={() => setProfileOption("fill")}
@@ -698,7 +698,7 @@ export function AddMemberPage({
                 <>
                   <div className="grid gap-4 rounded-md border border-[#F4F4F4] bg-white p-6">
                     <h2 className="text-lg font-semibold">Emergency Contact</h2>
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <div className="grid items-start grid-cols-1 gap-4 md:grid-cols-3">
                       <div className="grid gap-2">
                         <Label>Contact Name *</Label>
                         <Input

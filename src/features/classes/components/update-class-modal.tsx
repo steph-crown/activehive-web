@@ -223,7 +223,7 @@ export function UpdateClassModal({
               )}
             />
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid items-start grid-cols-3 gap-4">
               <FormField
                 control={form.control}
                 name="capacity"
@@ -288,7 +288,7 @@ export function UpdateClassModal({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid items-start grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="difficulty"
@@ -390,7 +390,7 @@ export function UpdateClassModal({
               {fields.map((field, index) => (
                 <div
                   key={field.id}
-                  className="grid grid-cols-4 gap-2 mb-2 items-end"
+                  className="grid items-start grid-cols-4 gap-2 mb-2 items-end"
                 >
                   <FormField
                     control={form.control}

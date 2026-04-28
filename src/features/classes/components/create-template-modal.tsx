@@ -210,7 +210,7 @@ export function CreateTemplateModal({
               )}
             />
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid items-start grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="capacity"
@@ -275,7 +275,7 @@ export function CreateTemplateModal({
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid items-start grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="difficulty"

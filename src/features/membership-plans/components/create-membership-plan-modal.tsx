@@ -221,7 +221,7 @@ export function CreateMembershipPlanModal({
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid items-start grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="price"
@@ -298,7 +298,7 @@ export function CreateMembershipPlanModal({
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid items-start grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="gracePeriodDays"

@@ -104,7 +104,7 @@ export function SubscriptionsFiltersPanel({
           <DialogTitle>Filter Subscriptions</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid items-start grid-cols-2 gap-4">
             <div className="min-w-0 w-full">
               <label className="text-sm font-medium mb-2 block">Status</label>
               <Select
@@ -200,7 +200,7 @@ export function SubscriptionsFiltersPanel({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid items-start grid-cols-2 gap-4">
             <div className="min-w-0 w-full">
               <label className="text-sm font-medium mb-2 block">
                 Start Date From
@@ -235,7 +235,7 @@ export function SubscriptionsFiltersPanel({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid items-start grid-cols-2 gap-4">
             <div className="min-w-0 w-full">
               <label className="text-sm font-medium mb-2 block">
                 End Date From

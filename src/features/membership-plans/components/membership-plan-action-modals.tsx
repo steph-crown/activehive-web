@@ -178,7 +178,7 @@ export function UpdateMembershipPlanModal({
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid items-start grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="price"
@@ -231,7 +231,7 @@ export function UpdateMembershipPlanModal({
                 )}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid items-start grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="gracePeriodDays"
@@ -282,7 +282,7 @@ export function UpdateMembershipPlanModal({
                 )}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid items-start grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="hasTrialPeriod"
@@ -686,7 +686,7 @@ export function AddPromoCodeModal({
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid items-start grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="discountType"
@@ -737,7 +737,7 @@ export function AddPromoCodeModal({
                 )}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid items-start grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="validFrom"

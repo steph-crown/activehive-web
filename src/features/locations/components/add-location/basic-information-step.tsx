@@ -50,7 +50,7 @@ export function BasicInformationStep({
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid items-start grid-cols-1 gap-4 md:grid-cols-2">
         <div className="grid gap-2">
           <Label>Country *</Label>
           <Select value={form.country || undefined} onValueChange={handleCountryChange}>
@@ -95,7 +95,7 @@ export function BasicInformationStep({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid items-start grid-cols-1 gap-4 md:grid-cols-2">
         <div className="grid gap-2">
           <Label>City *</Label>
           <Input
@@ -114,7 +114,7 @@ export function BasicInformationStep({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid items-start grid-cols-1 gap-4 md:grid-cols-2">
         <div className="grid gap-2">
           <Label>Phone *</Label>
           <Input

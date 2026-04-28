@@ -85,7 +85,7 @@ export function BankAccountFields({
 
   return (
     <div className="grid gap-4">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid items-start grid-cols-1 gap-4 md:grid-cols-2">
         <div className="grid gap-2">
           <Label>Bank *</Label>
           <DropdownMenu>
@@ -162,6 +162,9 @@ export function BankAccountFields({
             placeholder="1234567890"
             disabled={disabled}
           />
+          {resolveError && (
+            <p className="text-destructive text-sm">{resolveError}</p>
+          )}
         </div>
       </div>
 
@@ -173,9 +176,6 @@ export function BankAccountFields({
           placeholder="Auto-filled after account lookup"
           className={cn(isResolving && "text-muted-foreground italic")}
         />
-        {resolveError && (
-          <p className="text-destructive text-sm">{resolveError}</p>
-        )}
       </div>
     </div>
   );

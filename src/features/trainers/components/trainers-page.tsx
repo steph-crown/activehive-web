@@ -266,7 +266,7 @@ export function TrainersPage() {
                   <button
                     key={trainer.id}
                     type="button"
-                    className="cursor-pointer rounded-md border border-[#F4F4F4] bg-white p-5 text-left shadow-none transition hover:border-primary hover:shadow-sm"
+                    className="cursor-pointer rounded-md border border-input/70 bg-white p-5 text-left shadow-none transition hover:border-primary hover:shadow-sm"
                     onClick={() => {
                       setSelectedTrainer(trainer);
                       setIsViewOpen(true);
@@ -337,7 +337,10 @@ export function TrainersPage() {
             <DialogTitle>Add Trainer</DialogTitle>
             <DialogDescription>Create a new trainer profile.</DialogDescription>
           </DialogHeader>
-          <form onSubmit={(e) => void handleAddTrainer(e)} className="space-y-4">
+          <form
+            onSubmit={(e) => void handleAddTrainer(e)}
+            className="space-y-4"
+          >
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="trainer-first-name">First Name</Label>
@@ -445,7 +448,9 @@ export function TrainersPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="trainer-profile-photo">Profile photo (optional)</Label>
+              <Label htmlFor="trainer-profile-photo">
+                Profile photo (optional)
+              </Label>
               <div className="flex flex-wrap items-center gap-3">
                 <input
                   ref={profilePhotoInputRef}

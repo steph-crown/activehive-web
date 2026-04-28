@@ -1,0 +1,1 @@
+- the error message in account validation in payment tab on add location page should be under account number field, not account name

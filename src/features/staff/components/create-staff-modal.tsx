@@ -157,7 +157,7 @@ export function CreateStaffModal({
             onSubmit={form.handleSubmit(onSubmit)}
             className="grid gap-4 py-4"
           >
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid items-start grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="firstName"
@@ -187,7 +187,7 @@ export function CreateStaffModal({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid items-start grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="email"
@@ -221,7 +221,7 @@ export function CreateStaffModal({
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid items-start grid-cols-1 gap-4">
               <FormField
                 control={form.control}
                 name="roleId"

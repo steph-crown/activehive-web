@@ -189,7 +189,7 @@ export function UseTemplateModal({
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid items-start grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="locationId"
@@ -270,7 +270,7 @@ export function UseTemplateModal({
               {fields.map((field, index) => (
                 <div
                   key={field.id}
-                  className="grid grid-cols-4 gap-2 mb-2 items-end"
+                  className="grid items-start grid-cols-4 gap-2 mb-2 items-end"
                 >
                   <FormField
                     control={form.control}

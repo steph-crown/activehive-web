@@ -326,7 +326,7 @@ export function CreateClassModal({
               )}
             />
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid items-start grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="capacity"
@@ -366,7 +366,7 @@ export function CreateClassModal({
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid items-start grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="category"
@@ -431,7 +431,7 @@ export function CreateClassModal({
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid items-start grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="difficulty"

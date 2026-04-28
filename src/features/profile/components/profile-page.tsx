@@ -299,7 +299,7 @@ export function ProfilePage() {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid items-start grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Name</p>
                   <p className="font-medium">
@@ -359,7 +359,7 @@ export function ProfilePage() {
                 <CardTitle>Address</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid items-start grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Street</p>
                     <p className="font-medium">{profile.address.street}</p>
@@ -422,7 +422,7 @@ export function ProfilePage() {
               onSubmit={updateProfileForm.handleSubmit(handleUpdateProfile)}
               className="space-y-4"
             >
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid items-start grid-cols-2 gap-4">
                 <FormField
                   control={updateProfileForm.control}
                   name="firstName"
@@ -516,7 +516,7 @@ export function ProfilePage() {
               />
               <div className="space-y-2">
                 <FormLabel>Address</FormLabel>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid items-start grid-cols-2 gap-4">
                   <FormField
                     control={updateProfileForm.control}
                     name="address.street"

@@ -4,6 +4,9 @@ import { NIGERIA_GOVERNMENT_ID_TYPE_VALUES } from "./constants/nigeria-governmen
 // Step 1: Signup schema
 export const signupSchema = yup.object({
   gymName: yup.string().required("Gym name is required"),
+  businessRegistrationNumber: yup
+    .string()
+    .required("Business registration number is required"),
   firstName: yup.string().required("First name is required"),
   lastName: yup.string().required("Last name is required"),
   email: yup

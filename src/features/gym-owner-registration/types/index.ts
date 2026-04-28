@@ -1,5 +1,6 @@
 export type StepOnePayload = {
   gymName: string;
+  businessRegistrationNumber: string;
   firstName: string;
   lastName: string;
   email: string;

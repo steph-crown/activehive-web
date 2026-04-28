@@ -37,6 +37,7 @@ export function SignupForm({
     resolver: yupResolver(signupSchema),
     defaultValues: {
       gymName: "",
+      businessRegistrationNumber: "",
       firstName: "",
       lastName: "",
       email: "",
@@ -49,6 +50,7 @@ export function SignupForm({
     try {
       const response = await register({
         gymName: data.gymName,
+        businessRegistrationNumber: data.businessRegistrationNumber,
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
@@ -99,6 +101,20 @@ export function SignupForm({
                 <FormLabel>Gym name</FormLabel>
                 <FormControl>
                   <Input placeholder="ActiveHive Gym" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="businessRegistrationNumber"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Business registration number</FormLabel>
+                <FormControl>
+                  <Input placeholder="RC123456" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

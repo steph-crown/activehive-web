@@ -186,7 +186,13 @@ export const locationsSchema = yup.object({
     .array()
     .of(locationSchema)
     .min(1, "At least one location is required")
-    .required("Locations are required"),
+    .required("Locations are required")
+    .test(
+      "one-headquarters",
+      "One location must be set as headquarters",
+      (locations) =>
+        Array.isArray(locations) && locations.some((l) => l?.isHeadquarters),
+    ),
 });
 
 // Type exports

@@ -103,7 +103,7 @@ export function LocationsStepForm({
           phone: location.phone,
           email: location.email,
           isHeadquarters: location.isHeadquarters,
-          zipCode: location.zipCode ?? "",
+          zipCode: location.zipCode ?? "0000",
           coverImage,
         };
         mappedLocations.push(payload);
@@ -184,7 +184,19 @@ export function LocationsStepForm({
                     type="button"
                     variant="ghost"
                     size="sm"
-                    onClick={() => remove(index)}
+                    onClick={() => {
+                      const wasHQ = form.getValues(
+                        `locations.${index}.isHeadquarters`,
+                      );
+                      remove(index);
+                      if (wasHQ) {
+                        setTimeout(() => {
+                          form.setValue("locations.0.isHeadquarters", true, {
+                            shouldValidate: true,
+                          });
+                        }, 0);
+                      }
+                    }}
                   >
                     Remove
                   </Button>
@@ -359,6 +371,7 @@ export function LocationsStepForm({
                     <FormControl>
                       <Checkbox
                         checked={field.value}
+                        disabled={fields.length === 1}
                         onCheckedChange={(checked) => {
                           const isChecked = Boolean(checked);
                           const locations = form.getValues("locations");
@@ -366,6 +379,7 @@ export function LocationsStepForm({
                             form.setValue(
                               `locations.${i}.isHeadquarters`,
                               i === index ? isChecked : false,
+                              { shouldValidate: true },
                             );
                           });
                         }}
@@ -374,8 +388,9 @@ export function LocationsStepForm({
                     <div className="space-y-1 leading-none">
                       <FormLabel>Set as headquarters</FormLabel>
                       <p className="text-sm text-muted-foreground">
-                        Only one location can be marked as headquarters at a
-                        time.
+                        {fields.length === 1
+                          ? "This location is your headquarters."
+                          : "Only one location can be marked as headquarters at a time."}
                       </p>
                     </div>
                     <FormMessage />

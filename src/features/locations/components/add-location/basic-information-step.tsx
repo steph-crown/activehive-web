@@ -95,23 +95,13 @@ export function BasicInformationStep({
         </div>
       </div>
 
-      <div className="grid items-start grid-cols-1 gap-4 md:grid-cols-2">
-        <div className="grid gap-2">
-          <Label>City *</Label>
-          <Input
-            value={form.city}
-            onChange={(event) => setField("city", event.target.value)}
-            placeholder="Lagos"
-          />
-        </div>
-        <div className="grid gap-2">
-          <Label>Zip / Postal Code</Label>
-          <Input
-            value={form.zipCode}
-            onChange={(event) => setField("zipCode", event.target.value)}
-            placeholder="100001"
-          />
-        </div>
+      <div className="grid gap-2">
+        <Label>City *</Label>
+        <Input
+          value={form.city}
+          onChange={(event) => setField("city", event.target.value)}
+          placeholder="Lagos"
+        />
       </div>
 
       <div className="grid items-start grid-cols-1 gap-4 md:grid-cols-2">

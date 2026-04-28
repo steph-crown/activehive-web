@@ -66,7 +66,7 @@ function renderSliceLabel(props: PieLabelRenderProps) {
       x={x}
       y={y}
       fill={fill}
-      textAnchor={x > cx ? "start" : "end"}
+      textAnchor="middle"
       dominantBaseline="central"
       fontSize={14}
       fontWeight={500}

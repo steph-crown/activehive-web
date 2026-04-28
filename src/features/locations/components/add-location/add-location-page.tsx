@@ -62,8 +62,6 @@ export function AddLocationPage() {
         return (showError("Missing field", "City is required."), false);
       if (!form.state.trim())
         return (showError("Missing field", "State is required."), false);
-      if (!form.zipCode.trim())
-        return (showError("Missing field", "Zip code is required."), false);
       if (!form.country.trim())
         return (showError("Missing field", "Country is required."), false);
       if (!form.phone.trim())
@@ -175,7 +173,7 @@ export function AddLocationPage() {
         address: form.address.trim(),
         city: form.city.trim(),
         state: form.state.trim(),
-        zipCode: form.zipCode.trim(),
+        zipCode: "0000",
         country: form.country.trim(),
         phone: form.phone.trim(),
         email: form.email.trim(),

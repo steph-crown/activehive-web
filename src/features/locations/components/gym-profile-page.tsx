@@ -204,7 +204,7 @@ export function GymProfilePage() {
                         value={formData?.gymName ?? ""}
                         onChange={(value) => updateField("gymName", value)}
                         placeholder="Enter gym name"
-                        disabled={!canEdit || fieldsDisabled}
+                        disabled
                       />
                       <ProfileField
                         label="Business Registration #"
@@ -213,7 +213,7 @@ export function GymProfilePage() {
                           updateField("businessRegistrationNumber", value)
                         }
                         placeholder="Enter registration number"
-                        disabled={!canEdit || fieldsDisabled}
+                        disabled
                       />
                       <ProfileField
                         label="Description"
@@ -223,7 +223,7 @@ export function GymProfilePage() {
                         }
                         placeholder="Enter gym description"
                         textarea
-                        disabled={!canEdit || fieldsDisabled}
+                        disabled
                       />
                     </Card>
                   </div>
@@ -237,14 +237,14 @@ export function GymProfilePage() {
                         onChange={(value) => updateField("gymEmail", value)}
                         placeholder="Enter gym email"
                         type="email"
-                        disabled={!canEdit || fieldsDisabled}
+                        disabled
                       />
                       <ProfileField
                         label="Gym Phone"
                         value={formData?.gymPhone ?? ""}
                         onChange={(value) => updateField("gymPhone", value)}
                         placeholder="Enter gym phone"
-                        disabled={!canEdit || fieldsDisabled}
+                        disabled
                       />
                       <ProfileField
                         label="Website"
@@ -300,7 +300,7 @@ export function GymProfilePage() {
                           <Button
                             type="button"
                             variant="outline"
-                            disabled={!canEdit || isUploading || saving}
+                            disabled
                             onClick={() => logoInputRef.current?.click()}
                           >
                             {isUploading ? "Uploading..." : "Upload"}

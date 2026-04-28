@@ -89,9 +89,7 @@ function App() {
     <Router>
       <Suspense fallback={<BlockLoader />}>
         <Routes>
-          {/* <Route path="/" element={<ExternalRedirect to={HOME_URL} />} /> */}
-          {/* <Route path="/landing" element={<ExternalRedirect to={HOME_URL} />} />
-          <Route path="/old-landing" element={<OldLanding />} /> */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/otp" element={<Otp />} />
           <Route path="/complete-setup" element={<CompleteSetup />} />

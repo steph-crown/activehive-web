@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { formatDisplayDate } from "@/lib/display-datetime";
+import { formatDisplayDate, localCalendarDateKey } from "@/lib/display-datetime";
 
 interface DatePickerProps {
   value?: string;
@@ -16,6 +16,14 @@ interface DatePickerProps {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
+  minDate?: Date;
+}
+
+function parseLocalDate(value: string): Date | undefined {
+  const parts = value.split("-").map(Number);
+  if (parts.length !== 3 || parts.some((n) => isNaN(n))) return undefined;
+  const [y, m, d] = parts;
+  return new Date(y, m - 1, d);
 }
 
 export function DatePicker({
@@ -24,9 +32,10 @@ export function DatePicker({
   placeholder = "Pick a date",
   className,
   disabled,
+  minDate,
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
-  const date = value ? new Date(value) : undefined;
+  const date = value ? parseLocalDate(value) : undefined;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -50,12 +59,13 @@ export function DatePicker({
           selected={date}
           onSelect={(selectedDate) => {
             if (selectedDate) {
-              onChange(selectedDate.toISOString().split("T")[0]);
+              onChange(localCalendarDateKey(selectedDate) ?? undefined);
             } else {
               onChange(undefined);
             }
             setOpen(false);
           }}
+          disabled={minDate ? { before: minDate } : undefined}
           initialFocus
         />
       </DialogContent>

@@ -16,7 +16,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { TimeSelect } from "@/components/ui/time-select";
+import { DatePicker } from "@/components/ui/date-picker";
+import { TimePicker } from "@/components/ui/time-picker";
 import {
   Select,
   SelectContent,
@@ -279,8 +280,6 @@ export function CreateClassModal({
   ];
 
   const difficulties = ["Beginner", "Intermediate", "Advanced", "All Levels"];
-  const todayKey = localDateKey(new Date());
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
@@ -512,10 +511,9 @@ export function CreateClassModal({
                 </Button>
               </div>
               {fields.map((field, index) => (
-                // Use the watched values for dynamic input constraints.
                 <div
                   key={field.id}
-                  className="mb-2 flex w-full items-end gap-2"
+                  className="mb-2 flex w-full items-start gap-2"
                 >
                   <FormField
                     control={form.control}
@@ -524,16 +522,14 @@ export function CreateClassModal({
                       <FormItem className="flex-1">
                         <FormLabel className="text-xs">Date *</FormLabel>
                         <FormControl>
-                          <Input
-                            type="date"
-                            min={todayKey}
-                            {...field}
-                            onChange={(event) => {
-                              const nextDate = event.target.value;
-                              field.onChange(nextDate);
+                          <DatePicker
+                            value={field.value}
+                            minDate={new Date()}
+                            onChange={(nextDate) => {
+                              field.onChange(nextDate ?? "");
                               const currentStartTime =
                                 watchedSchedules?.[index]?.startTime ?? "";
-                              if (!currentStartTime) return;
+                              if (!currentStartTime || !nextDate) return;
                               const now = new Date();
                               const nowMinTime = localTimeKey(now);
                               if (nextDate === localDateKey(now)) {
@@ -558,7 +554,7 @@ export function CreateClassModal({
                       <FormItem className="flex-1">
                         <FormLabel className="text-xs">Start Time *</FormLabel>
                         <FormControl>
-                          <TimeSelect
+                          <TimePicker
                             value={field.value}
                             onChange={field.onChange}
                           />

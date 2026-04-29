@@ -33,6 +33,7 @@ import { useStaffQuery } from "@/features/staff/services";
 import type { ClassTemplate } from "../types";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { Input } from "@/components/ui/input";
+import { TimeSelect } from "@/components/ui/time-select";
 import * as React from "react";
 
 const useTemplateSchema = yup.object({
@@ -292,7 +293,10 @@ export function UseTemplateModal({
                       <FormItem>
                         <FormLabel className="text-xs">Start Time *</FormLabel>
                         <FormControl>
-                          <Input type="time" {...field} />
+                          <TimeSelect
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -305,7 +309,10 @@ export function UseTemplateModal({
                       <FormItem>
                         <FormLabel className="text-xs">End Time *</FormLabel>
                         <FormControl>
-                          <Input type="time" {...field} />
+                          <TimeSelect
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

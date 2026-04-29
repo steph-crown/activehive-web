@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { TimeSelect } from "@/components/ui/time-select";
 import {
   Select,
   SelectContent,
@@ -336,6 +337,7 @@ export function CreateClassModal({
                     <FormControl>
                       <Input
                         type="number"
+                        onFocus={(e) => e.target.select()}
                         min="1"
                         {...field}
                         onChange={(e) => field.onChange(Number(e.target.value))}
@@ -355,6 +357,7 @@ export function CreateClassModal({
                     <FormControl>
                       <Input
                         type="number"
+                        onFocus={(e) => e.target.select()}
                         min="1"
                         {...field}
                         onChange={(e) => field.onChange(Number(e.target.value))}
@@ -555,14 +558,9 @@ export function CreateClassModal({
                       <FormItem className="flex-1">
                         <FormLabel className="text-xs">Start Time *</FormLabel>
                         <FormControl>
-                          <Input
-                            type="time"
-                            min={
-                              watchedSchedules?.[index]?.date === todayKey
-                                ? localTimeKey(new Date())
-                                : undefined
-                            }
-                            {...field}
+                          <TimeSelect
+                            value={field.value}
+                            onChange={field.onChange}
                           />
                         </FormControl>
                         <FormMessage />

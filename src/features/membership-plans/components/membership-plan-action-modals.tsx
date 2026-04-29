@@ -188,6 +188,7 @@ export function UpdateMembershipPlanModal({
                     <FormControl>
                       <Input
                         type="number"
+                        onFocus={(e) => e.target.select()}
                         step="0.01"
                         {...field}
                         value={field.value ?? ""}
@@ -241,6 +242,7 @@ export function UpdateMembershipPlanModal({
                     <FormControl>
                       <Input
                         type="number"
+                        onFocus={(e) => e.target.select()}
                         {...field}
                         value={field.value ?? ""}
                         onChange={(e) => {
@@ -268,6 +270,7 @@ export function UpdateMembershipPlanModal({
                     <FormControl>
                       <Input
                         type="number"
+                        onFocus={(e) => e.target.select()}
                         {...field}
                         value={field.value || ""}
                         onChange={(e) =>
@@ -318,6 +321,7 @@ export function UpdateMembershipPlanModal({
                     <FormControl>
                       <Input
                         type="number"
+                        onFocus={(e) => e.target.select()}
                         {...field}
                         value={field.value || ""}
                         onChange={(e) =>
@@ -717,6 +721,7 @@ export function AddPromoCodeModal({
                     <FormControl>
                       <Input
                         type="number"
+                        onFocus={(e) => e.target.select()}
                         step="0.01"
                         {...field}
                         value={field.value ?? ""}
@@ -804,6 +809,7 @@ export function AddPromoCodeModal({
                   <FormControl>
                     <Input
                       type="number"
+                        onFocus={(e) => e.target.select()}
                       {...field}
                       value={field.value || ""}
                       onChange={(e) =>

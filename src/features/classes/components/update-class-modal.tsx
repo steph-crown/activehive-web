@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { TimeSelect } from "@/components/ui/time-select";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
@@ -233,6 +234,7 @@ export function UpdateClassModal({
                     <FormControl>
                       <Input
                         type="number"
+                        onFocus={(e) => e.target.select()}
                         min="1"
                         {...field}
                         onChange={(e) => field.onChange(Number(e.target.value))}
@@ -252,6 +254,7 @@ export function UpdateClassModal({
                     <FormControl>
                       <Input
                         type="number"
+                        onFocus={(e) => e.target.select()}
                         min="1"
                         {...field}
                         onChange={(e) => field.onChange(Number(e.target.value))}
@@ -412,7 +415,10 @@ export function UpdateClassModal({
                       <FormItem>
                         <FormLabel className="text-xs">Start Time</FormLabel>
                         <FormControl>
-                          <Input type="time" {...field} />
+                          <TimeSelect
+                            value={field.value ?? ""}
+                            onChange={field.onChange}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -425,7 +431,10 @@ export function UpdateClassModal({
                       <FormItem>
                         <FormLabel className="text-xs">End Time</FormLabel>
                         <FormControl>
-                          <Input type="time" {...field} />
+                          <TimeSelect
+                            value={field.value ?? ""}
+                            onChange={field.onChange}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

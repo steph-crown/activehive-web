@@ -231,6 +231,7 @@ export function CreateMembershipPlanModal({
                     <FormControl>
                       <Input
                         type="number"
+                        onFocus={(e) => e.target.select()}
                         step="0.01"
                         placeholder="49.99"
                         {...field}
@@ -308,6 +309,7 @@ export function CreateMembershipPlanModal({
                     <FormControl>
                       <Input
                         type="number"
+                        onFocus={(e) => e.target.select()}
                         placeholder="3"
                         {...field}
                         value={field.value ?? ""}
@@ -339,6 +341,7 @@ export function CreateMembershipPlanModal({
                     <FormControl>
                       <Input
                         type="number"
+                        onFocus={(e) => e.target.select()}
                         placeholder="Unlimited"
                         {...field}
                         value={field.value ?? ""}
@@ -378,6 +381,7 @@ export function CreateMembershipPlanModal({
                     <FormControl>
                       <Input
                         type="number"
+                        onFocus={(e) => e.target.select()}
                         placeholder="7"
                         {...field}
                         value={field.value ?? ""}

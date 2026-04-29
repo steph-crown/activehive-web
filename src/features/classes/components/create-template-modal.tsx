@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { TimeSelect } from "@/components/ui/time-select";
 import {
   Select,
   SelectContent,
@@ -220,6 +221,7 @@ export function CreateTemplateModal({
                     <FormControl>
                       <Input
                         type="number"
+                        onFocus={(e) => e.target.select()}
                         min="1"
                         {...field}
                         onChange={(e) => field.onChange(Number(e.target.value))}
@@ -239,6 +241,7 @@ export function CreateTemplateModal({
                     <FormControl>
                       <Input
                         type="number"
+                        onFocus={(e) => e.target.select()}
                         min="1"
                         {...field}
                         onChange={(e) => field.onChange(Number(e.target.value))}
@@ -343,7 +346,10 @@ export function CreateTemplateModal({
                       <FormItem className="flex-1">
                         <FormLabel className="text-xs">Start Time</FormLabel>
                         <FormControl>
-                          <Input type="time" {...field} />
+                          <TimeSelect
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

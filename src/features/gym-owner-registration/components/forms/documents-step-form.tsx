@@ -30,6 +30,7 @@ import {
   type DocumentsFormValues,
 } from "@/features/gym-owner-registration/schema";
 import { NIGERIA_GOVERNMENT_ID_TYPES } from "@/features/gym-owner-registration/constants/nigeria-government-id-types";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 export function DocumentsStepForm({
   className,
   ...props
@@ -88,9 +89,10 @@ export function DocumentsStepForm({
       form.reset();
       navigate("/gym-locations");
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Unable to upload documents.";
-      showError("Error", message);
+      showError(
+        "Error",
+        getApiErrorMessage(error, "Unable to upload documents."),
+      );
     }
   };
 

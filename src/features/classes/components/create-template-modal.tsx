@@ -347,7 +347,7 @@ export function CreateTemplateModal({
                         <FormLabel className="text-xs">Start Time</FormLabel>
                         <FormControl>
                           <TimeSelect
-                            value={field.value}
+                            value={field.value ?? ""}
                             onChange={field.onChange}
                           />
                         </FormControl>

@@ -555,7 +555,7 @@ export function CreateClassModal({
                         <FormLabel className="text-xs">Start Time *</FormLabel>
                         <FormControl>
                           <TimePicker
-                            value={field.value}
+                            value={field.value ?? ""}
                             onChange={field.onChange}
                           />
                         </FormControl>

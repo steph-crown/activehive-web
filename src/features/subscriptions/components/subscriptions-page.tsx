@@ -60,21 +60,21 @@ const createSubscriptionColumns = (
     accessorKey: "member.email",
     header: "Email",
     cell: ({ row }) => (
-      <div className="text-sm">{row.original.member?.email}</div>
+      <div className="text-sm">{row.original.member?.email || "—"}</div>
     ),
   },
   {
     accessorKey: "membershipPlan.name",
     header: "Plan Name",
     cell: ({ row }) => (
-      <div className="font-medium">{row.original.membershipPlan?.name}</div>
+      <div className="font-medium">{row.original.membershipPlan?.name || "—"}</div>
     ),
   },
   {
     accessorKey: "location.locationName",
     header: "Location",
     cell: ({ row }) => (
-      <div className="text-sm">{row.original.location?.locationName}</div>
+      <div className="text-sm">{row.original.location?.locationName || "—"}</div>
     ),
   },
   {

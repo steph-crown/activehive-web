@@ -75,9 +75,10 @@ export function AddClassAttendanceModal({
     const byId = new Map<string, string>();
     for (const sub of subscriptions ?? []) {
       const m = sub.member;
-      const label = `${m.firstName} ${m.lastName}`.trim();
+      if (!m?.id) continue;
+      const label = `${m.firstName ?? ""} ${m.lastName ?? ""}`.trim();
       if (!byId.has(m.id)) {
-        byId.set(m.id, label || m.email);
+        byId.set(m.id, label || m.email || "Unknown");
       }
     }
     return Array.from(byId.entries()).map(([value, label]) => ({
@@ -97,7 +98,7 @@ export function AddClassAttendanceModal({
 
   React.useEffect(() => {
     if (!open) return;
-    const firstId = classItem.schedules[0]?.id ?? "";
+    const firstId = (classItem.schedules ?? [])[0]?.id ?? "";
     form.reset({
       classScheduleId: firstId,
       memberIds: [],
@@ -125,7 +126,7 @@ export function AddClassAttendanceModal({
     }
   };
 
-  const hasSchedules = classItem.schedules.length > 0;
+  const hasSchedules = (classItem.schedules ?? []).length > 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -165,7 +166,7 @@ export function AddClassAttendanceModal({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {classItem.schedules.map((s) => (
+                      {(classItem.schedules ?? []).map((s) => (
                         <SelectItem key={s.id} value={s.id}>
                           {formatScheduleSessionLabel(s)}
                         </SelectItem>

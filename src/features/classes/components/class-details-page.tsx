@@ -97,7 +97,8 @@ function ClassDetailsCards({ classItem }: { classItem: Class }) {
             label="Trainer"
             value={
               classItem.trainer
-                ? `${classItem.trainer.firstName} ${classItem.trainer.lastName}`.trim()
+                ? `${classItem.trainer.firstName ?? ""} ${classItem.trainer.lastName ?? ""}`.trim() ||
+                  "—"
                 : "Not assigned"
             }
           />
@@ -208,10 +209,10 @@ function SchedulesCard({ classItem }: { classItem: Class }) {
         Upcoming and recurring session times.
       </p>
       <div className="space-y-2">
-        {classItem.schedules.length === 0 ? (
+        {(classItem.schedules ?? []).length === 0 ? (
           <p className="text-muted-foreground text-sm">No schedules yet.</p>
         ) : (
-          classItem.schedules.map((schedule) => (
+          (classItem.schedules ?? []).map((schedule) => (
             <div
               key={schedule.id}
               className="flex flex-col gap-3 rounded-md border border-[#F4F4F4] p-3 sm:flex-row sm:items-center sm:justify-between"
@@ -373,9 +374,9 @@ export function ClassDetailsPage() {
             <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
               <Button
                 onClick={() => setIsAddAttendanceOpen(true)}
-                disabled={classItem.schedules.length === 0}
+                disabled={(classItem.schedules ?? []).length === 0}
                 title={
-                  classItem.schedules.length === 0
+                  (classItem.schedules ?? []).length === 0
                     ? "Add a schedule before recording attendance"
                     : undefined
                 }

@@ -21,9 +21,9 @@ function dash(v: string | null | undefined): string {
 }
 
 function displayFullName(d: GymMemberDetail): string {
-  const o = d.member.fullNameOverride?.trim();
+  const o = d.member?.fullNameOverride?.trim();
   if (o) return o;
-  const n = `${d.member.firstName} ${d.member.lastName}`.trim();
+  const n = `${d.member?.firstName ?? ""} ${d.member?.lastName ?? ""}`.trim();
   return n || "—";
 }
 
@@ -171,14 +171,14 @@ export function MemberDetailsPage() {
                     label="Full name"
                     value={displayFullName(detail)}
                   />
-                  <LabeledRow label="Email" value={dash(detail.member.email)} />
+                  <LabeledRow label="Email" value={dash(detail.member?.email)} />
                   <LabeledRow
                     label="Phone"
-                    value={dash(detail.member.phoneNumber)}
+                    value={dash(detail.member?.phoneNumber)}
                   />
                   <LabeledRow
                     label="Gender"
-                    value={dash(detail.member.gender)}
+                    value={dash(detail.member?.gender)}
                   />
                   <div className="space-y-1.5">
                     <p className="text-xs font-semibold text-foreground">

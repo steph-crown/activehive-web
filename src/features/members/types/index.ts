@@ -31,7 +31,7 @@ export type Membership = {
 export type MemberSubscription = {
   id: string;
   memberId: string;
-  member: {
+  member?: {
     id: string;
     email: string;
     firstName: string;
@@ -39,18 +39,18 @@ export type MemberSubscription = {
     phoneNumber?: string;
   };
   gymId: string;
-  gym: {
+  gym?: {
     id: string;
     name: string;
   };
-  membershipPlanId: string;
-  membershipPlan: {
+  membershipPlanId?: string;
+  membershipPlan?: {
     id: string;
     name: string;
     price: number;
     duration: string;
   };
-  location: {
+  location?: {
     id: string;
     locationName: string;
   };
@@ -163,17 +163,17 @@ export type MemberDocumentEntry = {
 export type GymMemberDetail = {
   id: string;
   memberId: string;
-  member: GymMemberDetailMember;
+  member?: GymMemberDetailMember;
   gymId: string;
   gym?: { id: string; name: string };
-  membershipPlanId: string;
-  membershipPlan: {
+  membershipPlanId?: string;
+  membershipPlan?: {
     id: string;
     name: string;
     price?: number;
     duration?: string;
   };
-  location: { id: string; locationName: string };
+  location?: { id: string; locationName: string };
   trainer?: MemberTrainerRef | null;
   assignedTrainerName?: string;
   membershipIdDisplay?: string;

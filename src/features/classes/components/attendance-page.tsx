@@ -221,7 +221,9 @@ export function AttendancePage({
 
   useEffect(() => {
     if (!scheduleView || !classDetail) return;
-    const exists = classDetail.schedules.some((s) => s.id === scheduleFilter);
+    const exists = (classDetail.schedules ?? []).some(
+      (s) => s.id === scheduleFilter,
+    );
     if (!exists) {
       setScheduleFilter("all");
       if (isClassLocked) {
@@ -342,7 +344,9 @@ export function AttendancePage({
 
   const selectedSchedule = useMemo(() => {
     if (scheduleFilter === "all" || !classDetail) return null;
-    return classDetail.schedules.find((s) => s.id === scheduleFilter) ?? null;
+    return (
+      (classDetail.schedules ?? []).find((s) => s.id === scheduleFilter) ?? null
+    );
   }, [classDetail, scheduleFilter]);
 
   const handleClassChange = (value: string) => {

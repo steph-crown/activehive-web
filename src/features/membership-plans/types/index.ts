@@ -7,17 +7,17 @@ export type MembershipPlan = {
   description: string;
   price: string;
   duration: string;
-  features: string[];
+  features?: string[];
   isActive: boolean;
   imageUrl: string | null;
   gracePeriodDays: number;
   hasTrialPeriod: boolean;
   trialPeriodDays: number | null;
   classesPerWeek: number | null;
-  location: {
+  location?: {
     id: string;
     locationName: string;
-    address: {
+    address?: {
       street: string;
       city: string;
       state: string;
@@ -25,7 +25,7 @@ export type MembershipPlan = {
       country: string;
     };
   };
-  gym: {
+  gym?: {
     id: string;
     name: string;
   };

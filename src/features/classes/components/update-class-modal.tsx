@@ -85,7 +85,7 @@ export function UpdateClassModal({
       description: classItem.description || "",
       capacity: classItem.capacity,
       trainerId: classItem.trainerId || "none",
-      schedules: classItem.schedules.map((s) => ({
+      schedules: (classItem.schedules ?? []).map((s) => ({
         date: s.date,
         startTime: s.startTime,
         endTime: s.endTime,
@@ -106,7 +106,7 @@ export function UpdateClassModal({
         description: classItem.description || "",
         capacity: classItem.capacity,
         trainerId: classItem.trainerId || "none",
-        schedules: classItem.schedules.map((s) => ({
+        schedules: (classItem.schedules ?? []).map((s) => ({
           date: s.date,
           startTime: s.startTime,
           endTime: s.endTime,

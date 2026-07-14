@@ -66,9 +66,10 @@ function formatDob(iso: string | undefined): string {
 }
 
 function fullName(m: GymMemberDetail["member"]): string {
+  if (!m) return "—";
   const o = m.fullNameOverride?.trim();
   if (o) return o;
-  return `${m.firstName} ${m.lastName}`.trim() || "—";
+  return `${m.firstName ?? ""} ${m.lastName ?? ""}`.trim() || "—";
 }
 
 function trainerLabel(d: GymMemberDetail): string {
@@ -368,12 +369,12 @@ export function MemberDetailTabPanels({ detail }: PanelsProps) {
           <SectionHeading>Personal info</SectionHeading>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <ReadBox label="Full name (override)" value={fullName(m)} />
-            <ReadBox label="Phone" value={dash(m.phoneNumber)} />
-            <ReadBox label="Email" value={dash(m.email)} />
-            <ReadBox label="Date of birth" value={formatDob(m.dateOfBirth)} />
+            <ReadBox label="Phone" value={dash(m?.phoneNumber)} />
+            <ReadBox label="Email" value={dash(m?.email)} />
+            <ReadBox label="Date of birth" value={formatDob(m?.dateOfBirth)} />
           </div>
           <div className="mt-4">
-            <ReadArea label="Address" value={dash(m.address)} />
+            <ReadArea label="Address" value={dash(m?.address)} />
           </div>
         </Card>
         <Card className="rounded-md border-[#F4F4F4] bg-white p-6 shadow-none">
@@ -482,14 +483,14 @@ export function MemberDetailTabPanels({ detail }: PanelsProps) {
         <Card className="rounded-md border-[#F4F4F4] bg-white p-6 shadow-none">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <SectionHeading>Check-in history</SectionHeading>
-            {detail.status.toLowerCase() === "active" && (
+            {(detail.status ?? "").toLowerCase() === "active" && detail.location?.id && (
               <Button
                 className="shrink-0 gap-2 bg-[#FFC107] text-black hover:bg-[#e6ae06]"
                 disabled={isCheckingIn}
                 onClick={() =>
                   void executeCheckIn({
                     memberId: detail.memberId,
-                    locationId: detail.location.id,
+                    locationId: detail.location!.id,
                     rowId: detail.memberId,
                   })
                 }

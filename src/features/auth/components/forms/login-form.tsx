@@ -73,7 +73,7 @@ export function LoginForm({
       const session = resolveSession(response);
 
       // Check if user status is pending
-      if (session.user.status === "pending") {
+      if (session.user?.status === "pending") {
         setSession(session);
         showSuccess("Login successful", "Your account is pending approval.");
         navigate("/pending-approval");

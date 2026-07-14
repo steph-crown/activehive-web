@@ -121,7 +121,9 @@ export function CheckInPage() {
         cell: ({ row }) => {
           const raw = row.original.status;
           const label =
-            raw === "checked_in" ? "Checked in" : raw.replace(/_/g, " ");
+            raw === "checked_in"
+              ? "Checked in"
+              : String(raw ?? "—").replace(/_/g, " ");
           return (
             <Badge
               variant="secondary"

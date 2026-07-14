@@ -109,11 +109,11 @@ export function BillingPage() {
                 <div className="mt-4 flex flex-wrap items-center gap-2">
                   <Badge
                     variant={getSubscriptionStatusBadgeVariant(
-                      subscriptionData.subscription.status,
+                      subscriptionData.subscription?.status ?? "",
                     )}
                     className="capitalize"
                   >
-                    {subscriptionData.subscription.status}
+                    {subscriptionData.subscription?.status || "—"}
                   </Badge>
                   {subscriptionData.isTrial && (
                     <Badge variant="outline">Trial</Badge>
@@ -126,14 +126,14 @@ export function BillingPage() {
                   <div className="flex items-center justify-between gap-4">
                     <span className="text-muted-foreground">Plan</span>
                     <span className="text-right font-medium capitalize">
-                      {subscriptionData.subscription.plan || "—"}
+                      {subscriptionData.subscription?.plan || "—"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-4">
                     <span className="text-muted-foreground">Monthly price</span>
                     <span className="text-right font-medium">
                       {formatMonthlyPriceNgn(
-                        subscriptionData.subscription.monthlyPrice,
+                        subscriptionData.subscription?.monthlyPrice ?? null,
                       )}
                     </span>
                   </div>
@@ -147,7 +147,7 @@ export function BillingPage() {
                     <span className="text-muted-foreground">Next payment</span>
                     <span className="text-right font-medium">
                       {formatBillingDate(
-                        subscriptionData.subscription.nextPaymentDate,
+                        subscriptionData.subscription?.nextPaymentDate ?? null,
                       )}
                     </span>
                   </div>
@@ -155,14 +155,14 @@ export function BillingPage() {
                     <span className="text-muted-foreground">Last payment</span>
                     <span className="text-right font-medium">
                       {formatBillingDate(
-                        subscriptionData.subscription.lastPaymentDate,
+                        subscriptionData.subscription?.lastPaymentDate ?? null,
                       )}
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-4">
                     <span className="text-muted-foreground">Auto renew</span>
                     <span className="text-right font-medium">
-                      {subscriptionData.subscription.autoRenew ? "Yes" : "No"}
+                      {subscriptionData.subscription?.autoRenew ? "Yes" : "No"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-4">

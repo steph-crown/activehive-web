@@ -41,13 +41,13 @@ const formatCurrency = (amount: number) =>
 const formatBillingPeriodLabel = (period: string) => period.replace(/_/g, " ");
 
 const getCurrentPlanId = (subscription?: MySubscriptionResponse | undefined) =>
-  subscription?.subscription.platformPlanId ?? null;
+  subscription?.subscription?.platformPlanId ?? null;
 
 const isTrialWithoutPlan = (
   subscription?: MySubscriptionResponse | undefined,
 ) =>
   !!subscription &&
-  !subscription.subscription.platformPlanId &&
+  !subscription.subscription?.platformPlanId &&
   subscription.isTrial;
 
 const getPlansFromResponse = (
@@ -174,9 +174,11 @@ const PaidPlanRow: FC<PaidPlanRowProps> = ({
 
   const teaser =
     plan.description?.trim() ||
-    (plan.features.length > 0
-      ? `${plan.features.length} feature${plan.features.length === 1 ? "" : "s"} included`
-      : "Paid plan for your gym");
+    (() => {
+      const count = plan.features?.length ?? 0;
+      if (count <= 0) return "Paid plan for your gym";
+      return `${count} feature${count === 1 ? "" : "s"} included`;
+    })();
 
   return (
     <Card
@@ -245,9 +247,9 @@ const PaidPlanRow: FC<PaidPlanRowProps> = ({
                 {plan.description.trim()}
               </p>
             )}
-            {plan.features.length > 0 ? (
+            {(plan.features?.length ?? 0) > 0 ? (
               <ul className="space-y-2">
-                {plan.features.map((feature) => (
+                {(plan.features ?? []).map((feature) => (
                   <li
                     key={feature}
                     className="flex items-start gap-2 text-sm text-foreground"
@@ -301,7 +303,7 @@ export const SubscriptionPlanModal: FC<
   };
 
   const handleChoosePlan = async (plan: GymOwnerSubscriptionPlan) => {
-    if (!subscription?.subscription.id) {
+    if (!subscription?.subscription?.id) {
       showError(
         "Unable to change plan",
         "We could not determine your current subscription. Please refresh and try again.",
@@ -330,7 +332,7 @@ export const SubscriptionPlanModal: FC<
 
   const isSwitchInFlight = isPending || selectingPlanId !== null;
 
-  const currentPlanLabel = subscription?.subscription.plan ?? "Free Trial";
+  const currentPlanLabel = subscription?.subscription?.plan ?? "Free Trial";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

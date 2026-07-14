@@ -80,7 +80,7 @@ export function ViewStaffModal({
                 <p className="text-sm font-medium text-muted-foreground">
                   Gym
                 </p>
-                <p className="text-sm">{staff.gym.name}</p>
+                <p className="text-sm">{staff.gym?.name}</p>
               </div>
               <Separator />
             </>

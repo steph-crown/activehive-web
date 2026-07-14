@@ -85,7 +85,7 @@ export type Class = {
     firstName: string;
     lastName: string;
   } | null;
-  schedules: ClassSchedule[];
+  schedules?: ClassSchedule[];
 };
 
 export type ClassTemplate = {
@@ -93,7 +93,7 @@ export type ClassTemplate = {
   name: string;
   description?: string;
   capacity: number;
-  schedules: ClassSchedule[];
+  schedules?: ClassSchedule[];
   category: string;
   difficulty: string;
   duration: number;

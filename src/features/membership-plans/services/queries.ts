@@ -101,7 +101,7 @@ export function usePromoCodesCatalogQuery() {
         const max = promo.maxUses;
         out.push({
           id: `${plan.id}::${promo.code}`,
-          location: plan.location.locationName,
+          location: plan.location?.locationName || "—",
           planName: plan.name,
           code: promo.code,
           typeLabel:

@@ -30,6 +30,13 @@ import {
   ChangeSubscriptionPlanModal,
 } from "./subscription-action-modals";
 import { formatDisplayDate, formatDisplayDateTime } from "@/lib/display-datetime";
+import {
+  subscriptionGymName,
+  subscriptionLocationName,
+  subscriptionMemberEmail,
+  subscriptionMemberFullName,
+  subscriptionPlanName,
+} from "@/features/members/lib/subscription-display";
 
 export function SubscriptionDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -89,20 +96,19 @@ export function SubscriptionDetailsPage() {
       {
         accessorKey: "member.firstName",
         header: "Member",
-        cell: ({ row }) => {
-          const member = row.original.member;
-          return (
-            <div className="font-medium">
-              {member.firstName} {member.lastName}
-            </div>
-          );
-        },
+        cell: ({ row }) => (
+          <div className="font-medium">
+            {subscriptionMemberFullName(row.original.member)}
+          </div>
+        ),
       },
       {
         accessorKey: "membershipPlan.name",
         header: "Plan",
         cell: ({ row }) => (
-          <div className="text-sm">{row.original.membershipPlan.name}</div>
+          <div className="text-sm">
+            {subscriptionPlanName(row.original.membershipPlan)}
+          </div>
         ),
       },
       {
@@ -328,23 +334,24 @@ export function SubscriptionDetailsPage() {
                 <div>
                   <p className="text-sm text-muted-foreground">Name</p>
                   <p className="font-medium">
-                    {subscription.member.firstName}{" "}
-                    {subscription.member.lastName}
+                    {subscriptionMemberFullName(subscription.member)}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Email</p>
-                  <p className="font-medium">{subscription.member.email}</p>
+                  <p className="font-medium">
+                    {subscriptionMemberEmail(subscription.member)}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Phone</p>
                   <p className="font-medium">
-                    {subscription.member.phoneNumber}
+                    {subscription.member?.phoneNumber || "—"}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Member ID</p>
-                  <p className="font-medium">{subscription.member.id}</p>
+                  <p className="font-medium">{subscription.member?.id || "—"}</p>
                 </div>
               </div>
             </CardContent>
@@ -360,28 +367,30 @@ export function SubscriptionDetailsPage() {
                 <div>
                   <p className="text-sm text-muted-foreground">Plan Name</p>
                   <p className="font-medium">
-                    {subscription.membershipPlan.name}
+                    {subscriptionPlanName(subscription.membershipPlan)}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Duration</p>
                   <p className="font-medium capitalize">
-                    {subscription.membershipPlan.duration}
+                    {subscription.membershipPlan?.duration || "—"}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Plan Price</p>
                   <p className="font-medium">
-                    {new Intl.NumberFormat("en-US", {
-                      style: "currency",
-                      currency: "NGN",
-                    }).format(subscription.membershipPlan.price)}
+                    {subscription.membershipPlan?.price != null
+                      ? new Intl.NumberFormat("en-US", {
+                          style: "currency",
+                          currency: "NGN",
+                        }).format(subscription.membershipPlan.price)
+                      : "—"}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Plan ID</p>
                   <p className="font-medium">
-                    {subscription.membershipPlan.id}
+                    {subscription.membershipPlan?.id || "—"}
                   </p>
                 </div>
               </div>
@@ -397,7 +406,7 @@ export function SubscriptionDetailsPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Location Name</p>
                 <p className="font-medium">
-                  {subscription.location.locationName}
+                  {subscriptionLocationName(subscription.location)}
                 </p>
               </div>
             </CardContent>
@@ -411,7 +420,9 @@ export function SubscriptionDetailsPage() {
             <CardContent>
               <div>
                 <p className="text-sm text-muted-foreground">Gym Name</p>
-                <p className="font-medium">{subscription.gym.name}</p>
+                <p className="font-medium">
+                  {subscriptionGymName(subscription.gym)}
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -442,8 +453,8 @@ export function SubscriptionDetailsPage() {
             <CardHeader>
               <CardTitle>Related Subscriptions</CardTitle>
               <CardDescription>
-                All subscriptions for {subscription.member.firstName}{" "}
-                {subscription.member.lastName}
+                All subscriptions for{" "}
+                {subscriptionMemberFullName(subscription.member)}
               </CardDescription>
             </CardHeader>
             <CardContent>

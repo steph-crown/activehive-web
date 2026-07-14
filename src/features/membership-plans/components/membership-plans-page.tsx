@@ -113,7 +113,7 @@ export function MembershipPlansPage() {
       const normalizedSearch = searchQuery.trim().toLowerCase();
       const matchesSearch =
         normalizedSearch.length === 0 ||
-        `${plan.name} ${plan.description} ${plan.location.locationName}`
+        `${plan.name} ${plan.description} ${plan.location?.locationName ?? ""}`
           .toLowerCase()
           .includes(normalizedSearch);
 
@@ -228,7 +228,7 @@ export function MembershipPlansPage() {
                           </Badge>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          {plan.location.locationName}
+                          {plan.location?.locationName || "—"}
                         </p>
                         <p className="mt-2 text-sm text-muted-foreground">
                           {plan.description}
@@ -236,14 +236,14 @@ export function MembershipPlansPage() {
                       </div>
 
                       <div className="mb-4 space-y-2">
-                        {plan.features.slice(0, 3).map((feature, idx) => (
+                        {(plan.features ?? []).slice(0, 3).map((feature, idx) => (
                           <div
                             key={`${plan.id}-feature-${idx}`}
                             className="flex items-center gap-2 text-sm text-muted-foreground"
                           >
                             <IconCheck className="h-3.5 w-3.5" />
                             <span>{feature}</span>
-                            {idx === 2 && plan.features.length > 3 ? (
+                            {idx === 2 && (plan.features?.length ?? 0) > 3 ? (
                               <button
                                 type="button"
                                 className="text-xs font-medium text-primary hover:underline"
@@ -252,7 +252,7 @@ export function MembershipPlansPage() {
                                   setIsViewOpen(true);
                                 }}
                               >
-                                +{plan.features.length - 3}
+                                +{(plan.features?.length ?? 0) - 3}
                               </button>
                             ) : null}
                           </div>
@@ -380,7 +380,9 @@ export function MembershipPlansPage() {
             <div className="space-y-4">
               <div className="space-y-1">
                 <p className="text-xs text-muted-foreground">Location</p>
-                <p className="text-sm">{selectedPlan.location.locationName}</p>
+                <p className="text-sm">
+                  {selectedPlan.location?.locationName || "—"}
+                </p>
               </div>
               <div className="space-y-1">
                 <p className="text-xs text-muted-foreground">Description</p>
@@ -401,7 +403,7 @@ export function MembershipPlansPage() {
               <div className="space-y-2">
                 <p className="text-xs text-muted-foreground">Benefits</p>
                 <ul className="space-y-1.5">
-                  {selectedPlan.features.map((feature, idx) => (
+                  {(selectedPlan.features ?? []).map((feature, idx) => (
                     <li
                       key={`${selectedPlan.id}-benefit-${idx}`}
                       className="flex items-center gap-2 text-sm"

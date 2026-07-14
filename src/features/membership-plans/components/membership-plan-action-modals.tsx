@@ -667,7 +667,7 @@ export function AddPromoCodeModal({
                       <SelectContent>
                         {plansForPicker?.map((p) => (
                           <SelectItem key={p.id} value={p.id}>
-                            {p.name} — {p.location.locationName}
+                            {p.name} — {p.location?.locationName || "—"}
                           </SelectItem>
                         ))}
                       </SelectContent>

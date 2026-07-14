@@ -271,7 +271,7 @@ export function FacilitiesPage() {
             <p className="text-muted-foreground mt-1 text-sm">
               Manage facilities for{" "}
               <span className="font-semibold text-foreground">
-                {location?.location.locationName || "this location"}
+                {location?.location?.locationName || "this location"}
               </span>
             </p>
           </div>

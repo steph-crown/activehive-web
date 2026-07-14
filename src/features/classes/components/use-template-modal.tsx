@@ -100,10 +100,10 @@ export function UseTemplateModal({
   React.useEffect(() => {
     if (selectedTemplate) {
       form.setValue("templateClassId", selectedTemplate.id);
-      if (selectedTemplate.schedules.length > 0) {
+      if ((selectedTemplate.schedules ?? []).length > 0) {
         form.setValue(
           "schedules",
-          selectedTemplate.schedules.map((s) => ({
+          (selectedTemplate.schedules ?? []).map((s) => ({
             date: s.date,
             startTime: s.startTime,
             endTime: s.endTime,

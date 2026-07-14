@@ -91,7 +91,8 @@ const createClassesColumns = (
       return (
         <div className="text-sm">
           {trainer
-            ? `${trainer.firstName} ${trainer.lastName}`
+            ? `${trainer.firstName ?? ""} ${trainer.lastName ?? ""}`.trim() ||
+              "—"
             : "Not assigned"}
         </div>
       );
@@ -101,7 +102,7 @@ const createClassesColumns = (
     id: "schedules",
     header: "Schedules",
     cell: ({ row }) => {
-      const active = row.original.schedules.filter((s) => s.isActive);
+      const active = (row.original.schedules ?? []).filter((s) => s.isActive);
       if (active.length === 0) {
         return <span className="text-muted-foreground text-sm">—</span>;
       }

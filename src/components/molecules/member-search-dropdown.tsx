@@ -11,6 +11,10 @@ import { Input } from "@/components/ui/input";
 import { useMembersQuery } from "@/features/members/services";
 import { cn } from "@/lib/utils";
 import type { MemberSubscription } from "@/features/members/types";
+import {
+  subscriptionMemberEmail,
+  subscriptionMemberFullName,
+} from "@/features/members/lib/subscription-display";
 
 type MemberSearchDropdownProps = {
   value: string;
@@ -22,8 +26,10 @@ type MemberSearchDropdownProps = {
 };
 
 function memberLabel(sub: MemberSubscription): string {
-  const name = `${sub.member.firstName} ${sub.member.lastName}`.trim();
-  return name || sub.member.email;
+  const name = subscriptionMemberFullName(sub.member);
+  if (name !== "—") return name;
+  const email = subscriptionMemberEmail(sub.member);
+  return email === "—" ? "Unknown member" : email;
 }
 
 export function MemberSearchDropdown({
@@ -140,7 +146,7 @@ export function MemberSearchDropdown({
                     {memberLabel(sub)}
                   </span>
                   <span className="text-muted-foreground truncate text-xs">
-                    {sub.member.email}
+                    {sub.member?.email}
                   </span>
                 </span>
               </DropdownMenuItem>

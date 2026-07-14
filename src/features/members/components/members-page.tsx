@@ -35,6 +35,14 @@ import { useInstantCheckIn } from "@/features/check-in/hooks/use-instant-check-i
 import { useMembersQuery } from "../services";
 import type { MemberSubscription } from "../types";
 import { formatDisplayDate, localCalendarDateKey } from "@/lib/display-datetime";
+import {
+  subscriptionMemberEmail,
+  subscriptionMemberFullName,
+  subscriptionMemberPhone,
+  subscriptionLocationName,
+  subscriptionPlanName,
+  subscriptionSearchBlob,
+} from "../lib/subscription-display";
 
 export function MembersPage() {
   const [locationFilter, setLocationFilter] = React.useState("all");
@@ -57,42 +65,46 @@ export function MembersPage() {
       {
         accessorKey: "member.firstName",
         header: "Name",
-        cell: ({ row }) => {
-          const member = row.original.member;
-          return (
-            <div className="font-medium">
-              {member.firstName} {member.lastName}
-            </div>
-          );
-        },
+        cell: ({ row }) => (
+          <div className="font-medium">
+            {subscriptionMemberFullName(row.original.member)}
+          </div>
+        ),
       },
       {
         accessorKey: "member.email",
         header: "Email",
         cell: ({ row }) => (
-          <div className="text-sm">{row.original.member.email}</div>
+          <div className="text-sm">
+            {subscriptionMemberEmail(row.original.member)}
+          </div>
         ),
       },
       {
         accessorKey: "member.phoneNumber",
         header: "Phone",
-        cell: ({ row }) => {
-          const phone = row.original.member.phoneNumber;
-          return <div className="text-sm">{phone || "N/A"}</div>;
-        },
+        cell: ({ row }) => (
+          <div className="text-sm">
+            {subscriptionMemberPhone(row.original.member)}
+          </div>
+        ),
       },
       {
         accessorKey: "membershipPlan.name",
         header: "Membership Plan",
         cell: ({ row }) => (
-          <div className="text-sm">{row.original.membershipPlan.name}</div>
+          <div className="text-sm">
+            {subscriptionPlanName(row.original.membershipPlan)}
+          </div>
         ),
       },
       {
         accessorKey: "location.locationName",
         header: "Location",
         cell: ({ row }) => (
-          <div className="text-sm">{row.original.location.locationName}</div>
+          <div className="text-sm">
+            {subscriptionLocationName(row.original.location)}
+          </div>
         ),
       },
       {
@@ -128,10 +140,10 @@ export function MembersPage() {
         id: "actions",
         header: "Actions",
         cell: ({ row }) => {
-          const member = row.original.member;
-          const fullName = `${member.firstName} ${member.lastName}`;
+          const fullName = subscriptionMemberFullName(row.original.member);
           const rowKey = row.original.id;
           const isCheckingIn = loadingRowId === rowKey;
+          const locationId = row.original.location?.id;
 
           return (
             <div className="flex items-center gap-1">
@@ -140,14 +152,15 @@ export function MembersPage() {
                 size="icon"
                 className="size-8"
                 title={`Check in · ${fullName}`}
-                disabled={isCheckingIn}
-                onClick={() =>
+                disabled={isCheckingIn || !locationId}
+                onClick={() => {
+                  if (!locationId) return;
                   void executeCheckIn({
                     memberId: row.original.memberId,
-                    locationId: row.original.location.id,
+                    locationId,
                     rowId: rowKey,
-                  })
-                }
+                  });
+                }}
               >
                 {isCheckingIn ? (
                   <Loader2 className="size-4 animate-spin" aria-hidden />
@@ -204,9 +217,7 @@ export function MembersPage() {
       const normalizedSearch = searchQuery.trim().toLowerCase();
       const matchesSearch =
         normalizedSearch.length === 0 ||
-        `${member.member.firstName} ${member.member.lastName} ${member.member.email} ${member.membershipPlan.name}`
-          .toLowerCase()
-          .includes(normalizedSearch);
+        subscriptionSearchBlob(member).includes(normalizedSearch);
 
       if (!dateFilter) return matchesSearch;
       const selectedKey = localCalendarDateKey(`${dateFilter}T12:00:00`);
@@ -274,7 +285,7 @@ export function MembersPage() {
             <DialogDescription>
               This is a UI-only action for now.{" "}
               {suspendTarget
-                ? `${suspendTarget.member.firstName} ${suspendTarget.member.lastName} will be marked as suspended in the interface.`
+                ? `${subscriptionMemberFullName(suspendTarget.member)} will be marked as suspended in the interface.`
                 : ""}
             </DialogDescription>
           </DialogHeader>
@@ -288,7 +299,7 @@ export function MembersPage() {
                 if (!suspendTarget) return;
                 showSuccess(
                   "Member suspended",
-                  `${suspendTarget.member.firstName} ${suspendTarget.member.lastName} has been suspended.`,
+                  `${subscriptionMemberFullName(suspendTarget.member)} has been suspended.`,
                 );
                 setSuspendTarget(null);
               }}

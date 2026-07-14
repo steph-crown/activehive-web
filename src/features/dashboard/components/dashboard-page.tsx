@@ -23,47 +23,50 @@ import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { downloadBlobFile } from "@/lib/download-blob-file";
 import { MembersTableSkeleton, SectionCardsSkeleton } from "./dashboard-skeleton";
 import { formatDisplayDate } from "@/lib/display-datetime";
+import {
+  subscriptionLocationName,
+  subscriptionMemberEmail,
+  subscriptionMemberFullName,
+  subscriptionMemberPhone,
+  subscriptionPlanName,
+} from "@/features/members/lib/subscription-display";
 
 const membersColumns: ColumnDef<MemberSubscription>[] = [
   {
     accessorKey: "member.firstName",
     header: "Name",
-    cell: ({ row }) => {
-      const member = row.original.member;
-      return (
-        <div className="font-medium">
-          {member.firstName} {member.lastName}
-        </div>
-      );
-    },
+    cell: ({ row }) => (
+      <div className="font-medium">
+        {subscriptionMemberFullName(row.original.member)}
+      </div>
+    ),
   },
   {
     accessorKey: "member.email",
     header: "Email",
     cell: ({ row }) => (
-      <div className="text-sm">{row.original.member.email}</div>
+      <div className="text-sm">{subscriptionMemberEmail(row.original.member)}</div>
     ),
   },
   {
     accessorKey: "member.phoneNumber",
     header: "Phone",
-    cell: ({ row }) => {
-      const phone = row.original.member.phoneNumber;
-      return <div className="text-sm">{phone || "N/A"}</div>;
-    },
+    cell: ({ row }) => (
+      <div className="text-sm">{subscriptionMemberPhone(row.original.member)}</div>
+    ),
   },
   {
     accessorKey: "membershipPlan.name",
     header: "Membership Plan",
     cell: ({ row }) => (
-      <div className="text-sm">{row.original.membershipPlan.name}</div>
+      <div className="text-sm">{subscriptionPlanName(row.original.membershipPlan)}</div>
     ),
   },
   {
     accessorKey: "location.locationName",
     header: "Location",
     cell: ({ row }) => (
-      <div className="text-sm">{row.original.location.locationName}</div>
+      <div className="text-sm">{subscriptionLocationName(row.original.location)}</div>
     ),
   },
   {

@@ -38,6 +38,7 @@ import {
 import type { Subscription } from "../types";
 import { SUBSCRIPTION_STATUS } from "../types";
 import { useMembershipPlansQuery } from "@/features/membership-plans/services";
+import { subscriptionMemberFullName } from "@/features/members/lib/subscription-display";
 
 // Update Status Modal
 const updateStatusSchema = yup.object({
@@ -135,8 +136,8 @@ export function UpdateSubscriptionStatusModal({
         <DialogHeader>
           <DialogTitle>Update Subscription Status</DialogTitle>
           <DialogDescription>
-            Update the status of subscription for {subscription?.member.firstName}{" "}
-            {subscription?.member.lastName}
+            Update the status of subscription for{" "}
+            {subscriptionMemberFullName(subscription?.member)}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -285,8 +286,8 @@ export function CancelSubscriptionModal({
           <DialogTitle>Cancel Subscription</DialogTitle>
           <DialogDescription>
             Are you sure you want to cancel the subscription for{" "}
-            {subscription?.member.firstName} {subscription?.member.lastName}? This
-            action cannot be undone.
+            {subscriptionMemberFullName(subscription?.member)}? This action cannot
+            be undone.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -353,7 +354,7 @@ export function ChangeSubscriptionPlanModal({
   const { mutateAsync: changePlan, isPending } =
     useChangeSubscriptionPlanMutation();
   const { data: membershipPlans, isLoading: plansLoading } =
-    useMembershipPlansQuery(subscription?.location.id);
+    useMembershipPlansQuery(subscription?.location?.id);
 
   const form = useForm<ChangePlanFormValues>({
     resolver: yupResolver(changePlanSchema) as any,
@@ -405,8 +406,8 @@ export function ChangeSubscriptionPlanModal({
         <DialogHeader>
           <DialogTitle>Change Subscription Plan</DialogTitle>
           <DialogDescription>
-            Change the membership plan for {subscription?.member.firstName}{" "}
-            {subscription?.member.lastName}
+            Change the membership plan for{" "}
+            {subscriptionMemberFullName(subscription?.member)}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

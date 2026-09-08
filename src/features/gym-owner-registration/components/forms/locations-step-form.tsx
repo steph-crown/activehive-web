@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, useWatch, type FieldErrors } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -47,6 +48,7 @@ export function LocationsStepForm({
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
   const sessionId = useGymOwnerRegistrationStore((state) => state.sessionId);
+  const registrationEmail = useGymOwnerRegistrationStore((state) => state.email);
   const setStepStatus = useGymOwnerRegistrationStore(
     (state) => state.setStepStatus,
   );
@@ -56,6 +58,8 @@ export function LocationsStepForm({
     useCompleteRegistrationMutation();
   const { upload, isUploading } = useUpload();
   const [isSkipping, setIsSkipping] = useState(false);
+  const [openItems, setOpenItems] = useState<Set<number>>(new Set([0]));
+  const [hqError, setHqError] = useState<string | null>(null);
 
   const form = useForm<LocationsFormValues>({
     resolver: yupResolver(locationsSchema) as never,
@@ -68,7 +72,7 @@ export function LocationsStepForm({
           state: "",
           country: ONBOARDING_COUNTRY,
           phone: "",
-          email: "",
+          email: registrationEmail ?? "",
           isHeadquarters: true,
           coverImageFile: undefined,
           zipCode: "00000",
@@ -82,11 +86,58 @@ export function LocationsStepForm({
     name: "locations",
   });
 
+  const watchedLocations = useWatch({ control: form.control, name: "locations" });
+
   if (!sessionId) {
     return <MissingSessionCard />;
   }
 
+  const toggleItem = (index: number) => {
+    setOpenItems((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+  };
+
+  const handleRemove = (index: number) => {
+    const wasHQ = form.getValues(`locations.${index}.isHeadquarters`);
+    remove(index);
+    if (wasHQ) {
+      setTimeout(() => {
+        form.setValue("locations.0.isHeadquarters", true, {
+          shouldValidate: true,
+        });
+      }, 0);
+    }
+    setOpenItems((prev) => {
+      const next = new Set<number>();
+      prev.forEach((i) => {
+        if (i < index) next.add(i);
+        else if (i > index) next.add(i - 1);
+      });
+      return next;
+    });
+  };
+
+  const handleAddLocation = () => {
+    const newIndex = fields.length;
+    append({
+      locationName: "",
+      address: "",
+      city: "",
+      state: "",
+      country: ONBOARDING_COUNTRY,
+      phone: "",
+      email: registrationEmail ?? "",
+      isHeadquarters: false,
+    });
+    setOpenItems((prev) => new Set([...prev, newIndex]));
+  };
+
   const onSubmit = async (data: LocationsFormValues) => {
+    setHqError(null);
     try {
       const mappedLocations = [];
       for (const location of data.locations) {
@@ -114,7 +165,6 @@ export function LocationsStepForm({
         locations: mappedLocations,
       });
       setStepStatus(4, "completed");
-      // Immediately call step 6 to complete registration
       await completeRegistration({ sessionId });
       setStepStatus(6, "completed");
       showSuccess(
@@ -129,6 +179,26 @@ export function LocationsStepForm({
     }
   };
 
+  const onInvalid = (errors: FieldErrors<LocationsFormValues>) => {
+    const locErrors = errors.locations;
+
+    if (Array.isArray(locErrors)) {
+      // Per-item field errors — open those accordions so errors are visible
+      const indicesToOpen = locErrors.reduce<number[]>((acc, err, i) => {
+        if (err) acc.push(i);
+        return acc;
+      }, []);
+      setOpenItems((prev) => new Set([...prev, ...indicesToOpen]));
+    }
+
+    // Root-level array error (e.g. no HQ selected) — surface via local state
+    // because react-hook-form types errors.locations as an array and .message is unreliable
+    const locations = form.getValues("locations");
+    if (!locations.some((l) => l.isHeadquarters)) {
+      setHqError("One location must be set as headquarters");
+    }
+  };
+
   const isFormSubmitBusy =
     isPending || isUploading || (isCompleting && !isSkipping);
 
@@ -136,11 +206,8 @@ export function LocationsStepForm({
     setIsSkipping(true);
     try {
       setStepStatus(4, "skipped");
-
-      // Call step 6 to complete registration
       await completeRegistration({ sessionId });
       setStepStatus(6, "completed");
-
       showSuccess(
         "Registration complete",
         "Your application is being reviewed. You'll receive an email once approved.",
@@ -161,7 +228,7 @@ export function LocationsStepForm({
     <Form {...form}>
       <form
         className={cn("flex flex-col gap-6", className)}
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, onInvalid)}
         {...props}
       >
         <div className="flex flex-col items-center gap-2 text-center">
@@ -171,251 +238,268 @@ export function LocationsStepForm({
             more later.
           </p>
         </div>
-        <div className="space-y-6">
-          {fields.map((field, index) => (
-            <div
-              key={field.id}
-              className="rounded-lg border border-border/60 p-4 space-y-4"
-            >
-              <div className="flex items-center justify-between">
-                <p className="font-medium">Location {index + 1}</p>
-                {fields.length > 1 && (
-                  <Button
+
+        <div className="space-y-3">
+          {fields.map((field, index) => {
+            const isOpen = openItems.has(index);
+            const locationName = watchedLocations?.[index]?.locationName?.trim();
+            const isHQ = watchedLocations?.[index]?.isHeadquarters;
+            const label = locationName || `Location ${index + 1}`;
+
+            return (
+              <div
+                key={field.id}
+                className="rounded-lg border border-border/60 overflow-hidden"
+              >
+                {/* Accordion header */}
+                <div className="flex items-center px-4">
+                  <button
                     type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      const wasHQ = form.getValues(
-                        `locations.${index}.isHeadquarters`,
-                      );
-                      remove(index);
-                      if (wasHQ) {
-                        setTimeout(() => {
-                          form.setValue("locations.0.isHeadquarters", true, {
-                            shouldValidate: true,
-                          });
-                        }, 0);
-                      }
-                    }}
+                    className="flex flex-1 items-center gap-2 py-3 text-left"
+                    onClick={() => toggleItem(index)}
                   >
-                    Remove
-                  </Button>
-                )}
-              </div>
-
-              <FormField
-                control={form.control}
-                name={`locations.${index}.locationName`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Main Gym" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name={`locations.${index}.address`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Address</FormLabel>
-                    <FormControl>
-                      <Input placeholder="123 Main Street" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
-                <FormField
-                  control={form.control}
-                  name={`locations.${index}.state`}
-                  render={({ field }) => (
-                    <FormItem className="min-w-0">
-                      <FormLabel>State / Region</FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={(value) => field.onChange(value)}
-                          value={field.value ?? ""}
-                        >
-                          <SelectTrigger className="h-10 w-full min-w-0">
-                            <SelectValue placeholder="Select state" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {NIGERIA_STATES.map((state) => (
-                              <SelectItem key={state.value} value={state.value}>
-                                {state.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                    <ChevronDown
+                      className={cn(
+                        "size-4 text-muted-foreground shrink-0 transition-transform duration-200",
+                        isOpen && "rotate-180",
+                      )}
+                    />
+                    <span className="font-medium text-sm">{label}</span>
+                    {isHQ && (
+                      <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
+                        HQ
+                      </span>
+                    )}
+                  </button>
+                  {fields.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive hover:text-destructive shrink-0"
+                      onClick={() => handleRemove(index)}
+                    >
+                      Remove
+                    </Button>
                   )}
-                />
+                </div>
 
-                <FormField
-                  control={form.control}
-                  name={`locations.${index}.city`}
-                  render={({ field }) => (
-                    <FormItem className="min-w-0">
-                      <FormLabel>City</FormLabel>
-                      <FormControl>
-                        <Input className="w-full" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                {/* Accordion content */}
+                {isOpen && (
+                  <div className="px-4 pb-4 space-y-4 border-t border-border/60 pt-4">
+                    <FormField
+                      control={form.control}
+                      name={`locations.${index}.locationName`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Main Gym" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-              <FormField
-                control={form.control}
-                name={`locations.${index}.country`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Country</FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={(value) => field.onChange(value)}
-                        value={field.value ?? ONBOARDING_COUNTRY}
-                      >
-                        <SelectTrigger className="h-10 w-full min-w-0">
-                          <SelectValue placeholder="Select country" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {ONBOARDING_COUNTRY_OPTIONS.map((c) => (
-                            <SelectItem key={c.value} value={c.value}>
-                              {c.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    <FormField
+                      control={form.control}
+                      name={`locations.${index}.address`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Address</FormLabel>
+                          <FormControl>
+                            <Input placeholder="123 Main Street" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-              <FormField
-                control={form.control}
-                name={`locations.${index}.phone`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter phone number"
-                        type="tel"
-                        {...field}
+                    <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
+                      <FormField
+                        control={form.control}
+                        name={`locations.${index}.state`}
+                        render={({ field }) => (
+                          <FormItem className="min-w-0">
+                            <FormLabel>State / Region</FormLabel>
+                            <FormControl>
+                              <Select
+                                onValueChange={(value) => field.onChange(value)}
+                                value={field.value ?? ""}
+                              >
+                                <SelectTrigger className="h-10 w-full min-w-0">
+                                  <SelectValue placeholder="Select state" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {NIGERIA_STATES.map((state) => (
+                                    <SelectItem
+                                      key={state.value}
+                                      value={state.value}
+                                    >
+                                      {state.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <div className="min-h-5"><FormMessage /></div>
+                          </FormItem>
+                        )}
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
-              <FormField
-                control={form.control}
-                name={`locations.${index}.email`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="location@gym.com"
-                        {...field}
+                      <FormField
+                        control={form.control}
+                        name={`locations.${index}.city`}
+                        render={({ field }) => (
+                          <FormItem className="min-w-0">
+                            <FormLabel>City</FormLabel>
+                            <FormControl>
+                              <Input className="w-full" {...field} />
+                            </FormControl>
+                            <div className="min-h-5"><FormMessage /></div>
+                          </FormItem>
+                        )}
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name={`locations.${index}.coverImageFile`}
-                render={({ field: { onChange, onBlur, name, ref } }) => (
-                  <FormItem>
-                    <FormLabel>Cover image (optional)</FormLabel>
-                    <FormControl>
-                      <Input
-                        ref={ref}
-                        name={name}
-                        onBlur={onBlur}
-                        type="file"
-                        accept="image/jpeg,image/png,image/gif,image/webp"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          onChange(file ?? undefined);
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name={`locations.${index}.isHeadquarters`}
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        disabled={fields.length === 1}
-                        onCheckedChange={(checked) => {
-                          const isChecked = Boolean(checked);
-                          const locations = form.getValues("locations");
-                          locations.forEach((_, i) => {
-                            form.setValue(
-                              `locations.${i}.isHeadquarters`,
-                              i === index ? isChecked : false,
-                              { shouldValidate: true },
-                            );
-                          });
-                        }}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Set as headquarters</FormLabel>
-                      <p className="text-sm text-muted-foreground">
-                        {fields.length === 1
-                          ? "This location is your headquarters."
-                          : "Only one location can be marked as headquarters at a time."}
-                      </p>
                     </div>
-                    <FormMessage />
-                  </FormItem>
+
+                    <FormField
+                      control={form.control}
+                      name={`locations.${index}.country`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Country</FormLabel>
+                          <FormControl>
+                            <Select
+                              onValueChange={(value) => field.onChange(value)}
+                              value={field.value ?? ONBOARDING_COUNTRY}
+                            >
+                              <SelectTrigger className="h-10 w-full min-w-0">
+                                <SelectValue placeholder="Select country" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {ONBOARDING_COUNTRY_OPTIONS.map((c) => (
+                                  <SelectItem key={c.value} value={c.value}>
+                                    {c.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name={`locations.${index}.phone`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Phone</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter phone number"
+                              type="tel"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name={`locations.${index}.email`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="email"
+                              placeholder="location@gym.com"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name={`locations.${index}.coverImageFile`}
+                      render={({ field: { onChange, onBlur, name, ref } }) => (
+                        <FormItem>
+                          <FormLabel>Cover image (optional)</FormLabel>
+                          <FormControl>
+                            <Input
+                              ref={ref}
+                              name={name}
+                              onBlur={onBlur}
+                              type="file"
+                              accept="image/jpeg,image/png,image/gif,image/webp"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                onChange(file ?? undefined);
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name={`locations.${index}.isHeadquarters`}
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              disabled={fields.length === 1}
+                              onCheckedChange={(checked) => {
+                                const isChecked = Boolean(checked);
+                                const locations = form.getValues("locations");
+                                locations.forEach((_, i) => {
+                                  form.setValue(
+                                    `locations.${i}.isHeadquarters`,
+                                    i === index ? isChecked : false,
+                                    { shouldValidate: true },
+                                  );
+                                });
+                                if (isChecked) setHqError(null);
+                              }}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>Set as headquarters</FormLabel>
+                            <p className="text-sm text-muted-foreground">
+                              {fields.length === 1
+                                ? "This location is your headquarters."
+                                : "Only one location can be marked as headquarters at a time."}
+                            </p>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 )}
-              />
-            </div>
-          ))}
+              </div>
+            );
+          })}
+
+          {hqError && (
+            <p className="text-sm text-destructive">{hqError}</p>
+          )}
 
           <Button
             type="button"
             variant="outline"
             className="w-full"
-            onClick={() =>
-              append({
-                locationName: "",
-                address: "",
-                city: "",
-                state: "",
-                country: ONBOARDING_COUNTRY,
-                phone: "",
-                email: "",
-                isHeadquarters: false,
-              })
-            }
+            onClick={handleAddLocation}
           >
             Add another location
           </Button>

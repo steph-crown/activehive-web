@@ -249,9 +249,7 @@ export function FacilitiesPage() {
 
   const getImageUrl = (imagePath: string | null): string | null => {
     if (!imagePath) return null;
-    const baseURL =
-      import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ??
-      "https://activehiveapi.onrender.com";
+    const baseURL = import.meta.env.VITE_API_BASE_URL;
     return imagePath.startsWith("http") ? imagePath : `${baseURL}/${imagePath}`;
   };
 

@@ -181,7 +181,7 @@ pnpm lint       # ESLint (flat config, TS + React Hooks rules)
 pnpm preview    # Preview production build
 ```
 
-Env var: `VITE_API_BASE_URL` (defaults to `https://activehiveapi.onrender.com`)
+Env var: `VITE_API_BASE_URL` — required, no fallback. Set to `https://activehive-api-production.up.railway.app` in `.env`.
 
 ## What NOT to Do
 

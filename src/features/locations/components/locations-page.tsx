@@ -19,9 +19,7 @@ import type { GymLocation } from "../types";
 import { UpdateCoverImageModal } from "./update-cover-image-modal";
 
 const getImageUrl = (imagePath: string): string => {
-  const baseURL =
-    import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ??
-    "https://activehiveapi.onrender.com";
+  const baseURL = import.meta.env.VITE_API_BASE_URL;
   return imagePath.startsWith("http") ? imagePath : `${baseURL}/${imagePath}`;
 };
 

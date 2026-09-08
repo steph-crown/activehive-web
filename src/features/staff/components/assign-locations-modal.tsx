@@ -159,7 +159,6 @@ export function AssignLocationsModal({
                               onCheckedChange={() =>
                                 handleLocationToggle(location.id)
                               }
-                              onSelect={(e) => e.preventDefault()}
                             >
                               {location.locationName}
                             </DropdownMenuCheckboxItem>

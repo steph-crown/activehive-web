@@ -125,7 +125,7 @@ export function MultiSelect({
                     onCheckedChange={() =>
                       onValueChange(toggleSelected(value, opt.value))
                     }
-                    className="size-4 shrink-0 border-2 border-muted-foreground/45 bg-background shadow-sm data-[state=checked]:border-primary"
+                    className="shrink-0"
                   />
                   <label
                     htmlFor={checkboxId}

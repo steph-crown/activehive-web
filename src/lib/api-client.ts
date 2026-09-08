@@ -6,9 +6,7 @@ import axios, {
 } from "axios";
 
 const axiosInstance = axios.create({
-  baseURL:
-    import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ??
-    "https://activehiveapi.onrender.com",
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 40000,
   headers: {
     "Content-Type": "application/json",

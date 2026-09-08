@@ -1,36 +1,26 @@
 import * as React from "react"
-import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
-import { CheckIcon, MinusIcon } from "lucide-react"
 
-import { cn } from "@/lib/utils"
+import { Switch } from "@/components/ui/switch"
 
-function Checkbox({
-  className,
-  ...props
-}: React.ComponentProps<typeof CheckboxPrimitive.Root>) {
-  const indicatorIcon =
-    props.checked === "indeterminate" ? (
-      <MinusIcon className="size-3.5" />
-    ) : (
-      <CheckIcon className="size-3.5" />
-    )
+type CheckboxProps = Omit<
+  React.ComponentProps<typeof Switch>,
+  "checked" | "onCheckedChange"
+> & {
+  checked?: boolean | "indeterminate"
+  onCheckedChange?: (checked: boolean | "indeterminate") => void
+}
+
+function Checkbox({ checked, onCheckedChange, ...props }: CheckboxProps) {
+  const switchChecked =
+    checked === "indeterminate" ? true : (checked ?? false)
 
   return (
-    <CheckboxPrimitive.Root
+    <Switch
       data-slot="checkbox"
-      className={cn(
-        "peer border-input dark:bg-input/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary data-[state=checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
-        className
-      )}
+      checked={switchChecked}
+      onCheckedChange={(value: boolean) => onCheckedChange?.(value)}
       {...props}
-    >
-      <CheckboxPrimitive.Indicator
-        data-slot="checkbox-indicator"
-        className="flex items-center justify-center text-current transition-none"
-      >
-        {indicatorIcon}
-      </CheckboxPrimitive.Indicator>
-    </CheckboxPrimitive.Root>
+    />
   )
 }
 

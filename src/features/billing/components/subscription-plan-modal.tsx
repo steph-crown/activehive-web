@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FC } from "react";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { Check, ChevronDown } from "lucide-react";
 
 import {
@@ -24,7 +25,11 @@ import type {
   GymOwnerSubscriptionPlansResponse,
   MySubscriptionResponse,
 } from "../types";
-import { useGymOwnerPlansQuery, useSwitchPlanMutation } from "../services";
+import {
+  useGymOwnerPlansQuery,
+  useSubscribeMutation,
+  useChangePlanMutation,
+} from "../services";
 import { useToast } from "@/hooks/use-toast";
 
 type SubscriptionPlanModalProps = {
@@ -35,8 +40,7 @@ type SubscriptionPlanModalProps = {
 
 const FREE_TRIAL_ROW_ID = "__free_trial__";
 
-const formatCurrency = (amount: number) =>
-  formatNgn(amount / 100 || amount);
+const formatCurrency = (amount: number) => formatNgn(amount);
 
 const formatBillingPeriodLabel = (period: string) => period.replace(/_/g, " ");
 
@@ -214,7 +218,7 @@ const PaidPlanRow: FC<PaidPlanRowProps> = ({
                 <p className="text-muted-foreground line-clamp-2 text-sm">
                   {teaser}
                 </p>
-                {!expanded && plan.trialDays > 0 && (
+                {!expanded && (plan.trialDays ?? 0) > 0 && (
                   <p className="text-muted-foreground text-xs">
                     Includes {plan.trialDays}-day free trial · expand for full
                     details
@@ -264,7 +268,7 @@ const PaidPlanRow: FC<PaidPlanRowProps> = ({
                 No feature list provided for this plan.
               </p>
             )}
-            {plan.trialDays > 0 && (
+            {(plan.trialDays ?? 0) > 0 && (
               <Badge variant="secondary" className="mt-3 text-xs">
                 {plan.trialDays}-day free trial
               </Badge>
@@ -280,7 +284,10 @@ export const SubscriptionPlanModal: FC<
   Readonly<SubscriptionPlanModalProps>
 > = ({ open, onOpenChange, subscription }) => {
   const { data, isLoading, error } = useGymOwnerPlansQuery();
-  const { switchPlan, isPending } = useSwitchPlanMutation();
+  const { mutateAsync: subscribe, isPending: isSubscribePending } =
+    useSubscribeMutation();
+  const { mutateAsync: changePlan, isPending: isChangePending } =
+    useChangePlanMutation();
   const { showError, showSuccess } = useToast();
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -303,34 +310,31 @@ export const SubscriptionPlanModal: FC<
   };
 
   const handleChoosePlan = async (plan: GymOwnerSubscriptionPlan) => {
-    if (!subscription?.subscription?.id) {
-      showError(
-        "Unable to change plan",
-        "We could not determine your current subscription. Please refresh and try again.",
-      );
-      return;
-    }
-
     setSelectingPlanId(plan.id);
     try {
-      await switchPlan({
-        subscriptionId: subscription.subscription.id,
-        newPlanId: plan.id,
-      });
-      showSuccess("Plan updated", "Your subscription plan has been updated.");
+      if (subscription?.subscription?.id) {
+        await changePlan({ newPlanId: plan.id });
+        showSuccess("Plan updated", "Your subscription plan has been updated.");
+      } else {
+        await subscribe({ planId: plan.id });
+        const trialDays = plan.trialDays ?? 0;
+        showSuccess(
+          "Subscribed",
+          trialDays > 0
+            ? `Your ${trialDays}-day free trial has started.`
+            : "Your subscription is now active.",
+        );
+      }
       onOpenChange(false);
     } catch (err) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : "Failed to update subscription plan.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(err, "Failed to update subscription plan."));
     } finally {
       setSelectingPlanId(null);
     }
   };
 
-  const isSwitchInFlight = isPending || selectingPlanId !== null;
+  const isSwitchInFlight =
+    isSubscribePending || isChangePending || selectingPlanId !== null;
 
   const currentPlanLabel = subscription?.subscription?.plan ?? "Free Trial";
 

@@ -6,7 +6,7 @@ export interface MySubscriptionResponse {
     trainerId: string | null;
     gymId: string;
     platformPlanId: string | null;
-    plan: string;
+    plan: string | null;
     status: string;
     monthlyPrice: number | null;
     trialStartDate: string | null;
@@ -35,15 +35,15 @@ export interface MySubscriptionResponse {
       name: string;
       logo: string | null;
       address: {
-        street: string;
-        city: string;
-        state: string;
-        zipCode: string;
-        country: string;
-      };
-      phoneNumber: string;
-      email: string;
-    };
+        street: string | null;
+        city: string | null;
+        state: string | null;
+        zipCode: string | null;
+        country: string | null;
+      } | null;
+      phoneNumber: string | null;
+      email: string | null;
+    } | null;
   } | null;
   isTrial?: boolean;
   daysRemaining?: number;
@@ -56,8 +56,8 @@ export interface GymOwnerSubscriptionPlan {
   description: string | null;
   price: number;
   billingPeriod: string;
-  features: string[];
-  trialDays: number;
+  features: string[] | null;
+  trialDays: number | null;
   isActive: boolean;
   isDefault: boolean;
   planType: string;
@@ -67,8 +67,24 @@ export interface GymOwnerSubscriptionPlansResponse {
   plans: GymOwnerSubscriptionPlan[];
 }
 
-export interface SwitchPlanPayload {
-  subscriptionId: string;
+export interface ChangePlanPayload {
   newPlanId: string;
-  reason?: string;
+  promoCode?: string;
+  prorate?: boolean;
+  extendEndDate?: boolean;
+}
+
+export type CancellationReason =
+  | "too_expensive"
+  | "not_using_enough"
+  | "missing_features"
+  | "switching_provider"
+  | "technical_issues"
+  | "poor_support"
+  | "closing_business"
+  | "other";
+
+export interface CancelSubscriptionPayload {
+  reason?: CancellationReason;
+  note?: string;
 }

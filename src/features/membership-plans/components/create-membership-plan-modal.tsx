@@ -1,3 +1,4 @@
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -142,11 +143,7 @@ export function CreateMembershipPlanModal({
       form.reset();
       onOpenChange(false);
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Failed to create membership plan";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Failed to create membership plan"));
     }
   };
 

@@ -39,19 +39,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const location = useLocation();
   const navigate = useNavigate();
   const [isGetHelpOpen, setIsGetHelpOpen] = React.useState(false);
-  const hasRedirectedRef = React.useRef(false);
-
-  console.log({ hasActiveSubscription });
 
   React.useEffect(() => {
     if (isSubscriptionLoading || !isFetched) return;
-    if (hasRedirectedRef.current) return;
 
-    const currentPath = location.pathname;
-    const isBillingPage = currentPath === "/billing";
-
+    const isBillingPage = location.pathname === "/billing";
     if (!isBillingPage && !hasActiveSubscription) {
-      hasRedirectedRef.current = true;
       showError(
         "Subscription required",
         "You need an active subscription to access this page. Redirecting to billing.",

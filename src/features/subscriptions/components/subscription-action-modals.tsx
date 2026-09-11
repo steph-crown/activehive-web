@@ -1,3 +1,4 @@
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -124,9 +125,7 @@ export function UpdateSubscriptionStatusModal({
       showSuccess("Success", "Subscription status updated successfully!");
       onSuccess();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to update status.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Failed to update status."));
     }
   };
 
@@ -273,9 +272,7 @@ export function CancelSubscriptionModal({
       showSuccess("Success", "Subscription cancelled successfully!");
       onSuccess();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to cancel subscription.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Failed to cancel subscription."));
     }
   };
 
@@ -390,9 +387,7 @@ export function ChangeSubscriptionPlanModal({
       showSuccess("Success", "Subscription plan changed successfully!");
       onSuccess();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to change plan.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Failed to change plan."));
     }
   };
 

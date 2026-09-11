@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { IconChevronLeft } from "@tabler/icons-react";
 
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { formatDisplayDate } from "@/lib/display-datetime";
@@ -143,9 +144,7 @@ export function MemberDetailsPage() {
           <div className="px-4 lg:px-6">
             <Card className="rounded-md border-destructive/30 bg-destructive/5 p-6 shadow-none">
               <p className="text-destructive text-sm font-medium">
-                {error instanceof Error
-                  ? error.message
-                  : "Could not load this member."}
+                {getApiErrorMessage(error, "Could not load this member.")}
               </p>
               <Button
                 variant="outline"

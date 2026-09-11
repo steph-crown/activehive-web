@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -66,9 +67,7 @@ export function BrandingStepForm({
       }
       navigate("/compliance-documents");
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Unable to save branding.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Unable to save branding."));
     }
   };
 

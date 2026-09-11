@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm, useFieldArray, useWatch, type FieldErrors } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { ChevronDown } from "lucide-react";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -173,9 +174,7 @@ export function LocationsStepForm({
       );
       navigate("/pending-approval");
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Unable to save locations.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Unable to save locations."));
     }
   };
 
@@ -214,11 +213,7 @@ export function LocationsStepForm({
       );
       navigate("/pending-approval");
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Unable to complete registration.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Unable to complete registration."));
     } finally {
       setIsSkipping(false);
     }

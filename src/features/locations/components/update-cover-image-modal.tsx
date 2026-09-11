@@ -1,3 +1,4 @@
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -75,11 +76,7 @@ export function UpdateCoverImageModal({
       form.reset();
       onSuccess();
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Failed to update cover image.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Failed to update cover image."));
     }
   };
 

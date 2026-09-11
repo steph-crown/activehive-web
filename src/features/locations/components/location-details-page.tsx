@@ -1,3 +1,4 @@
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -48,9 +49,7 @@ export function LocationDetailsPage() {
       showSuccess("Success", "Image deleted successfully!");
       refetch();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to delete image.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Failed to delete image."));
     }
   };
 

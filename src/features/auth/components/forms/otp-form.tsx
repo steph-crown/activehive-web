@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Button } from "@/components/ui/button";
@@ -77,9 +78,7 @@ export function OtpForm({ className, ...props }: React.ComponentProps<"form">) {
       showSuccess("Success", response.message ?? "OTP sent. Check your inbox.");
       form.reset();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Unable to resend OTP.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Unable to resend OTP."));
     }
   };
 

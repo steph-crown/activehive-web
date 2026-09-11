@@ -22,5 +22,4 @@ export type PlatformSubscription = {
   subscriptionStartDate: string | null;
   subscriptionEndDate: string | null;
   platformPlan: PlatformPlan | null;
-  [key: string]: unknown;
 };

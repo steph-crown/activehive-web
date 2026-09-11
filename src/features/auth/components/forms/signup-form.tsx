@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -67,11 +68,7 @@ export function SignupForm({
       navigate("/otp");
       form.reset();
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Unable to create account. Try again.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Unable to create account. Try again."));
     }
   };
 

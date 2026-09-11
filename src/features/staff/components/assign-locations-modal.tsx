@@ -1,3 +1,4 @@
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -94,11 +95,7 @@ export function AssignLocationsModal({
       showSuccess("Success", "Locations assigned successfully!");
       onSuccess();
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Failed to assign locations.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Failed to assign locations."));
     }
   };
 

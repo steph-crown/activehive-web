@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,8 @@ import {
   formatMonthlyPriceNgn,
   getSubscriptionStatusBadgeVariant,
 } from "../lib/billing-display";
-import { useMySubscriptionQuery } from "../services";
+import { useMySubscriptionQuery, useCancelSubscriptionMutation } from "../services";
+import { useToast } from "@/hooks/use-toast";
 import { BillingTabPanels } from "./billing-tab-panels";
 import { SubscriptionPlanModal } from "./subscription-plan-modal";
 
@@ -24,24 +26,38 @@ const TAB_ITEMS = [
 
 export function BillingPage() {
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
   const { data, isLoading, error } = useMySubscriptionQuery();
-  const errorMessage = error ? error.message : null;
+  const { mutateAsync: cancelSubscription, isPending: isCancelling } =
+    useCancelSubscriptionMutation();
+  const errorMessage = error ? getApiErrorMessage(error, "Failed to load subscription.") : null;
 
-  // Active subscription = data exists AND hasSubscription is not explicitly false
-  // AND at least one of isActive/isTrial is true
   const hasActiveSub =
     !!data && data.hasSubscription !== false && !!(data.isActive || data.isTrial);
 
   const subscriptionData = hasActiveSub ? data : null;
 
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
+  const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
 
-  // Auto-open plan picker when redirected here with no active subscription
   useEffect(() => {
     if (!isLoading && !errorMessage && !hasActiveSub) {
       setIsPlanModalOpen(true);
     }
   }, [isLoading, errorMessage, hasActiveSub]);
+
+  const handleCancelConfirm = async () => {
+    try {
+      await cancelSubscription({});
+      showSuccess("Subscription cancelled", "Your subscription has been cancelled.");
+      setIsCancelConfirmOpen(false);
+    } catch (err) {
+      showError(
+        "Error",
+        getApiErrorMessage(err, "Failed to cancel subscription."),
+      );
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -56,9 +72,18 @@ export function BillingPage() {
             </p>
           </div>
           {hasActiveSub && (
-            <Button variant="outline" onClick={() => setIsPlanModalOpen(true)}>
-              Change plan
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                className="text-destructive hover:text-destructive border-destructive/30 hover:bg-destructive/5"
+                onClick={() => setIsCancelConfirmOpen(true)}
+              >
+                Cancel subscription
+              </Button>
+              <Button variant="outline" onClick={() => setIsPlanModalOpen(true)}>
+                Change plan
+              </Button>
+            </div>
           )}
         </div>
 
@@ -221,6 +246,34 @@ export function BillingPage() {
         onOpenChange={setIsPlanModalOpen}
         subscription={subscriptionData ?? undefined}
       />
+
+      {isCancelConfirmOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <Card className="w-full max-w-sm rounded-xl p-6 shadow-xl">
+            <h2 className="text-lg font-semibold">Cancel subscription?</h2>
+            <p className="text-muted-foreground mt-2 text-sm">
+              Your access will continue until the end of your current billing
+              period, then stop. This action cannot be undone.
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setIsCancelConfirmOpen(false)}
+                disabled={isCancelling}
+              >
+                Keep subscription
+              </Button>
+              <Button
+                variant="destructive"
+                loading={isCancelling}
+                onClick={() => void handleCancelConfirm()}
+              >
+                Cancel subscription
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
     </DashboardLayout>
   );
 }

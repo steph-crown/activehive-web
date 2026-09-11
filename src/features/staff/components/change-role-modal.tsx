@@ -1,3 +1,4 @@
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -76,9 +77,7 @@ export function ChangeRoleModal({
       showSuccess("Success", "Role updated successfully.");
       onSuccess();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to update role.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Failed to update role."));
     }
   };
 

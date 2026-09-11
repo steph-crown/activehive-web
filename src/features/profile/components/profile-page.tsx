@@ -1,3 +1,4 @@
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -174,9 +175,7 @@ export function ProfilePage() {
       showSuccess("Success", "Profile updated successfully!");
       setIsUpdateOpen(false);
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to update profile.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Failed to update profile."));
     }
   };
 
@@ -190,11 +189,7 @@ export function ProfilePage() {
       changePasswordForm.reset();
       setIsChangePasswordOpen(false);
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Failed to change password. Please check your current password.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Failed to change password. Please check your current password."));
     }
   };
 

@@ -1,3 +1,4 @@
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -66,11 +67,7 @@ export function CreatePermissionModal({
       form.reset();
       onSuccess();
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Failed to create permission.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Failed to create permission."));
     }
   };
 

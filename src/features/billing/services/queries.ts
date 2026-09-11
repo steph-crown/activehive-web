@@ -4,7 +4,8 @@ import { billingApi } from "./api";
 import type {
   GymOwnerSubscriptionPlansResponse,
   MySubscriptionResponse,
-  SwitchPlanPayload,
+  ChangePlanPayload,
+  CancelSubscriptionPayload,
 } from "../types";
 import { useSubscriptionStore } from "@/store";
 
@@ -27,16 +28,12 @@ export const useMySubscriptionQuery = () => {
   useEffect(() => {
     if (queryResult.status === "success" && queryResult.data) {
       const data = queryResult.data;
-      console.log({ data });
-
-      // Treat users as having access if they have either an active subscription or an active trial
       if (data.isActive || data.isTrial) {
         setSubscription(data);
       } else {
         setSubscription(null);
       }
     }
-
     if (queryResult.status === "error") {
       setSubscription(null);
     }
@@ -51,22 +48,45 @@ export const useGymOwnerPlansQuery = () =>
     queryFn: () => billingApi.getAvailablePlans(),
   });
 
-export const useSwitchPlanMutation = () => {
+export const useSubscribeMutation = () => {
   const queryClient = useQueryClient();
-
-  const mutation = useMutation({
-    mutationFn: (payload: SwitchPlanPayload) => billingApi.switchPlan(payload),
+  return useMutation({
+    mutationFn: ({
+      planId,
+      promoCode,
+    }: {
+      planId: string;
+      promoCode?: string;
+    }) => billingApi.subscribe(planId, promoCode),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: billingQueryKeys.mySubscription(),
+      });
+    },
   });
+};
 
-  const switchPlan = async (payload: SwitchPlanPayload) => {
-    await mutation.mutateAsync(payload);
-    await queryClient.invalidateQueries({
-      queryKey: billingQueryKeys.mySubscription(),
-    });
-  };
+export const useChangePlanMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: ChangePlanPayload) => billingApi.changePlan(payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: billingQueryKeys.mySubscription(),
+      });
+    },
+  });
+};
 
-  return {
-    ...mutation,
-    switchPlan,
-  };
+export const useCancelSubscriptionMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CancelSubscriptionPayload) =>
+      billingApi.cancelSubscription(payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: billingQueryKeys.mySubscription(),
+      });
+    },
+  });
 };

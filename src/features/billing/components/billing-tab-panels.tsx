@@ -45,15 +45,17 @@ export function BillingTabPanels({
   const sub = data.subscription;
   const owner = sub.gymOwner;
   const gym = sub.gym;
-  const addr = gym.address;
+  const addr = gym?.address ?? null;
 
-  const addressBlock = [
-    addr.street,
-    `${addr.city}, ${addr.state} ${addr.zipCode}`,
-    addr.country,
-  ]
-    .filter(Boolean)
-    .join("\n");
+  const addressBlock = addr
+    ? [
+        addr.street,
+        [addr.city, addr.state, addr.zipCode].filter(Boolean).join(", "),
+        addr.country,
+      ]
+        .filter(Boolean)
+        .join("\n")
+    : "";
 
   return (
     <>
@@ -191,9 +193,9 @@ export function BillingTabPanels({
         <Card className="rounded-md border-[#F4F4F4] bg-white p-6 shadow-none">
           <SectionHeading>Gym</SectionHeading>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <LabeledRow label="Gym name" value={gym.name || "—"} />
-            <LabeledRow label="Email" value={gym.email || "—"} />
-            <LabeledRow label="Phone" value={gym.phoneNumber || "—"} />
+            <LabeledRow label="Gym name" value={gym?.name || "—"} />
+            <LabeledRow label="Email" value={gym?.email || "—"} />
+            <LabeledRow label="Phone" value={gym?.phoneNumber || "—"} />
             <div className="space-y-1.5 sm:col-span-2">
               <p className="text-xs font-semibold text-foreground">Address</p>
               <div className="min-h-[72px] rounded-md border border-[#F4F4F4] bg-muted/50 px-3 py-2 text-sm text-foreground whitespace-pre-wrap">

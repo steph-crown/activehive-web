@@ -1,3 +1,4 @@
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -135,9 +136,7 @@ export function UpdateMembershipPlanModal({
       showSuccess("Success", "Membership plan updated successfully!");
       onSuccess();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to update plan.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Failed to update plan."));
     }
   };
 
@@ -381,9 +380,7 @@ export function DeleteMembershipPlanModal({
       showSuccess("Success", "Membership plan deleted successfully!");
       onSuccess();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to delete plan.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Failed to delete plan."));
     }
   };
 
@@ -459,9 +456,7 @@ export function DuplicateMembershipPlanModal({
       showSuccess("Success", "Membership plan duplicated successfully!");
       onSuccess();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to duplicate plan.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Failed to duplicate plan."));
     }
   };
 
@@ -624,9 +619,7 @@ export function AddPromoCodeModal({
       form.reset(defaultValues);
       onSuccess();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to add promo code.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Failed to add promo code."));
     }
   };
 
@@ -887,9 +880,7 @@ export function RemovePromoCodeModal({
       showSuccess("Success", "Promo code removed successfully!");
       onSuccess();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to remove promo code.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Failed to remove promo code."));
     }
   };
 
@@ -959,11 +950,7 @@ export function TogglePromoCodeModal({
       );
       onSuccess();
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Failed to toggle promo code status.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Failed to toggle promo code status."));
     }
   };
 

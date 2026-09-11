@@ -1,3 +1,4 @@
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { DataTable } from "@/components/molecules/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -166,9 +167,7 @@ export function FacilitiesPage() {
       setIsCreateModalOpen(false);
       refetch();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to create facility.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Failed to create facility."));
     }
   };
 
@@ -200,9 +199,7 @@ export function FacilitiesPage() {
       setEditingFacility(null);
       refetch();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to update facility.";
-      showError("Error", message);
+      showError("Error", getApiErrorMessage(error, "Failed to update facility."));
     }
   };
 
@@ -215,9 +212,7 @@ export function FacilitiesPage() {
         showSuccess("Success", "Facility deleted successfully!");
         refetch();
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Failed to delete facility.";
-        showError("Error", message);
+        showError("Error", getApiErrorMessage(error, "Failed to delete facility."));
       }
     },
     [deleteFacility, refetch, showSuccess, showError],

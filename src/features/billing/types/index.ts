@@ -1,4 +1,5 @@
 export interface MySubscriptionResponse {
+  hasSubscription?: boolean;
   subscription: {
     id: string;
     gymOwnerId: string;
@@ -43,10 +44,10 @@ export interface MySubscriptionResponse {
       phoneNumber: string;
       email: string;
     };
-  };
-  isTrial: boolean;
-  daysRemaining: number;
-  isActive: boolean;
+  } | null;
+  isTrial?: boolean;
+  daysRemaining?: number;
+  isActive?: boolean;
 }
 
 export interface GymOwnerSubscriptionPlan {

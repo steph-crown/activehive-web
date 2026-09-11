@@ -29,8 +29,12 @@ function SectionHeading({ children }: { children: ReactNode }) {
   );
 }
 
+type ActiveSubscriptionData = MySubscriptionResponse & {
+  subscription: NonNullable<MySubscriptionResponse["subscription"]>;
+};
+
 type BillingTabPanelsProps = {
-  readonly data: MySubscriptionResponse;
+  readonly data: ActiveSubscriptionData;
   readonly onChangePlan: () => void;
 };
 
@@ -89,10 +93,10 @@ export function BillingTabPanels({
                 <span className="text-muted-foreground">Days remaining</span>
                 <span
                   className={`text-right font-medium ${
-                    data.daysRemaining <= 7 ? "text-orange-600" : ""
+                    (data.daysRemaining ?? 0) <= 7 ? "text-orange-600" : ""
                   }`}
                 >
-                  {data.daysRemaining}
+                  {data.daysRemaining ?? "—"}
                 </span>
               </div>
             </div>

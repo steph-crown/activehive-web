@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Badge } from "@/components/ui/badge";
@@ -25,9 +25,23 @@ const TAB_ITEMS = [
 export function BillingPage() {
   const navigate = useNavigate();
   const { data, isLoading, error } = useMySubscriptionQuery();
-  const subscriptionData = data;
   const errorMessage = error ? error.message : null;
+
+  // Active subscription = data exists AND hasSubscription is not explicitly false
+  // AND at least one of isActive/isTrial is true
+  const hasActiveSub =
+    !!data && data.hasSubscription !== false && !!(data.isActive || data.isTrial);
+
+  const subscriptionData = hasActiveSub ? data : null;
+
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
+
+  // Auto-open plan picker when redirected here with no active subscription
+  useEffect(() => {
+    if (!isLoading && !errorMessage && !hasActiveSub) {
+      setIsPlanModalOpen(true);
+    }
+  }, [isLoading, errorMessage, hasActiveSub]);
 
   return (
     <DashboardLayout>
@@ -41,7 +55,7 @@ export function BillingPage() {
                 : "Subscription, renewal dates, and account details"}
             </p>
           </div>
-          {subscriptionData && (
+          {hasActiveSub && (
             <Button variant="outline" onClick={() => setIsPlanModalOpen(true)}>
               Change plan
             </Button>
@@ -82,20 +96,18 @@ export function BillingPage() {
           </div>
         )}
 
-        {!isLoading && !errorMessage && !subscriptionData && (
+        {!isLoading && !errorMessage && !hasActiveSub && (
           <div className="px-4 lg:px-6">
             <Card className="rounded-md border-[#F4F4F4] bg-white p-6 shadow-none">
-              <h2 className="text-lg font-semibold">No subscription on file</h2>
+              <h2 className="text-lg font-semibold">No active subscription</h2>
               <p className="text-muted-foreground mt-2 text-sm">
-                We couldn&apos;t load billing details for your gym. Refresh the
-                page or contact support if this continues.
+                Choose a plan to unlock full access to your gym dashboard.
               </p>
               <Button
-                variant="outline"
                 className="mt-4"
-                onClick={() => window.location.reload()}
+                onClick={() => setIsPlanModalOpen(true)}
               >
-                Refresh
+                Choose a plan
               </Button>
             </Card>
           </div>
@@ -169,12 +181,12 @@ export function BillingPage() {
                     <span className="text-muted-foreground">Days remaining</span>
                     <span
                       className={`text-right font-medium ${
-                        subscriptionData.daysRemaining <= 7
+                        (subscriptionData.daysRemaining ?? 0) <= 7
                           ? "text-orange-600"
                           : ""
                       }`}
                     >
-                      {subscriptionData.daysRemaining}
+                      {subscriptionData.daysRemaining ?? "—"}
                     </span>
                   </div>
                 </div>
@@ -195,7 +207,7 @@ export function BillingPage() {
                   ))}
                 </TabsList>
                 <BillingTabPanels
-                  data={subscriptionData}
+                  data={subscriptionData as Parameters<typeof BillingTabPanels>[0]["data"]}
                   onChangePlan={() => setIsPlanModalOpen(true)}
                 />
               </Tabs>
@@ -207,7 +219,7 @@ export function BillingPage() {
       <SubscriptionPlanModal
         open={isPlanModalOpen}
         onOpenChange={setIsPlanModalOpen}
-        subscription={subscriptionData}
+        subscription={subscriptionData ?? undefined}
       />
     </DashboardLayout>
   );

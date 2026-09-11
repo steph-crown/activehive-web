@@ -9,10 +9,15 @@ export const platformSubscriptionApi = {
   getMySubscription: (): Promise<PlatformSubscription | null> =>
     apiClient.get<PlatformSubscription | null>(mySubscriptionPath),
 
-  getActivePlans: (): Promise<PlatformPlan[]> =>
-    apiClient.get<PlatformPlan[]>(activePlansPath, {
-      params: { planType: "gym_owner" },
-    }),
+  getActivePlans: async (): Promise<PlatformPlan[]> => {
+    const res = await apiClient.get<PlatformPlan[] | { data: PlatformPlan[] }>(
+      activePlansPath,
+      { params: { planType: "gym_owner" } },
+    );
+    return Array.isArray(res)
+      ? res
+      : ((res as { data: PlatformPlan[] }).data ?? []);
+  },
 
   subscribeToPlan: (planId: string): Promise<PlatformSubscription> =>
     apiClient.post<PlatformSubscription>(subscribePath, { planId }),

@@ -4,10 +4,12 @@ import type {
   CheckInsListResponse,
   CheckInsStatsParams,
   CheckInsStatsResponse,
+  CheckInQrResponse,
   CreateCheckInPayload,
 } from "../types";
 
 const checkInsPath = "/api/check-ins";
+const locationsPath = "/api/gym-owner/locations";
 
 function statsQueryParams(
   params: CheckInsStatsParams,
@@ -37,6 +39,9 @@ function listQueryParams(params: CheckInsListParams): Record<string, string> {
 }
 
 export const checkInsApi = {
+  getCheckInQr: (locationId: string): Promise<CheckInQrResponse> =>
+    apiClient.get<CheckInQrResponse>(`${locationsPath}/${locationId}/check-in-qr`),
+
   create: (payload: CreateCheckInPayload): Promise<unknown> =>
     apiClient.post<unknown>(checkInsPath, payload),
 

@@ -1,3 +1,13 @@
+export type CheckInQrResponse = {
+  locationId: string;
+  locationName: string;
+  gymName: string;
+  isActive: boolean;
+  payload: string;
+  payloadFormat: "location-id";
+  qrCode: string;
+};
+
 export type CreateCheckInPayload = {
   memberId: string;
   locationId: string;

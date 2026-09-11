@@ -5,7 +5,23 @@ import type {
   CheckInsListResponse,
   CheckInsStatsParams,
   CheckInsStatsResponse,
+  CheckInQrResponse,
 } from "../types";
+
+export const checkInQrQueryKeys = {
+  all: ["check-in-qr"] as const,
+  byLocation: (locationId: string) =>
+    [...checkInQrQueryKeys.all, locationId] as const,
+};
+
+export function useCheckInQrQuery(locationId: string | null) {
+  return useQuery<CheckInQrResponse>({
+    queryKey: checkInQrQueryKeys.byLocation(locationId ?? ""),
+    queryFn: () => checkInsApi.getCheckInQr(locationId!),
+    enabled: Boolean(locationId),
+    staleTime: Infinity,
+  });
+}
 
 export const checkInsQueryKeys = {
   all: ["check-ins"] as const,

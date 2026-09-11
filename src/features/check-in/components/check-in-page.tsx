@@ -1,6 +1,6 @@
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
-import { IconAlertTriangle, IconBolt } from "@tabler/icons-react";
+import { IconAlertTriangle, IconBolt, IconQrcode } from "@tabler/icons-react";
 import { Clock3, TriangleAlert, TrendingUp, UsersRound } from "lucide-react";
 
 import { DataTable } from "@/components/molecules/data-table";
@@ -20,6 +20,7 @@ import { SummaryMetricCard } from "@/features/dashboard/components/summary-metri
 import type { CheckInListItem } from "../types";
 import { useCheckInsQuery, useCheckInsStatsQuery } from "../services";
 import { QuickCheckInDialog } from "./quick-check-in-dialog";
+import { GenerateQrDialog } from "./generate-qr-dialog";
 import { formatDisplayDate, formatDisplayTime } from "@/lib/display-datetime";
 
 function memberDisplayName(member: CheckInListItem["member"]) {
@@ -37,6 +38,7 @@ export function CheckInPage() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
   const [quickCheckInOpen, setQuickCheckInOpen] = useState(false);
+  const [generateQrOpen, setGenerateQrOpen] = useState(false);
   const { data: locations, isLoading: locationsLoading } = useLocationsQuery();
 
   const deferredSearch = useDeferredValue(searchQuery.trim());
@@ -175,10 +177,16 @@ export function CheckInPage() {
               Track daily gym attendance
             </p>
           </div>
-          <Button onClick={() => setQuickCheckInOpen(true)}>
-            <IconBolt className="h-4 w-4" />
-            Quick Check-In
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => setGenerateQrOpen(true)}>
+              <IconQrcode className="h-4 w-4" />
+              Generate QR
+            </Button>
+            <Button onClick={() => setQuickCheckInOpen(true)}>
+              <IconBolt className="h-4 w-4" />
+              Quick Check-In
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
@@ -289,6 +297,10 @@ export function CheckInPage() {
       <QuickCheckInDialog
         open={quickCheckInOpen}
         onOpenChange={setQuickCheckInOpen}
+      />
+      <GenerateQrDialog
+        open={generateQrOpen}
+        onOpenChange={setGenerateQrOpen}
       />
     </DashboardLayout>
   );

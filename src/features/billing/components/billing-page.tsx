@@ -1,27 +1,28 @@
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getApiErrorMessage } from "@/lib/get-api-error-message";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardLayout } from "@/features/dashboard/components/dashboard-layout";
+import { useToast } from "@/hooks/use-toast";
 import {
   formatBillingDate,
   formatMonthlyPriceNgn,
-  getSubscriptionStatusBadgeVariant,
 } from "../lib/billing-display";
-import { useMySubscriptionQuery, useCancelSubscriptionMutation } from "../services";
-import { useToast } from "@/hooks/use-toast";
+import {
+  useCancelSubscriptionMutation,
+  useMySubscriptionQuery,
+} from "../services";
 import { BillingTabPanels } from "./billing-tab-panels";
 import { SubscriptionPlanModal } from "./subscription-plan-modal";
 
 const TAB_ITEMS = [
   { value: "overview", label: "Overview" },
   { value: "plan-dates", label: "Plan & dates" },
-  { value: "organization", label: "Organization" },
+  // { value: "organization", label: "Organization" },
 ] as const;
 
 export function BillingPage() {
@@ -30,10 +31,14 @@ export function BillingPage() {
   const { data, isLoading, error } = useMySubscriptionQuery();
   const { mutateAsync: cancelSubscription, isPending: isCancelling } =
     useCancelSubscriptionMutation();
-  const errorMessage = error ? getApiErrorMessage(error, "Failed to load subscription.") : null;
+  const errorMessage = error
+    ? getApiErrorMessage(error, "Failed to load subscription.")
+    : null;
 
   const hasActiveSub =
-    !!data && data.hasSubscription !== false && !!(data.isActive || data.isTrial);
+    !!data &&
+    data.hasSubscription !== false &&
+    !!(data.isActive || data.isTrial);
 
   const subscriptionData = hasActiveSub ? data : null;
 
@@ -49,7 +54,10 @@ export function BillingPage() {
   const handleCancelConfirm = async () => {
     try {
       await cancelSubscription({});
-      showSuccess("Subscription cancelled", "Your subscription has been cancelled.");
+      showSuccess(
+        "Subscription cancelled",
+        "Your subscription has been cancelled.",
+      );
       setIsCancelConfirmOpen(false);
     } catch (err) {
       showError(
@@ -80,7 +88,10 @@ export function BillingPage() {
               >
                 Cancel subscription
               </Button>
-              <Button variant="outline" onClick={() => setIsPlanModalOpen(true)}>
+              <Button
+                variant="outline"
+                onClick={() => setIsPlanModalOpen(true)}
+              >
                 Change plan
               </Button>
             </div>
@@ -128,10 +139,7 @@ export function BillingPage() {
               <p className="text-muted-foreground mt-2 text-sm">
                 Choose a plan to unlock full access to your gym dashboard.
               </p>
-              <Button
-                className="mt-4"
-                onClick={() => setIsPlanModalOpen(true)}
-              >
+              <Button className="mt-4" onClick={() => setIsPlanModalOpen(true)}>
                 Choose a plan
               </Button>
             </Card>
@@ -143,7 +151,7 @@ export function BillingPage() {
             <div className="grid gap-4 px-4 lg:px-6 lg:grid-cols-2">
               <Card className="rounded-md border-[#F4F4F4] bg-white p-6 shadow-none">
                 <h2 className="text-lg font-semibold">Current subscription</h2>
-                <div className="mt-4 flex flex-wrap items-center gap-2">
+                {/* <div className="mt-4 flex flex-wrap items-center gap-2">
                   <Badge
                     variant={getSubscriptionStatusBadgeVariant(
                       subscriptionData.subscription?.status ?? "",
@@ -158,12 +166,14 @@ export function BillingPage() {
                   {subscriptionData.isActive && !subscriptionData.isTrial && (
                     <Badge variant="default">Active</Badge>
                   )}
-                </div>
+                </div> */}
                 <div className="mt-4 space-y-3 text-sm">
                   <div className="flex items-center justify-between gap-4">
                     <span className="text-muted-foreground">Plan</span>
-                    <span className="text-right font-medium capitalize">
-                      {subscriptionData.subscription?.plan || "—"}
+                    <span className="text-right font-medium">
+                      {subscriptionData.subscription?.platformPlan?.name ??
+                        subscriptionData.subscription?.plan ??
+                        "—"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-4">
@@ -203,7 +213,9 @@ export function BillingPage() {
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-4">
-                    <span className="text-muted-foreground">Days remaining</span>
+                    <span className="text-muted-foreground">
+                      Days remaining
+                    </span>
                     <span
                       className={`text-right font-medium ${
                         (subscriptionData.daysRemaining ?? 0) <= 7
@@ -232,8 +244,11 @@ export function BillingPage() {
                   ))}
                 </TabsList>
                 <BillingTabPanels
-                  data={subscriptionData as Parameters<typeof BillingTabPanels>[0]["data"]}
-                  onChangePlan={() => setIsPlanModalOpen(true)}
+                  data={
+                    subscriptionData as Parameters<
+                      typeof BillingTabPanels
+                    >[0]["data"]
+                  }
                 />
               </Tabs>
             </div>

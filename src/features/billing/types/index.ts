@@ -8,7 +8,7 @@ export interface MySubscriptionResponse {
     platformPlanId: string | null;
     plan: string | null;
     status: string;
-    monthlyPrice: number | null;
+    monthlyPrice: string | number | null;
     trialStartDate: string | null;
     trialEndDate: string | null;
     subscriptionStartDate: string | null;
@@ -44,7 +44,24 @@ export interface MySubscriptionResponse {
       phoneNumber: string | null;
       email: string | null;
     } | null;
+    platformPlan: {
+      id: string;
+      name: string;
+      description: string | null;
+      price: string;
+      billingPeriod: string;
+      features: string[] | null;
+      trialDays: number | null;
+      maxStaff: number | null;
+      maxLocations: number | null;
+      maxClassesPerMonth: number | null;
+      isActive: boolean;
+      isDefault: boolean;
+      isPopular: boolean;
+    } | null;
   } | null;
+  isExpired?: boolean;
+  daysUntilExpiration?: number;
   isTrial?: boolean;
   daysRemaining?: number;
   isActive?: boolean;

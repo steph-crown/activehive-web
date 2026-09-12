@@ -1,16 +1,15 @@
 import type { ReactNode } from "react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TabsContent } from "@/components/ui/tabs";
-import type { MySubscriptionResponse } from "../types";
 import {
   formatBillingDate,
   formatBillingDateTime,
   formatMonthlyPriceNgn,
   getSubscriptionStatusBadgeVariant,
 } from "../lib/billing-display";
+import type { MySubscriptionResponse } from "../types";
 
 function LabeledRow({ label, value }: { label: string; value: string }) {
   return (
@@ -35,13 +34,9 @@ type ActiveSubscriptionData = MySubscriptionResponse & {
 
 type BillingTabPanelsProps = {
   readonly data: ActiveSubscriptionData;
-  readonly onChangePlan: () => void;
 };
 
-export function BillingTabPanels({
-  data,
-  onChangePlan,
-}: BillingTabPanelsProps) {
+export function BillingTabPanels({ data }: BillingTabPanelsProps) {
   const sub = data.subscription;
   const owner = sub.gymOwner;
   const gym = sub.gym;
@@ -66,8 +61,8 @@ export function BillingTabPanels({
             <div className="mt-4 space-y-3 text-sm">
               <div className="flex items-center justify-between gap-4">
                 <span className="text-muted-foreground">Plan</span>
-                <span className="text-right font-medium capitalize">
-                  {sub.plan || "—"}
+                <span className="text-right font-medium">
+                  {sub.platformPlan?.name ?? sub.plan ?? "—"}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-4">
@@ -104,7 +99,25 @@ export function BillingTabPanels({
             </div>
           </Card>
 
-          <Card className="rounded-md border-[#F4F4F4] bg-white p-6 shadow-none">
+          {sub.platformPlan?.features &&
+            sub.platformPlan.features.length > 0 && (
+              <Card className="rounded-md border-[#F4F4F4] bg-white p-6 shadow-none">
+                <SectionHeading>Plan features</SectionHeading>
+                <ul className="mt-4 space-y-2">
+                  {sub.platformPlan.features.map((feature) => (
+                    <li
+                      key={feature}
+                      className="flex items-start gap-2 text-sm"
+                    >
+                      <span className="mt-0.5 text-primary">✓</span>
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            )}
+
+          {/* <Card className="rounded-md border-[#F4F4F4] bg-white p-6 shadow-none">
             <SectionHeading>Manage plan</SectionHeading>
             <p className="text-muted-foreground mt-2 text-sm">
               {data.isTrial
@@ -114,7 +127,7 @@ export function BillingTabPanels({
             <Button className="mt-6 w-full sm:w-auto" onClick={onChangePlan}>
               Change plan
             </Button>
-          </Card>
+          </Card> */}
         </div>
       </TabsContent>
 
@@ -138,14 +151,22 @@ export function BillingTabPanels({
         <Card className="rounded-md border-[#F4F4F4] bg-white p-6 shadow-none">
           <SectionHeading>Billing cycle</SectionHeading>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <LabeledRow
-              label="Subscription start"
-              value={formatBillingDate(sub.subscriptionStartDate)}
-            />
-            <LabeledRow
-              label="Subscription end"
-              value={formatBillingDate(sub.subscriptionEndDate)}
-            />
+            {data.isTrial ? (
+              <p className="text-muted-foreground col-span-2 text-sm">
+                Billing cycle begins after your trial ends.
+              </p>
+            ) : (
+              <>
+                <LabeledRow
+                  label="Subscription start"
+                  value={formatBillingDate(sub.subscriptionStartDate)}
+                />
+                <LabeledRow
+                  label="Subscription end"
+                  value={formatBillingDate(sub.subscriptionEndDate)}
+                />
+              </>
+            )}
             <LabeledRow
               label="Last payment"
               value={formatBillingDate(sub.lastPaymentDate)}

@@ -14,9 +14,11 @@ export function formatBillingDateTime(dateString: string | null): string {
   return formatDisplayDateTime(dateString);
 }
 
-export function formatMonthlyPriceNgn(amount: number | null): string {
+export function formatMonthlyPriceNgn(amount: string | number | null): string {
   if (amount == null) return "—";
-  return formatNgn(amount, { decimals: true });
+  const num = typeof amount === "string" ? parseFloat(amount) : amount;
+  if (!Number.isFinite(num)) return "—";
+  return formatNgn(num, { decimals: true });
 }
 
 export function getSubscriptionStatusBadgeVariant(

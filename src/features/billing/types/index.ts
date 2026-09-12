@@ -105,3 +105,17 @@ export interface CancelSubscriptionPayload {
   reason?: CancellationReason;
   note?: string;
 }
+
+export interface SubscribeResponse {
+  subscription: { id: string; status: string; isTrial: boolean };
+  paymentUrl: string | null;
+  reference: string | null;
+  accessCode?: string;
+}
+
+export interface ChangePlanResponse {
+  subscription: { id: string; status: string };
+  paymentUrl: string | null;
+  reference: string | null;
+  accessCode?: string;
+}

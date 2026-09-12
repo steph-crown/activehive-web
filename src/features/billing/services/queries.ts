@@ -6,6 +6,8 @@ import type {
   MySubscriptionResponse,
   ChangePlanPayload,
   CancelSubscriptionPayload,
+  SubscribeResponse,
+  ChangePlanResponse,
 } from "../types";
 import { useSubscriptionStore } from "@/store";
 
@@ -50,30 +52,28 @@ export const useGymOwnerPlansQuery = () =>
 
 export const useSubscribeMutation = () => {
   const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({
-      planId,
-      promoCode,
-    }: {
-      planId: string;
-      promoCode?: string;
-    }) => billingApi.subscribe(planId, promoCode),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: billingQueryKeys.mySubscription(),
-      });
+  return useMutation<SubscribeResponse, Error, { planId: string; promoCode?: string }>({
+    mutationFn: ({ planId, promoCode }) => billingApi.subscribe(planId, promoCode),
+    onSuccess: (data) => {
+      if (!data.paymentUrl) {
+        void queryClient.invalidateQueries({
+          queryKey: billingQueryKeys.mySubscription(),
+        });
+      }
     },
   });
 };
 
 export const useChangePlanMutation = () => {
   const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (payload: ChangePlanPayload) => billingApi.changePlan(payload),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: billingQueryKeys.mySubscription(),
-      });
+  return useMutation<ChangePlanResponse, Error, ChangePlanPayload>({
+    mutationFn: (payload) => billingApi.changePlan(payload),
+    onSuccess: (data) => {
+      if (!data.paymentUrl) {
+        void queryClient.invalidateQueries({
+          queryKey: billingQueryKeys.mySubscription(),
+        });
+      }
     },
   });
 };

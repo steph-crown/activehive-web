@@ -4,6 +4,8 @@ import type {
   MySubscriptionResponse,
   ChangePlanPayload,
   CancelSubscriptionPayload,
+  SubscribeResponse,
+  ChangePlanResponse,
 } from "../types";
 
 const subscriptionsBasePath = "/api/subscriptions";
@@ -21,14 +23,14 @@ export const billingApi = {
       `${gymOwnerRegistrationBasePath}/subscription-plans`,
     ),
 
-  subscribe: (planId: string, promoCode?: string): Promise<unknown> =>
-    apiClient.post<unknown>(`${adminSubscriptionPlansPath}/subscribe`, {
+  subscribe: (planId: string, promoCode?: string): Promise<SubscribeResponse> =>
+    apiClient.post<SubscribeResponse>(`${adminSubscriptionPlansPath}/subscribe`, {
       planId,
       ...(promoCode ? { promoCode } : {}),
     }),
 
-  changePlan: (payload: ChangePlanPayload): Promise<unknown> =>
-    apiClient.post<unknown>(
+  changePlan: (payload: ChangePlanPayload): Promise<ChangePlanResponse> =>
+    apiClient.post<ChangePlanResponse>(
       `${adminSubscriptionPlansPath}/change-plan`,
       payload,
     ),

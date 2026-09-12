@@ -312,20 +312,37 @@ export const SubscriptionPlanModal: FC<
   const handleChoosePlan = async (plan: GymOwnerSubscriptionPlan) => {
     setSelectingPlanId(plan.id);
     try {
+      let paymentUrl: string | null = null;
+
       if (subscription?.subscription?.id) {
-        await changePlan({ newPlanId: plan.id });
-        showSuccess("Plan updated", "Your subscription plan has been updated.");
+        const result = await changePlan({ newPlanId: plan.id });
+        paymentUrl = result.paymentUrl;
       } else {
-        await subscribe({ planId: plan.id });
+        const result = await subscribe({ planId: plan.id });
+        paymentUrl = result.paymentUrl;
+      }
+
+      if (paymentUrl) {
+        // Requires payment — redirect to Paystack checkout.
+        // The subscription is PENDING until the payment verifies.
+        onOpenChange(false);
+        window.location.href = paymentUrl;
+        return;
+      }
+
+      // No payment needed (trial start or downgrade) — show success.
+      onOpenChange(false);
+      if (!subscription?.subscription?.id) {
         const trialDays = plan.trialDays ?? 0;
         showSuccess(
           "Subscribed",
           trialDays > 0
             ? `Your ${trialDays}-day free trial has started.`
-            : "Your subscription is now active.",
+            : "You are now subscribed.",
         );
+      } else {
+        showSuccess("Plan updated", "Your subscription plan has been updated.");
       }
-      onOpenChange(false);
     } catch (err) {
       showError("Error", getApiErrorMessage(err, "Failed to update subscription plan."));
     } finally {
@@ -336,7 +353,10 @@ export const SubscriptionPlanModal: FC<
   const isSwitchInFlight =
     isSubscribePending || isChangePending || selectingPlanId !== null;
 
-  const currentPlanLabel = subscription?.subscription?.plan ?? "Free Trial";
+  const currentPlanLabel =
+    subscription?.subscription?.platformPlan?.name ??
+    subscription?.subscription?.plan ??
+    "Free Trial";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

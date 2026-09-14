@@ -4,6 +4,7 @@ import axios, {
   type AxiosResponse,
   type InternalAxiosRequestConfig,
 } from "axios";
+import { useAuthStore } from "@/store/auth.store";
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -31,7 +32,8 @@ axiosInstance.interceptors.response.use(
 
 const handleApiErrorResponse = (error: AxiosError) => {
   if (error.response?.status === 401) {
-    window.localStorage.removeItem("activehive_token");
+    useAuthStore.getState().logout();
+    window.location.href = "/login";
   }
   return Promise.reject(error);
 };

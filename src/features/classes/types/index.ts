@@ -85,7 +85,21 @@ export type Class = {
     firstName: string;
     lastName: string;
   } | null;
+  /** Plans whose members can book this class (returned on create/detail). */
+  membershipPlans?: { id: string; name: string }[];
+  plans?: ClassPlan[];
   schedules?: ClassSchedule[];
+};
+
+export type ClassPlan = {
+  id: string;
+  name: string;
+  price: number;
+  duration: string;
+  isActive: boolean;
+  isAvailable: boolean;
+  locationId: string | null;
+  restrictions: unknown | null;
 };
 
 export type ClassTemplate = {
@@ -109,6 +123,7 @@ export type CreateClassPayload = {
   locationId?: string;
   trainerId?: string;
   schedules: ClassScheduleInput[];
+  membershipPlanIds?: string[];
   category: string;
   difficulty: string;
   duration: number;
@@ -121,6 +136,7 @@ export type UpdateClassPayload = {
   capacity?: number;
   trainerId?: string;
   schedules?: ClassScheduleInput[];
+  membershipPlanIds?: string[];
   category?: string;
   difficulty?: string;
   duration?: number;

@@ -16,8 +16,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/ui/date-picker";
 import { TimePicker } from "@/components/ui/time-picker";
+import { MultiSelect } from "@/components/ui/multi-select";
 import {
   Select,
   SelectContent,
@@ -32,6 +34,7 @@ import * as yup from "yup";
 import { useCreateClassMutation } from "../services";
 import { useLocationsQuery } from "@/features/locations/services";
 import { useTrainersQuery } from "@/features/trainers/services";
+import { useMembershipPlansQuery } from "@/features/membership-plans/services";
 import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 import * as React from "react";
@@ -105,6 +108,7 @@ const createClassSchema = yup.object({
     )
     .min(1, "At least one schedule is required")
     .required(),
+  membershipPlanIds: yup.array().of(yup.string().required()).default([]),
   category: yup.string().required("Category is required"),
   difficulty: yup.string().required("Difficulty is required"),
   duration: yup.number().min(1, "Duration must be at least 1").required(),
@@ -147,6 +151,7 @@ export function CreateClassModal({
       capacity: 20,
       locationId: undefined,
       trainerId: undefined,
+      membershipPlanIds: [],
       schedules: [
         {
           date: "",
@@ -176,6 +181,35 @@ export function CreateClassModal({
     name: "locationId",
   });
 
+  const { data: membershipPlans = [], isLoading: plansLoading } =
+    useMembershipPlansQuery();
+
+  // A plan tied to a location can only book classes at that location, so only
+  // offer plans that fit the selected location (or all plans at gym level).
+  const selectablePlans = React.useMemo(
+    () =>
+      membershipPlans.filter(
+        (p) =>
+          p.isActive &&
+          (!watchedLocationId ||
+            watchedLocationId === "none" ||
+            !p.locationId ||
+            p.locationId === watchedLocationId),
+      ),
+    [membershipPlans, watchedLocationId],
+  );
+
+  const planOptions = React.useMemo(
+    () =>
+      selectablePlans.map((p) => ({
+        value: p.id,
+        label: p.location?.locationName
+          ? `${p.name} (${p.location.locationName})`
+          : p.name,
+      })),
+    [selectablePlans],
+  );
+
   const { data: trainers = [], isLoading: trainersLoading } = useTrainersQuery(
     watchedLocationId ? { locationId: watchedLocationId } : {},
     { enabled: open },
@@ -190,9 +224,16 @@ export function CreateClassModal({
     const prev = prevLocationId.current;
     if (prev !== undefined && prev !== watchedLocationId) {
       form.setValue("trainerId", undefined);
+      const validPlanIds = new Set(selectablePlans.map((p) => p.id));
+      form.setValue(
+        "membershipPlanIds",
+        (form.getValues("membershipPlanIds") ?? []).filter((id) =>
+          validPlanIds.has(id),
+        ),
+      );
     }
     prevLocationId.current = watchedLocationId;
-  }, [open, watchedLocationId, form]);
+  }, [open, watchedLocationId, selectablePlans, form]);
 
   const addMinutesToTime = (time: string, minutesToAdd: number) => {
     const [hoursRaw, minutesRaw] = time.split(":");
@@ -235,6 +276,7 @@ export function CreateClassModal({
           data.locationId === "none" ? undefined : data.locationId || undefined,
         trainerId:
           data.trainerId === "none" ? undefined : data.trainerId || undefined,
+        membershipPlanIds: data.membershipPlanIds ?? [],
         description: data.description || undefined,
       };
       await createClass(payload);
@@ -245,6 +287,7 @@ export function CreateClassModal({
         capacity: 20,
         locationId: undefined,
         trainerId: undefined,
+        membershipPlanIds: [],
         schedules: [
           {
             date: "",
@@ -282,7 +325,7 @@ export function CreateClassModal({
   const difficulties = ["Beginner", "Intermediate", "Advanced", "All Levels"];
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create Class</DialogTitle>
           <DialogDescription>
@@ -315,7 +358,8 @@ export function CreateClassModal({
                 <FormItem>
                   <FormLabel>Description (Optional)</FormLabel>
                   <FormControl>
-                    <Input
+                    <Textarea
+                      rows={3}
                       placeholder="A relaxing morning yoga session"
                       {...field}
                       value={field.value || ""}
@@ -491,6 +535,32 @@ export function CreateClassModal({
               />
             </div>
 
+            <FormField
+              control={form.control}
+              name="membershipPlanIds"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Membership Plans (Optional)</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={planOptions}
+                      value={field.value ?? []}
+                      onValueChange={field.onChange}
+                      loading={plansLoading}
+                      placeholder="Select plans that can book this class"
+                      emptyMessage="No membership plans available"
+                      multipleSelectedText="plans selected"
+                    />
+                  </FormControl>
+                  <p className="text-sm text-muted-foreground">
+                    Members on the selected plans will be able to book this
+                    class.
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div>
               <div className="flex items-center justify-between mb-2">
                 <FormLabel>Schedules *</FormLabel>
@@ -563,15 +633,15 @@ export function CreateClassModal({
                       </FormItem>
                     )}
                   />
-                  <Button
+                  <button
                     type="button"
-                    variant="destructive"
-                    size="icon"
                     onClick={() => remove(index)}
                     disabled={fields.length === 1}
+                    aria-label="Remove schedule"
+                    className="mt-6 flex h-10 items-center justify-center text-muted-foreground transition-colors hover:text-destructive disabled:pointer-events-none disabled:opacity-50"
                   >
                     <IconTrash className="h-4 w-4" />
-                  </Button>
+                  </button>
                 </div>
               ))}
             </div>
@@ -588,6 +658,7 @@ export function CreateClassModal({
                     capacity: 20,
                     locationId: undefined,
                     trainerId: undefined,
+                    membershipPlanIds: [],
                     schedules: [
                       {
                         date: "",

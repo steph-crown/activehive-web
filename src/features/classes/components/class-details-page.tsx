@@ -146,7 +146,51 @@ function ClassDetailsCards({ classItem }: { classItem: Class }) {
       </Card>
 
       <SchedulesCard classItem={classItem} />
+      {(classItem.plans ?? []).length > 0 && (
+        <div className="lg:col-span-2">
+          <PlansCard classItem={classItem} />
+        </div>
+      )}
     </div>
+  );
+}
+
+function PlansCard({ classItem }: { classItem: Class }) {
+  const plans = classItem.plans ?? [];
+  return (
+    <Card className="rounded-md border-[#F4F4F4] bg-white p-6 shadow-none">
+      <h2 className="text-xl font-semibold">Plans</h2>
+      <p className="text-muted-foreground text-xs">
+        Membership plans that include access to this class.
+      </p>
+      <div className="space-y-2">
+        {plans.length === 0 ? (
+          <p className="text-muted-foreground text-sm">No plans linked to this class.</p>
+        ) : (
+          plans.map((plan) => (
+            <div
+              key={plan.id}
+              className="flex flex-col gap-2 rounded-md border border-[#F4F4F4] p-3 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div>
+                <p className="text-sm font-medium">{plan.name}</p>
+                <p className="text-muted-foreground text-xs capitalize">
+                  {plan.duration} · {formatNgn(plan.price)}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant={plan.isActive ? "default" : "secondary"}>
+                  {plan.isActive ? "Active" : "Inactive"}
+                </Badge>
+                {!plan.isAvailable && (
+                  <Badge variant="outline">Unavailable</Badge>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </Card>
   );
 }
 

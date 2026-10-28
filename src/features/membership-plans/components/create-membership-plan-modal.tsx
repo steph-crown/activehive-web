@@ -143,7 +143,10 @@ export function CreateMembershipPlanModal({
       form.reset();
       onOpenChange(false);
     } catch (error) {
-      showError("Error", getApiErrorMessage(error, "Failed to create membership plan"));
+      showError(
+        "Error",
+        getApiErrorMessage(error, "Failed to create membership plan"),
+      );
     }
   };
 
@@ -362,7 +365,10 @@ export function CreateMembershipPlanModal({
                 <FormItem className="flex items-center justify-between rounded-md border p-3">
                   <FormLabel>Free trial</FormLabel>
                   <FormControl>
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
                   </FormControl>
                 </FormItem>
               )}
@@ -402,7 +408,10 @@ export function CreateMembershipPlanModal({
                 <FormItem className="flex items-center justify-between rounded-md border p-3">
                   <FormLabel>Active</FormLabel>
                   <FormControl>
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
                   </FormControl>
                 </FormItem>
               )}

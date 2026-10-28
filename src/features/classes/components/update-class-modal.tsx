@@ -17,8 +17,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { TimeSelect } from "@/components/ui/time-select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { MultiSelect } from "@/components/ui/multi-select";
 import {
   Select,
   SelectContent,
@@ -31,6 +33,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm, useFieldArray } from "react-hook-form";
 import * as yup from "yup";
 import { useUpdateClassMutation } from "../services";
+import { useMembershipPlansQuery } from "@/features/membership-plans/services";
 import { staffFullName } from "@/features/staff/lib/staff-display";
 import { useStaffQuery } from "@/features/staff/services";
 import type { Class } from "../types";
@@ -53,6 +56,7 @@ const updateClassSchema = yup.object({
       }),
     )
     .optional(),
+  membershipPlanIds: yup.array().of(yup.string().required()).default([]),
   category: yup.string().optional(),
   difficulty: yup.string().optional(),
   duration: yup.number().min(1, "Duration must be at least 1").optional(),
@@ -78,6 +82,32 @@ export function UpdateClassModal({
   const { showSuccess, showError } = useToast();
   const { mutateAsync: updateClass, isPending } = useUpdateClassMutation();
   const { data: staff } = useStaffQuery();
+  const { data: membershipPlans = [], isLoading: plansLoading } =
+    useMembershipPlansQuery();
+
+  // A plan tied to a location can only book classes at that location.
+  const selectablePlans = React.useMemo(
+    () =>
+      membershipPlans.filter(
+        (p) =>
+          p.isActive &&
+          (!classItem.locationId ||
+            !p.locationId ||
+            p.locationId === classItem.locationId),
+      ),
+    [membershipPlans, classItem.locationId],
+  );
+
+  const planOptions = React.useMemo(
+    () =>
+      selectablePlans.map((p) => ({
+        value: p.id,
+        label: p.location?.locationName
+          ? `${p.name} (${p.location.locationName})`
+          : p.name,
+      })),
+    [selectablePlans],
+  );
 
   const form = useForm<UpdateClassFormValues>({
     resolver: yupResolver(updateClassSchema) as any,
@@ -86,6 +116,8 @@ export function UpdateClassModal({
       description: classItem.description || "",
       capacity: classItem.capacity,
       trainerId: classItem.trainerId || "none",
+      membershipPlanIds:
+        classItem.membershipPlans?.map((p) => p.id) ?? [],
       schedules: (classItem.schedules ?? []).map((s) => ({
         date: s.date,
         startTime: s.startTime,
@@ -107,6 +139,8 @@ export function UpdateClassModal({
         description: classItem.description || "",
         capacity: classItem.capacity,
         trainerId: classItem.trainerId || "none",
+        membershipPlanIds:
+          classItem.membershipPlans?.map((p) => p.id) ?? [],
         schedules: (classItem.schedules ?? []).map((s) => ({
           date: s.date,
           startTime: s.startTime,
@@ -137,6 +171,8 @@ export function UpdateClassModal({
       if (data.trainerId !== undefined)
         payload.trainerId =
           data.trainerId === "none" ? undefined : data.trainerId || undefined;
+      if (data.membershipPlanIds !== undefined)
+        payload.membershipPlanIds = data.membershipPlanIds;
       if (data.schedules) {
         payload.schedules = data.schedules.map((s) => ({
           date: s.date,
@@ -179,7 +215,7 @@ export function UpdateClassModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Update Class</DialogTitle>
           <DialogDescription>
@@ -212,7 +248,8 @@ export function UpdateClassModal({
                 <FormItem>
                   <FormLabel>Description (Optional)</FormLabel>
                   <FormControl>
-                    <Input
+                    <Textarea
+                      rows={3}
                       placeholder="A relaxing morning yoga session"
                       {...field}
                       value={field.value || ""}
@@ -350,6 +387,32 @@ export function UpdateClassModal({
 
             <FormField
               control={form.control}
+              name="membershipPlanIds"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Membership Plans (Optional)</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={planOptions}
+                      value={field.value ?? []}
+                      onValueChange={field.onChange}
+                      loading={plansLoading}
+                      placeholder="Select plans that can book this class"
+                      emptyMessage="No membership plans available"
+                      multipleSelectedText="plans selected"
+                    />
+                  </FormControl>
+                  <p className="text-sm text-muted-foreground">
+                    Members on the selected plans will be able to book this
+                    class.
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="isActive"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-start space-x-3 space-y-0">
@@ -392,7 +455,7 @@ export function UpdateClassModal({
               {fields.map((field, index) => (
                 <div
                   key={field.id}
-                  className="grid items-start grid-cols-4 gap-2 mb-2 items-end"
+                  className="mb-2 grid grid-cols-4 items-start gap-2"
                 >
                   <FormField
                     control={form.control}
@@ -439,15 +502,15 @@ export function UpdateClassModal({
                       </FormItem>
                     )}
                   />
-                  <Button
+                  <button
                     type="button"
-                    variant="ghost"
-                    size="icon"
                     onClick={() => remove(index)}
                     disabled={fields.length === 1}
+                    aria-label="Remove schedule"
+                    className="mt-6 flex h-10 items-center justify-center text-muted-foreground transition-colors hover:text-destructive disabled:pointer-events-none disabled:opacity-50"
                   >
                     <IconTrash className="h-4 w-4" />
-                  </Button>
+                  </button>
                 </div>
               ))}
             </div>
